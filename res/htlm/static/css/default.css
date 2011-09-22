@@ -1,0 +1,39 @@
+@CHARSET "UTF-8";
+html, body {
+	height:100%;
+}
+body {
+	margin:0px;
+	color: #555555;
+	font-family: sans-serif;
+}
+#content:focus { 
+	outline: none; 
+}
+#content {
+	min-height:400px;
+	width:98%;
+	overflow:auto;
+	padding:10px 0 0 10px;
+	/*/border:1px solid red;/**/
+}
+.feedback {
+	position:fixed;
+	top:0px;
+	right:0px;
+	width:30px;
+	height:30px;
+	background-color: transparent;
+}
+a.icon {
+	margin-top:4px;
+	height:22px;
+	width:22px;
+	display:block;
+}
+a.icon.locked {
+	background: url("/s/images/emblem-locked.png") no-repeat scroll 0 0 transparent;
+}
+a.icon.unlocked {
+	background: url("/s/images/emblem-unlocked.png") no-repeat scroll 0 0 transparent;
+}
