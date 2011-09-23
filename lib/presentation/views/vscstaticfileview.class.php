@@ -6,7 +6,6 @@
  * @date 2011.02.21
  */
 
-//if (!class_exists('vscStaticFileView')) {
 class vscStaticFileView extends vscPlainTextView {
 	public function getMTime () {
 		return $this->getModel()->getMTime();
@@ -18,4 +17,3 @@ class vscStaticFileView extends vscPlainTextView {
 		return $oModel->getFileContent();
 	}
 }
-//}

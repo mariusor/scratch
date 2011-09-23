@@ -31,8 +31,8 @@ class vscStaticFileController extends vscPlainTextController {
 		}
 
 		// if the last modified date + max-age is lower than the current date we need to extend it with one more day
-		if ($iNow > $iExpireTime + $this->getView()->getMTime()) {
-			$iExpireTime += $iNow - $this->getView()->getMTime();
+		if ($iNow > $iExpireTime + $this->getMTime()) {
+			$iExpireTime += $iNow - $this->getMTime();
 		}
 
 		$oResponse->setCacheControl ('max-age='. $iExpireTime . ', must-revalidate');

@@ -20,7 +20,7 @@
 $this->getCurrentModuleMap()->setMainTemplatePath(VSC_RES_PATH . 'templates');
 $this->getCurrentModuleMap()->setMainTemplate('main.php');
 
-$oMap = $this->map ('', LOCAL_RES_PATH . 'htlm/config/map.php');
+$oMap = $this->map ('', LOCAL_RES_PATH . 'littr/config/map.php');
 
 // 404 controller
 $oMap = $this->map ('(.+)\Z', VSC_RES_PATH . 'application/processors/vscerrorprocessor.class.php');
