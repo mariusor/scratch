@@ -5,31 +5,53 @@ $(document).ready( function() {
 	var a = $("<a/>").addClass('icon').appendTo (feedBack).hide();
 
 	var authToken = null;
-
-	function blinkError (message) {
-		var err = $('a.icon.error');
-		if (err.length == 0) {
-			var err = $('<a/>').addClass('icon');
-			err.insertAfter (a);
+	var unsavedChanges = false;
+	
+	checkForSecrets ();
+	
+	editable.fresheditor().keyup (function (e) {
+		if (isSaveKey (e) && unsavedChanges) {
+			editable.fresheditor('save', function (id, content) {
+				var postData = {
+					'action' : 'save',
+					'content' : content,
+					'auth_token' : authToken
+				};
+				$.ajax({
+					url: '/s/',
+					dataType: 'json',
+					type: 'post',
+					data: postData,
+					success : function (responseData) {
+						if (responseData.status != 'ok') {
+							console.debug ('Err: ' + responseData.message);
+						} else {
+							unsavedChanges = false;
+						}
+					}
+				});
+			});
 		}
-		var keepClasses = ['icon'];
-		var allClasses = err.prop('class').split(/\s+/);
-		var oldClasses = []; 
+	});
+	
+	$('.feedback').mouseenter(function(e){
+		$(this).children('a').fadeIn('slow');
+	}).mouseleave(function (e) {
+		$(this).children('a').fadeOut('slow');
+	});
+	
+	a.click (function (e) {
+		var message = 'Please enter the secret key for this page.';
+		var key = prompt (message, '');
 		
-		for (var i = 0 ; i < allClasses.length ; i++ ) {
-			var currClass = allClasses[i]; 
-			if (keepClasses.indexOf (currClass) == -1) {
-				oldClasses.push (currClass);
-				err.removeClass (currClass);
+		if (key != null) {
+			if ($(this).hasClass('unlocked')) {
+				checkForSecrets(key, 'update');
+			} else {
+				checkForSecrets(key, 'check');
 			}
-		}
-				
-		err.addClass ("error").prop("title", message).fadeIn(200).fadeOut(200).fadeIn(400).fadeOut(3000);
-		
-		for (var i = 0; i < oldClasses.length ; i++ ) {
-			err.addClass(oldClasses[i]);
-		}
-	}
+		}		
+	});
 	
 	function checkForSecrets (key, action) {
 		var postData = {};
@@ -56,48 +78,75 @@ $(document).ready( function() {
 			success : function (data) {
 				if (data.status == 'ko') {
 					// show lock icon
-					a.addClass ('locked').blink({
-						speed: 'slow',
-						times: 2
-					});
-					editable.stopEditing();
+					a.addClass ('locked').fadeIn('slow').fadeOut('slow');
+					editable.fresheditor("edit", false);
 				} else {
 					// show unlocked
-					a.addClass ('unlocked').blink('slow');
-					editable.startEditing();
+					a.addClass ('unlocked').fadeIn('slow').fadeOut('slow');
+					editable.fresheditor("edit", true);
 					authToken = data.auth_token;
-					$('a.error').detach();
 				}
 			}
 		});
 	}
+	
+	function isSaveKey (e) {
+		var moveKeys = [33,34,35, 36, 37,38,39,40]; // pg-down, pg-up, end, home, left, up, right, down 
+		var singleKeys = [8,9,13,32,46,190]; // bksp, cr, space, tab, del, "." ,
+		var ctrlKeys = [27, 83, 90]; // ctrl-v, ctrl-s, ctrl-z
+		var shiftKeys = [16]; // shift-insert
 
-	$('.feedback').mouseenter(function(e){
-		$(this).children('a').fadeIn('slow');
-	}).mouseleave(function (e) {
-		$(this).children('a').fadeOut('slow');
-	});
-
-	checkForSecrets ();
-
-	a.click (function (e) {
-		var message = 'Please enter the secret key for this page.';
-		var key = prompt (message, '');
-		console.debug (key);
-
-		if (key != null) {
-			if ($(this).hasClass('unlocked')) {
-				checkForSecrets(key, 'update');
-			} else {
-				checkForSecrets(key, 'check');
-			}
-			if ($(this).hasClass('locked')) {
-				blinkError('Wrong key entered.');
-			}
-		}		
+		if (moveKeys.indexOf (e.keyCode) == -1) {
+			unsavedChanges = true;
+		}
 		
-	});
+		if (e.ctrlKey) {
+			if (ctrlKeys.indexOf (e.keyCode) != -1 || moveKeys.indexOf(e.keyCode)) {
+				return true
+			}
+		}
+		
+		if (e.shiftKey) {
+			if (shiftKeys.indexOf (e.keyCode) != -1)  { 
+				return true;
+			}
+		}
+		
+		if (singleKeys.indexOf (e.keyCode) != -1 || moveKeys.indexOf (e.keyCode) != -1) {
+			return true;
+		}
+		
+		
+		return false;
+	}
 
+	/*/
+	function blinkError (message) {
+		var err = $('a.icon.error');
+		if (err.length == 0) {
+			var err = $('<a/>').addClass('icon');
+			err.insertAfter (a);
+		}
+		var keepClasses = ['icon'];
+		var allClasses = err.prop('class').split(/\s+/);
+		var oldClasses = []; 
+		
+		for (var i = 0 ; i < allClasses.length ; i++ ) {
+			var currClass = allClasses[i]; 
+			if (keepClasses.indexOf (currClass) == -1) {
+				oldClasses.push (currClass);
+				err.removeClass (currClass);
+			}
+		}
+		
+		err.addClass ("error").prop("title", message).fadeIn(200).fadeOut(200).fadeIn(400).fadeOut(3000);
+		
+		for (var i = 0; i < oldClasses.length ; i++ ) {
+			err.addClass(oldClasses[i]);
+		}
+	}
+	/**/
+	/*/
 	editable
 		.startEditing()
 		.keyup(function(e) {
@@ -131,4 +180,5 @@ $(document).ready( function() {
 				console.debug (e.keyCode);
 			}
 		});
+	/**/
 });

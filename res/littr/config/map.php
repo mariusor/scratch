@@ -4,7 +4,7 @@ $oModuleMap = $this->getCurrentModuleMap();
 $sCurPath = $oModuleMap->getModulePath();
 
 // static files
-$oMap = $this->map ('default.css', $sCurPath . 'static/css/default.css');
+// $oMap = $this->map ('default.css', $sCurPath . 'static/css/default.css');
 if (vsc::getEnv()->isDevelopment()) {
 	$oMap = $this->map ('default.js', $sCurPath . 'static/js/default.js');
 	$oMap = $this->map ('jquery.editable.js', $sCurPath . 'static/js/jquery.editable.js');
@@ -15,12 +15,13 @@ if (vsc::getEnv()->isDevelopment()) {
 // main components
 $oModuleMap->setTemplatePath ($sCurPath . 'templates');
 $oModuleMap->addScript('https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js');
-$oModuleMap->addStyle('/default.css');
+$oModuleMap->addStyle('/s/css/default.css');
+$oModuleMap->addStyle('/s/css/jquery.contenteditable.css');
 $oModuleMap->addScript('/jquery.editable.js');
 $oModuleMap->addScript('/default.js');
 
-$oCssMap = $oModuleMap->mapController ('.*\.css\Z' , LOCAL_LIB_PATH . 'application/controllers/vsccacheablecontroller.class.php');
-$oCssMap->setView(VSC_RES_PATH . 'presentation/views/vsccssview.class.php');
+// $oCssMap = $oModuleMap->mapController ('.*\.css\Z' , LOCAL_LIB_PATH . 'application/controllers/vsccacheablecontroller.class.php');
+// $oCssMap->setView(VSC_RES_PATH . 'presentation/views/vsccssview.class.php');
 
 $oJsMap = $oModuleMap->mapController ('.*\.js\Z' , LOCAL_LIB_PATH . 'application/controllers/vsccacheablecontroller.class.php');
 $oJsMap->setView(VSC_RES_PATH . 'presentation/views/vscjsview.class.php');
