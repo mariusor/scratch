@@ -107,7 +107,7 @@ class contentTable extends vscModelA {
 	public function updateSecret ($sUri, $sKey) {
 		if ($this->getOne($sUri) instanceof mysqli_result) {
 			$query = 'update content set secret = :secret where uri = :uri';
-			if ($sKey !== '') {
+			if (!is_null($sKey)) {
 				$oCrypt = new mmCrypter();
 				$sKey = $oCrypt->hash($sKey);
 			} else {
@@ -139,14 +139,62 @@ class contentTable extends vscModelA {
 		return mmCrypter::check ('#' . $aResult['secret'] . '#' . $sUri . '#', $sToken);
 	}
 
-	public function saveData () {
-		$query = 'insert into content set uri = :uri, data = :data, creation = :creation on duplicate key update data = :data';
+	public function updateDataChunked () {
+		// split the data into manageable chunks
+		$sUpdateSql = 'update content set data = CONCAT(`data`, :data) where uri = :uri';
+		$sTempData = $this->data;
+
+		$sUri = $this->uri;
+		do {
+			$sChunk = substr($sTempData, 0, 4095);
+			$sTempData = substr($sTempData, 4096);
+
+			$aParams = array(
+				'uri' => $sUri,
+				'data' => $sChunk,
+			);
+
+			$bReturn = $this->connection->query($sUpdateSql, $aParams);
+		} while (strlen ($sTempData) >= 4096);
+
+		return $bReturn;
+	}
+
+	public function updateData () {
+		$sUpdateSql = 'update content set data = :data, creation = :creation where uri = :uri';
 
 		$aParams = array(
 			'uri' => $this->uri,
 			'data' => $this->data,
 			'creation' => $this->creation
 		);
-		return $this->connection->query($query, $aParams);
+
+		return $this->connection->query($sUpdateSql, $aParams);
+	}
+
+	public function insertData () {
+		$sInsertSql = 'insert into content set uri = :uri, data = :data';
+
+		$aParams = array(
+			'uri' => $this->uri,
+			'data' => $this->data,
+		);
+
+		return $this->connection->query($sInsertSql, $aParams);
+	}
+
+	public function uriExists ($sUri) {
+		$sCheckUriSql = 'select count(uri) as count from content where uri = :uri';
+		$aResult = $this->connection->query($sCheckUriSql, array ('uri' => $sUri))->fetch_array(MYSQLI_ASSOC);
+
+		return ($aResult['count'] > 0);
+	}
+
+	public function saveData () {
+		if ($this->uriExists($this->uri)) {
+			return $this->updateData();
+		} else {
+			return $this->insertData();
+		}
 	}
 }

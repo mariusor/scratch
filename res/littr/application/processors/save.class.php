@@ -23,28 +23,46 @@ class save extends vscProcessorA {
 				$oUri->setUrl($sIncomingUri);
 			}
 
-			$saveObject->setUri($oUri->getPath());
-			$saveObject->setData($oHttpRequest->getVar('content'));
+			$sContent = $oHttpRequest->getVar('content');
+			$sUri = $oUri->getPath();
+
+			if (strlen($sUri) >= 254) {
+				$sUri = substr ($sUri, 0, 254) . '/';
+			}
+
+			$saveObject->setUri($sUri);
+			$saveObject->setData($sContent);
 
 			try {
 				if (!$saveObject->hasSecret($oUri->getPath()) || $saveObject->checkToken ($oUri->getPath(), $oHttpRequest->getVar('auth_token'))) {
 					if ($saveObject->saveData ()) {
 						$oModel->status = 'ok';
 					} else {
-						$oModel->status = 'nok';
-						$oModel->message = $saveObject->getConnection()->getError();
+						$oModel->status = 'ko';
+						if (vsc::getEnv()->isDevelopment()) {
+							$oModel->message = $saveObject->getConnection()->getError();
+						} else {
+							$oModel->message = 'persistence layer error';
+						}
 					}
 				} else {
-					$oModel->status = 'nok';
-					$oModel->message = 'You need to provide the correct key in order to save';
+					$oModel->status = 'ko';
+					$oModel->message = 'secret key needed';
 				}
 			} catch (vscException $e) {
-				$oModel->status = 'nok';
-				$oModel->message = $e->getMessage();
+				$oModel->status = 'ko';
+				if (vsc::getEnv()->isDevelopment()) {
+					$oModel->message = $e->getMessage();
+				} else {
+					$oModel->message = 'exception triggered';
+				}
 			}
 		} else {
-			$oModel->status = 'nok';
+			$oModel->status = 'ko';
+			$oModel->message = 'invalid request type';
 		}
+		$oModel->status = 'ko';
+		$oModel->message = 'Test 123!';
 		return $oModel;
 	}
 }

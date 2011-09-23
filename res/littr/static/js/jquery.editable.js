@@ -50,6 +50,13 @@
 		});
 	};
 
+	$.fn.blink = function (options) {
+		$(this).each(function (e) {
+			$(this).fadeIn(options).fadeOut(options);
+		});
+		return $(this);
+	};
+	
 	$.getSelected = function(){
 		var t = '';
 		if(window.getSelection){

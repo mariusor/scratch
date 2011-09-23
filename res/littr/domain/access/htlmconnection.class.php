@@ -8,7 +8,7 @@ class htlmConnection {
 	private $connection;
 
 	public function getErrorCode () {
-		if (!is_null($this->connection->connect_errno)) {
+		if (!is_null($this->connection->connect_error)) {
 			return $this->connection->connect_errno;
 		} else {
 			return $this->connection->errno;
@@ -16,7 +16,7 @@ class htlmConnection {
 	}
 
 	public function getError () {
-		if (!is_null($this->connection->connect_errno)) {
+		if (!is_null($this->connection->connect_error)) {
 			return $this->connection->connect_error;
 		} else {
 			return $this->connection->error;
@@ -54,6 +54,12 @@ class htlmConnection {
 		}
 	}
 
+	/**
+	 * Enter description here ...
+	 * @param string $sSql
+	 * @param array $aParams
+	 * @return mysqli_result
+	 */
 	public function query ($sSql, $aParams = null) {
 		if (is_array($aParams)) {
 			$iAnonParamCount = substr_count($sSql, '?');
@@ -70,8 +76,11 @@ class htlmConnection {
 				$aReplace[$iKey] = $aNamedParams[0][$iKey];
 				$aValues[$iKey] = $this->escape($aParams[$sKey]);
 			}
+			$sSql = str_replace($aReplace, $aValues, $sSql);
 		}
-		$sSql = str_replace($aReplace, $aValues, $sSql);
+		if (stristr ($sSql, 'update')) {
+// 			d ($aParams,$sSql);
+		}
 
 		return $this->connection->query($sSql);
 	}
