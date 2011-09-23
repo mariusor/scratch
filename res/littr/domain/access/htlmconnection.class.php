@@ -1,9 +1,9 @@
 <?php
 class htlmConnection {
-	const SERVER = 'localhost';
-	const USER = 'root';
-	const PASSWORD = 'asd';
-	const DATABASE = 'htlm';
+	const SERVER = DB_HOST;
+	const USER = DB_USER;
+	const PASSWORD = DB_PASS;
+	const DATABASE = DB_NAME;
 
 	private $connection;
 
