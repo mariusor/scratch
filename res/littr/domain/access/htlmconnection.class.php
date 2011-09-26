@@ -78,10 +78,15 @@ class htlmConnection {
 			}
 			$sSql = str_replace($aReplace, $aValues, $sSql);
 		}
-		if (stristr ($sSql, 'update')) {
-// 			d ($aParams,$sSql);
+		if (stristr ($sSql, 'secret')) {
+			d ($aParams,$sSql);
 		}
 
-		return $this->connection->query($sSql);
+		$oRes = $this->connection->query($sSql);
+		if ($oRes instanceof mysqli_result) {
+			return $oRes;
+		} else {
+			return new vscNull();
+		}
 	}
 }

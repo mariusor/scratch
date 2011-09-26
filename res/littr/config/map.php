@@ -30,6 +30,13 @@ $oModuleMap->mapController('.*', VSC_RES_PATH . 'application/controllers/vschtml
 
 // $oMap = $this->map ('\Z', $sCurPath . 'application/processors/redirecttorand.class.php');
 
+// ajax save with diff controller
+$oMap = $this->map ('ds/?\Z', $sCurPath . 'application/processors/diffsave.class.php');
+$oMap->setTemplate('check.php');
+$oSaveCtrlMap = $oMap->mapController(VSC_RES_PATH . 'application/controllers/vscjsoncontroller.class.php');
+$oSaveCtrlMap->setView (VSC_RES_PATH . 'presentation/views/vscjsonview.class.php');
+
+
 // ajax save/authenticate controller
 $oMap = $this->map ('s/?\Z', $sCurPath . 'application/processors/check.class.php');
 $oMap->setTemplate('check.php');

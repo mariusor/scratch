@@ -530,6 +530,7 @@ Sanitize.prototype.clean_node = function (container) {
 		edit: function (isEditing) {
 			return this.each(function () {
 				$(this).attr("contentEditable", (isEditing === true) ? true : false);
+				document.execCommand("styleWithCSS", false, null);
 			});
 		},
 		bold: function () {
@@ -689,7 +690,6 @@ Sanitize.prototype.clean_node = function (container) {
 			return methods.init.apply(this, arguments);
 		} else {
 			$.error('Method ' + method + ' does not exist on jQuery.contentEditable');
-			console.debug (method);
 		}
 
 		return;

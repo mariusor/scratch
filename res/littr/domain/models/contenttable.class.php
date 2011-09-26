@@ -50,7 +50,7 @@ class contentTable extends vscModelA {
 		try {
 			$aResult = $this->getOne($sUri)->fetch_assoc();
 			return !is_null($aResult['secret']);
-		} catch (ErrorException $e) {
+		} catch (vscException $e) {
 			return false;
 		}
 		return false;
@@ -59,7 +59,7 @@ class contentTable extends vscModelA {
 	public function getAuthenticationToken ($sUri, $sKey = null) {
 		try {
 			$aResult = $this->getOne($sUri)->fetch_assoc();
-		} catch (ErrorException $e) {
+		} catch (vscException $e) {
 			$aResult = array('secret' => null);
 		}
 
@@ -78,7 +78,6 @@ class contentTable extends vscModelA {
 	public function getOne ($sUri) {
 		$query = 'select * from content where uri = :uri';
 
-		/* @var $oResult MySQLi_Result */
 		return $this->connection->query($query, array('uri' => $sUri));
 	}
 
