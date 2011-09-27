@@ -5,12 +5,16 @@ $(document).ready( function() {
 	var a = $("<a/>").addClass('icon').appendTo (feedBack).hide();
 
 	var authToken = null;
-	var unsavedChanges = false;
-	
+	var previousContent = editable.html();
+	var bStillSaving = false;
+
 	checkForSecrets ();
 	
-	editable.fresheditor().keyup (function (e) {
-		if (isSaveKey (e) && unsavedChanges) {
+	editable.fresheditor();
+	var id = setInterval(function () {
+//		console.debug ("saving : " + (bStillSaving ? 'yes' : 'no'));
+//		console.debug ("changes: " + (unsavedChanges ? 'yes' : 'no'));
+		if ( !bStillSaving && unsavedChanges(editable.html())) {
 			editable.fresheditor('save', function (id, content) {
 				var postData = {
 					'action' : 'save',
@@ -18,21 +22,27 @@ $(document).ready( function() {
 					'auth_token' : authToken
 				};
 				$.ajax({
-					url: '/s/',
+					url: '/',
 					dataType: 'json',
 					type: 'post',
 					data: postData,
+					beforeSend : function () {
+						bStillSaving = true;
+					},
 					success : function (responseData) {
 						if (responseData.status != 'ok') {
 							console.debug ('Err: ' + responseData.message);
 						} else {
-							unsavedChanges = false;
+							previousContent = postData.content;
 						}
+					},
+					complete : function (data, status) {
+						bStillSaving = false;
 					}
 				});
 			});
 		}
-	});
+	},5000);
 	
 	$('.feedback').mouseenter(function(e){
 		$(this).children('a').fadeIn('slow');
@@ -71,7 +81,7 @@ $(document).ready( function() {
 		}
 
 		$.ajax({
-			url: '/s/',
+			url: '/',
 			dataType: 'json',
 			type: 'post',
 			data: postData,
@@ -89,7 +99,12 @@ $(document).ready( function() {
 			}
 		});
 	}
-	
+	function unsavedChanges (text) {
+		return text != previousContent;
+	}
+/*/		function unsavedChanges (text) {
+	return text != previousContent;
+	}
 	function isSaveKey (e) {
 		var moveKeys = [33,34,35, 36, 37,38,39,40]; // pg-down, pg-up, end, home, left, up, right, down 
 		var singleKeys = [8,9,13,32,46,190]; // bksp, cr, space, tab, del, "." ,
@@ -116,69 +131,7 @@ $(document).ready( function() {
 			return true;
 		}
 		
-		
 		return false;
 	}
-
-	/*/
-	function blinkError (message) {
-		var err = $('a.icon.error');
-		if (err.length == 0) {
-			var err = $('<a/>').addClass('icon');
-			err.insertAfter (a);
-		}
-		var keepClasses = ['icon'];
-		var allClasses = err.prop('class').split(/\s+/);
-		var oldClasses = []; 
-		
-		for (var i = 0 ; i < allClasses.length ; i++ ) {
-			var currClass = allClasses[i]; 
-			if (keepClasses.indexOf (currClass) == -1) {
-				oldClasses.push (currClass);
-				err.removeClass (currClass);
-			}
-		}
-		
-		err.addClass ("error").prop("title", message).fadeIn(200).fadeOut(200).fadeIn(400).fadeOut(3000);
-		
-		for (var i = 0; i < oldClasses.length ; i++ ) {
-			err.addClass(oldClasses[i]);
-		}
-	}
-	/**/
-	/*/
-	editable
-		.startEditing()
-		.keyup(function(e) {
-			var moveCommands = [37,38,39,40]; // left, up, right, down 
-			var whiteSpaces = [8,9,13,32,46,190]; // bksp, cr, space, tab, del, "." ,
-			var ctrlKeys = [27, 83, 90]; // ctrl-v, ctrl-s, ctrl-z
-			var shiftKeys = [16]; // shift-insert
-			if (
-
-				whiteSpaces.indexOf (e.keyCode) != -1 ||
-				(e.ctrlKey &&  ctrlKeys.indexOf (e.keyCode) != -1) ||
-				(e.shiftKey &&  shiftKeys.indexOf (e.keyCode) != -1)
-			) {
-				var postData = {
-					'action' : 'save',
-					'content' : $(this).html(),
-					'auth_token' : authToken
-				};
-				$.ajax({
-					url: '/s/',
-					dataType: 'json',
-					type: 'post',
-					data: postData,
-					success : function (responseData) {
-						if (responseData.status != 'ok') {
-							blinkError (responseData.message);
-						}
-					}
-				});
-			} else {
-				console.debug (e.keyCode);
-			}
-		});
 	/**/
 });
