@@ -55,7 +55,6 @@ class htlmConnection {
 	}
 
 	/**
-	 * Enter description here ...
 	 * @param string $sSql
 	 * @param array $aParams
 	 * @return mysqli_result
@@ -77,9 +76,6 @@ class htlmConnection {
 				$aValues[$iKey] = $this->escape($aParams[$sKey]);
 			}
 			$sSql = str_replace($aReplace, $aValues, $sSql);
-		}
-		if (stristr ($sSql, 'secret')) {
-			d ($aParams,$sSql);
 		}
 
 		$oRes = $this->connection->query($sSql);
