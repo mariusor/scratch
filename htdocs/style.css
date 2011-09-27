@@ -4,7 +4,6 @@ html, body {
 }
 body {
 	margin:0px;
-	color: #555555;
 	font-family: sans-serif;
 }
 #content:focus { 
@@ -34,11 +33,11 @@ a.icon {
 	float:right;
 }
 a.icon.locked {
-	background: url("/s/images/emblem-locked.png") no-repeat scroll 0 0 transparent;
+	background: url("emblem-locked.png") no-repeat scroll 0 0 transparent;
 }
 a.icon.unlocked {
-	background: url("/s/images/emblem-unlocked.png") no-repeat scroll 0 0 transparent;
+	background: url("emblem-unlocked.png") no-repeat scroll 0 0 transparent;
 }
 a.icon.error {
-	background: url("/s/images/emblem-important.png") no-repeat scroll 0 0 transparent;
+	background: url("emblem-important.png") no-repeat scroll 0 0 transparent;
 }
