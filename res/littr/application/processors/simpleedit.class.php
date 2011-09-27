@@ -12,8 +12,10 @@ class simpleEdit extends vscProcessorA {
 			$this->aLocalVars['page'] = 'index';
 		}
 
+		$oUrl = $oHttpRequest->getUriObject();
+
 		$o = new contentTable();
-		$o->loadData ($oHttpRequest->getUri());
+		$o->loadData ($oUrl->getPath());
 
 		return $o;
 	}
