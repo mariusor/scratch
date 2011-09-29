@@ -8,6 +8,7 @@ class contentTable extends vscModelA {
 	public $data;
 	public $creation = null;
 	public $secret = null;
+	public $rand_uri;
 
 	private $connection;
 

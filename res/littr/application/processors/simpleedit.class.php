@@ -12,10 +12,16 @@ class simpleEdit extends vscProcessorA {
 			$this->aLocalVars['page'] = 'index';
 		}
 
+		$oRandUrl = new vscUrlRWParser();
+		$sStr = substr(sha1(rand (1,100)), 0, rand(7,10));
+
+		$oRandUrl->addPath($sStr);
+
 		$oUrl = $oHttpRequest->getUriObject();
 
 		$o = new contentTable();
 		$o->loadData ($oUrl->getPath());
+		$o->rand_uri = $oRandUrl->getCompleteUri(true);
 
 		return $o;
 	}
