@@ -12,9 +12,11 @@ body {
 #content {
 	min-height:400px;
 	width:98%;
-	overflow:auto;
 	padding:10px 0 0 10px;
-	/*/border:1px solid red;/**/
+	/*/
+	overflow:auto;
+	border:1px solid red;
+	/**/
 }
 .feedback {
 	position:fixed;

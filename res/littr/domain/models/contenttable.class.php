@@ -97,7 +97,7 @@ class contentTable extends vscModelA {
 			}
 		}
 		$this->uri 			= $sUri;
-		$this->data 		= 'Nothing to see here, please move along.';
+		$this->data 		= 'Welcome! This page is currently empty.<br/> You can edit it and it will be saved automatically.';
 		$this->creation 	= date('Y-m-d G:i:s');
 		$this->secret 		= 'notnull';
 
