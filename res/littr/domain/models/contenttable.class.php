@@ -139,27 +139,6 @@ class contentTable extends vscModelA {
 		return mmCrypter::check ('#' . $aResult['secret'] . '#' . $sUri . '#', $sToken);
 	}
 
-	public function updateDataChunked () {
-		// split the data into manageable chunks
-		$sUpdateSql = 'update content set data = CONCAT(`data`, :data) where uri = :uri';
-		$sTempData = $this->data;
-
-		$sUri = $this->uri;
-		do {
-			$sChunk = substr($sTempData, 0, 4095);
-			$sTempData = substr($sTempData, 4096);
-
-			$aParams = array(
-				'uri' => $sUri,
-				'data' => $sChunk,
-			);
-
-			$bReturn = $this->connection->query($sUpdateSql, $aParams);
-		} while (strlen ($sTempData) >= 4096);
-
-		return $bReturn;
-	}
-
 	public function updateData () {
 		$sUpdateSql = 'update content set data = :data, creation = :creation where uri = :uri';
 

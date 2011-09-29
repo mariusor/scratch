@@ -21,7 +21,7 @@ class check extends vscProcessorA {
 		}
 
 		$oModel->uri		= $oUri->getPath();
-		if ($oHttpRequest->getVar('key') == '' || $oModel->uri == '/reddit/') {
+		if ($oHttpRequest->getVar('key') == '' || stristr($oModel->uri, '/reddit') !== false) {
 			$oModel->key = null;
 		} else {
 			$oModel->key = $oHttpRequest->getVar('key');
