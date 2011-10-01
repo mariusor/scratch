@@ -102,6 +102,7 @@ $(document).ready( function() {
 					'content' : content,
 					'auth_token' : authToken
 				};
+				console.debug (waitTime);
 				$.ajax({
 					url: '/',
 					dataType: 'json',
@@ -120,7 +121,16 @@ $(document).ready( function() {
 					complete : function (data, status) {
 						bStillSaving = false;
 						finish = new Date();
-						waitTime = (finish.getTime() - start.getTime()) * 2;
+						var lastRun = finish.getTime() - start.getTime();
+						var multiplier = 2;
+						if (lastRun > 1000) {
+							multiplier = 1;
+						} else if (lastRun < 400) {
+							multiplier = 10;
+						} else if (lastRun < 100) {
+							multiplier = 20;
+						}
+						waitTime = lastRun * multiplier;
 					}
 				});
 			});
