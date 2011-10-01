@@ -14,13 +14,13 @@ class simpleEdit extends vscProcessorA {
 
 		$oRandUrl = new vscUrlRWParser();
 		$sStr = substr(sha1(microtime(true)), 0, 7);
-
 		$oRandUrl->addPath($sStr);
 
-		$oUrl = $oHttpRequest->getUriObject();
+		$oUri = new vscUrlRWParser();
+		$oUri->setUrl($oUri->getCompleteUri(true));
 
 		$o = new contentTable();
-		$o->loadData ($oUrl->getPath());
+		$o->loadData ($oUri->getPath());
 		$o->rand_uri = $oRandUrl->getCompleteUri(true);
 
 		return $o;

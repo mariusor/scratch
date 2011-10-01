@@ -102,7 +102,6 @@ $(document).ready( function() {
 					'content' : content,
 					'auth_token' : authToken
 				};
-				console.debug (waitTime);
 				$.ajax({
 					url: '/',
 					dataType: 'json',
