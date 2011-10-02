@@ -44,6 +44,11 @@ $(document).ready( function() {
 		if (isSaveKey(e)) {
 			save ();
 		}
+	}).click(function(e){
+		var la = $(e.target);
+		if (la.is('a') && $(this).attr ('contentEditable')) {
+			location.href = la.attr ('href');
+		}
 	});
 	var id = setInterval(function () {
 		save();
