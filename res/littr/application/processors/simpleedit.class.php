@@ -13,7 +13,7 @@ class simpleEdit extends vscProcessorA {
 		}
 
 		$oRandUrl = new vscUrlRWParser();
-		$sStr = substr(sha1(microtime(true)), 0, 7);
+		$sStr = base_encode(intval(microtime(true) * 10000));
 		$oRandUrl->addPath($sStr);
 
 		$oUri = new vscUrlRWParser();
