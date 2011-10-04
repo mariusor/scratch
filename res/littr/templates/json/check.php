@@ -7,4 +7,7 @@
 	if ($model['message']) {
 		$a['message'] = $model['message'];
 	}
+	if ($model['modified']) {
+		$a['modified'] = $model['modified'];
+	}
 	echo (json_encode($a));

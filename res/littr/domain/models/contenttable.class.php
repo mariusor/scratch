@@ -175,9 +175,11 @@ class contentTable extends vscModelA {
 
 	public function saveData () {
 		if ($this->uriExists($this->uri)) {
-			return $this->updateData();
+			$o = $this->updateData();
 		} else {
-			return $this->insertData();
+			$o = $this->insertData();
 		}
+		$this->loadData($this->uri);
+		return $o;
 	}
 }

@@ -37,6 +37,7 @@ class save extends vscProcessorA {
 				if (!$saveObject->hasSecret($oUri->getPath()) || $saveObject->checkToken ($oUri->getPath(), $oHttpRequest->getVar('auth_token'))) {
 					if ($saveObject->saveData ()) {
 						$oModel->status = 'ok';
+						$oModel->modified = date( 'Y-m-d\TG:i:s',strtotime($saveObject->creation));
 					} else {
 						$oModel->status = 'ko';
 						if (vsc::getEnv()->isDevelopment()) {
@@ -61,8 +62,6 @@ class save extends vscProcessorA {
 			$oModel->status = 'ko';
 			$oModel->message = 'invalid request type';
 		}
-		$oModel->status = 'ko';
-		$oModel->message = 'Test 123!';
 		return $oModel;
 	}
 }

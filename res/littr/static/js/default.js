@@ -51,12 +51,21 @@ $(document).ready( function() {
 				location.href = la.attr ('href');
 				return;
 			}
-			
-			if (isNaN(Date.parse($(this).attr('modified')))) { // modified is empty
+			var lastModified = $(this).prop('modified');
+			if (typeof (lastModified) == 'undefined') {
+				lastModified = $(this).attr('modified');
+			}
+			if (isNaN(Date.parse(lastModified))) { // modified is empty
 				previousContent = ' ';
 				$(this).html(previousContent);
 				var d = new Date();
-				$(this).prop('modified', d.toString());
+				$(this).prop('modified', d.getUTCFullYear()+'-'
+					+ pad(d.getUTCMonth()+1)+'-'
+					+ pad(d.getUTCDate())+'T'
+					+ pad(d.getUTCHours())+':'
+					+ pad(d.getUTCMinutes())+':'
+					+ pad(d.getUTCSeconds())
+				);
 			}
 		}
 	});
@@ -131,6 +140,7 @@ $(document).ready( function() {
 						if (responseData.status != 'ok') {
 							console.debug ('Err: ' + responseData.message);
 						}
+						editable.prop('modified', responseData.modified);
 					},
 					complete : function (data, status) {
 						bStillSaving = false;
@@ -171,4 +181,6 @@ $(document).ready( function() {
 
 		return false;
 	}
+	
+	function pad(n){return n<10 ? '0'+n : n}
 });
