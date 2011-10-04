@@ -44,10 +44,20 @@ $(document).ready( function() {
 		if (isSaveKey(e)) {
 			save ();
 		}
-	}).click(function(e){
-		var la = $(e.target);
-		if (la.is('a') && $(this).attr ('contentEditable')) {
-			location.href = la.attr ('href');
+	}).click(function(e) {
+		if ($(this).attr ('contentEditable')) {
+			var la = $(e.target);
+			if (la.is('a')) {
+				location.href = la.attr ('href');
+				return;
+			}
+			
+			if (isNaN(Date.parse($(this).attr('modified')))) { // modified is empty
+				previousContent = ' ';
+				$(this).html(previousContent);
+				var d = new Date();
+				$(this).prop('modified', d.toString());
+			}
 		}
 	});
 	var id = setInterval(function () {

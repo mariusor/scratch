@@ -1,13 +1,14 @@
 <?php
 import ('domain/models');
-class simpleEdit extends vscProcessorA {
+class simpleEdit extends tsSimpleProcessor {
 	protected $aLocalVars = array ('page' => null);
 
 	public function __construct() {}
 
 	public function init () {}
 
-	public function handleRequest (vscHttpRequestA $oHttpRequest) {
+	public function handlePost (vscHttpRequestA $oHttpRequest) { }
+	public function handleGet (vscHttpRequestA $oHttpRequest) {
 		if (empty($this->aLocalVars['page'])) {
 			$this->aLocalVars['page'] = 'index';
 		}

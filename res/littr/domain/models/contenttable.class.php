@@ -17,7 +17,11 @@ class contentTable extends vscModelA {
 			$this->connection = new htlmConnection();
 			$this->connection->connect();
 		} catch (ErrorException $e) {
-			// no db connection
+			if (!vsc::getEnv()->isDevelopment()) {
+				throw new vscExceptionDomain('could not connect', 500);
+			} else {
+				throw $e;
+			}
 		}
 	}
 
@@ -90,7 +94,7 @@ class contentTable extends vscModelA {
 			if ($oTemp instanceof stdClass) {
 				$this->uri 			= $oTemp->uri;
 				$this->data 		= $oTemp->data;
-				$this->creation 	= $oTemp->creation;
+				$this->creation 	= date( 'Y-m-d\TG:i:s',strtotime($oTemp->creation));
 				$this->secret 		= $oTemp->secret;
 
 				return true;
@@ -98,7 +102,7 @@ class contentTable extends vscModelA {
 		}
 		$this->uri 			= $sUri;
 		$this->data 		= 'Welcome! This page is currently empty.<br/> You can edit it and it will be saved automatically.';
-		$this->creation 	= date('Y-m-d G:i:s');
+		$this->creation 	= null;
 		$this->secret 		= 'notnull';
 
 		return false;

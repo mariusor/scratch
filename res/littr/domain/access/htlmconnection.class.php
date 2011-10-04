@@ -42,9 +42,6 @@ class htlmConnection {
 	}
 
 	public function escape ($sParam) {
-		if (!($this->connection instanceof mysqli) && is_null($this->connection->errno)) {
-			return $sParam;
-		}
 		if (is_null($sParam)) {
 			return 'NULL';
 		} elseif (is_numeric($sParam)) {
@@ -78,11 +75,15 @@ class htlmConnection {
 			$sSql = str_replace($aReplace, $aValues, $sSql);
 		}
 
-		$oRes = $this->connection->query($sSql);
-		if ($oRes instanceof mysqli_result) {
-			return $oRes;
+		if (($this->connection instanceof mysqli) && !$this->getErrorCode()) {
+			$oRes = $this->connection->query($sSql);
+			if ($oRes instanceof mysqli_result) {
+				return $oRes;
+			} else {
+				return new vscNull();
+			}
 		} else {
-			return new vscNull();
+			throw new vscException('could not execute query');
 		}
 	}
 }

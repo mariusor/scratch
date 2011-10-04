@@ -2,9 +2,6 @@
 import ('domain/models');
 
 abstract class tsSimpleProcessor extends vscProcessorA {
-// 	public function init () {
-// 		$this->getMap()->setTitle ('Blog test');
-// 	}
 
 	abstract function handleGet(vscHttpRequestA $oHttpRequest);
 	abstract function handlePost(vscHttpRequestA $oHttpRequest);
@@ -25,9 +22,18 @@ abstract class tsSimpleProcessor extends vscProcessorA {
 			}
 
 			$oModel = new vscEmptyModel();
-			$oModel->setPageTitle ('Internal error');
-			$oModel->setPageContent($e->getMessage() . vsc::nl() . '<pre>'.$e->getTraceAsString().'</pre>');
-
+			if ($e->getCode() > 500) {
+				$oModel->setPageTitle ('Internal error');
+			} elseif ($e->getCode() > 400) {
+				$oModel->setPageTitle ('User error');
+			}
+			
+			if (vsc::getEnv()->isDevelopment()) {
+				$sContent = $e->getMessage() . vsc::nl() . '<pre class="backtrace">'. $e->getTraceAsString() .'</pre>';
+			} else {
+				$sContent = $e->getMessage();
+			}
+			$oModel->setPageContent($sContent);
 			$this->getMap()->setResponse($oResponse);
 			$this->getMap()->setTemplate('error.php');
 		}
