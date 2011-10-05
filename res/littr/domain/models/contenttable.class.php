@@ -94,7 +94,7 @@ class contentTable extends vscModelA {
 			if ($oTemp instanceof stdClass) {
 				$this->uri 			= $oTemp->uri;
 				$this->data 		= $oTemp->data;
-				$this->creation 	= date( 'Y-m-d\TG:i:s',strtotime($oTemp->creation));
+				$this->creation 	= $oTemp->creation;
 				$this->secret 		= $oTemp->secret;
 
 				return true;

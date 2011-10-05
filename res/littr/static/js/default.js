@@ -55,7 +55,8 @@ $(document).ready( function() {
 			if (typeof (lastModified) == 'undefined') {
 				lastModified = $(this).attr('modified');
 			}
-			if (isNaN(Date.parse(lastModified))) { // modified is empty
+			var d = new Date(lastModified * 1000);
+			if (d.toString() == 'Invalid Date') { // modified is empty
 				previousContent = ' ';
 				$(this).html(previousContent);
 				var d = new Date();
@@ -181,6 +182,6 @@ $(document).ready( function() {
 
 		return false;
 	}
-	
+
 	function pad(n){return n<10 ? '0'+n : n}
 });
