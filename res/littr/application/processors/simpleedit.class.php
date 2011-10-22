@@ -22,8 +22,14 @@ class simpleEdit extends tsSimpleProcessor {
 
 		$o = new contentTable();
 		$o->loadData ($oUri->getPath());
-		$o->rand_uri = $oRandUrl->getCompleteUri(true);
 
-		return $o;
+		$oModel = new vscArrayModel();
+		$oModel->uri = $o->uri;
+		$oModel->data = $o->data;
+		$oModel->creation = $o->creation;
+		$oModel->rand_uri = $oRandUrl->getCompleteUri(true);
+		$oModel->help = "Tab indent, Shift+Tab outdent, Ctrl+B bold, Ctrl+I italic, Ctrl+L insert a link, Ctrl+G insert an image";
+
+		return $oModel;
 	}
 }

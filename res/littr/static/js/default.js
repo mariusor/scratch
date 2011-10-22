@@ -8,7 +8,7 @@ _gaq.push(['_trackPageview']);
 })();
 $(document).ready( function() {
 	var editable = $("#content");
-	var waitTime = 3000; // miliseconds
+	var waitTime = 3000; // milliseconds
 	var start = new Date(); // start of the save request
 	var finish = new Date(); // finish of the save request
 
@@ -40,7 +40,7 @@ $(document).ready( function() {
 	var bStillSaving = false;
 
 	checkForSecrets ();
-	editable.fresheditor().keyup(function(e){
+	editable.fresheditor().keyup (function(e){
 		if (isSaveKey(e)) {
 			save ();
 		}
