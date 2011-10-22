@@ -8,13 +8,12 @@ Dependencies
 ------------
  - jQuery core
  - shortcut.js for keyboard hotkeys
- 
+
 Issues
 ------
- - no image support
  - no <code> or <blockquote> buttons (use Tab key for quotes)
  - no text alignment support
- 
+
 To Do
 -----
  - let plugin build the toolbar
@@ -33,7 +32,7 @@ Best regards
 Petrus Theron
 contenteditable@freshcode.co.za
 FreshCode Software Development
- 
+
 */
 /**
 * http://www.openjs.com/scripts/events/keyboard_shortcuts/
@@ -56,8 +55,7 @@ var shortcut = {
 			opt = default_options;
 		}
 		else {
-			var dfo;
-			for (dfo in default_options) {
+			for (var dfo in default_options) {
 				if (typeof opt[dfo] == 'undefined') opt[dfo] = default_options[dfo];
 			}
 		}
@@ -81,12 +79,13 @@ var shortcut = {
 			}
 
 			//Find Which key is pressed
-			if (e.keyCode) code = e.keyCode;
-			else if (e.which) code = e.which;
+			if (e.which) code = e.which;
+			else if (e.keyCode) code = e.keyCode;
+
 			var character = String.fromCharCode(code).toLowerCase();
 
 			if (code == 188) character = ","; //If the user presses , when the type is onkeydown
-			if (code == 190) character = "."; //If the user presses , when the type is onkeydown
+			if (code == 190) character = "."; //If the user presses . when the type is onkeydown
 
 			var keys = shortcut_combination.split("+");
 			//Key Pressed - counts the number of valid keypresses - if it is same as the number of keys, the shortcut function is invoked
@@ -113,7 +112,7 @@ var shortcut = {
 				".": ">",
 				"/": "?",
 				"\\": "|"
-			}
+			};
 			//Special Keys - and their codes
 			var special_keys = {
 				'esc': 27,
@@ -167,7 +166,7 @@ var shortcut = {
 				'f10': 121,
 				'f11': 122,
 				'f12': 123
-			}
+			};
 
 			var modifiers = {
 				shift: { wanted: false, pressed: false },
@@ -204,8 +203,9 @@ var shortcut = {
 					if (opt['keycode'] == code) kp++;
 
 				} else { //The special keys did not match
-					if (character == k) kp++;
-					else {
+					if (character == k) {
+						kp++;
+					} else {
 						if (shift_nums[character] && e.shiftKey) { //Stupid Shift key bug created by using lowercase
 							character = shift_nums[character];
 							if (character == k) kp++;
@@ -231,10 +231,10 @@ var shortcut = {
 						e.stopPropagation();
 						e.preventDefault();
 					}
-					return false;
+//					return false;
 				}
 			}
-		}
+		};
 		this.all_shortcuts[shortcut_combination] = {
 			'callback': func,
 			'target': ele,
@@ -264,17 +264,17 @@ var shortcut = {
 
 /**
  * Copyright (c) 2010 by Gabriel Birke
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the 'Software'), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -303,7 +303,7 @@ function Sanitize()
   this.config.remove_element_contents = {};
   this.config.remove_all_contents = false;
   if(options.remove_contents) {
-	
+
 	if(options.remove_contents instanceof Array) {
 	  for(i=0;i<options.remove_contents.length;i++) {
 		this.config.remove_element_contents[options.remove_contents[i]] = true;
@@ -366,21 +366,21 @@ Sanitize.prototype.clean_node = function (container) {
 	function _clean(elem) {
 		var clone;
 		switch (elem.nodeType) {
-			// Element                
+			// Element
 			case 1:
 				_clean_element.call(this, elem);
 				break;
-			// Text                
+			// Text
 			case 3:
 				var clone = elem.cloneNode(false);
 				this.current_element.appendChild(clone);
 				break;
-			// Entity-Reference (normally not used)                
+			// Entity-Reference (normally not used)
 			case 5:
 				var clone = elem.cloneNode(false);
 				this.current_element.appendChild(clone);
 				break;
-			// Comment                
+			// Comment
 			case 8:
 				if (this.config.allow_comments) {
 					var clone = elem.cloneNode(false);
@@ -513,7 +513,7 @@ Sanitize.prototype.clean_node = function (container) {
 		return output;
 	} // end _transform_element function
 
-	for (i = 0; i < container.childNodes.length; i++) {
+	for (var i = 0; i < container.childNodes.length; i++) {
 		_clean.call(this, container.childNodes[i]);
 	}
 
@@ -523,176 +523,299 @@ Sanitize.prototype.clean_node = function (container) {
 
 	return fragment;
 };
-
 (function ($) {
-
+	var inited = false,
+			// helper function that builds the toolbar
+			toolbar = function(options) {
+					var bar = $('<div />').addClass('fresheditor-toolbar').css('display', 'block');
+					bar.append($('<div />').addClass('buttons'));
+					$.each(options.enabledCommands, function(groupName, group)
+					{
+							var groupEl = $('<ul />').addClass('toolbarSection').addClass(groupName);
+							$.each(group, function(v, command) {
+									groupEl.append(
+											$('<li />').append(
+													$('<a />')
+															.addClass('toolbar_' + command)
+															.attr({ title: options.i18n[command] + " (" + options.commands[command].shortcut + ")", href: "#" })
+															.html(options.commands[command].toolbarHtml ? options.commands[command].toolbarHtml : "&nbsp;")
+											)
+									);
+							});
+							bar.find('.buttons').append(groupEl);
+					});
+					return bar;
+			};
 	var methods = {
-		edit: function (isEditing) {
-			return this.each(function () {
-				$(this).attr("contentEditable", (isEditing === true) ? true : false);
-				document.execCommand("styleWithCSS", false, null);
-			});
-		},
-		bold: function () {
-			document.execCommand("bold", false, null);
-		},
-		italicize: function () {
-			document.execCommand("italic", false, null);
-		},
-		underline: function () {
-			document.execCommand("underline", false, null);
-		},
-		strikethrough: function () {
-			document.execCommand("strikethrough", false, null);
-		},
-		orderedList: function () {
-			document.execCommand("InsertOrderedList", false, null);
-		},
-		unorderedList: function () {
-			document.execCommand("InsertUnorderedList", false, null);
-		},
-		indent: function () {
-			document.execCommand("indent", false, null);
-		},
-		outdent: function () {
-			document.execCommand("outdent", false, null);
-		},
-		superscript: function () {
-			document.execCommand("superscript", false, null);
-		},
-		subscript: function () {
-			document.execCommand("subscript", false, null);
-		},
-		createLink: function () { /* This can be improved */
-			var urlPrompt = prompt("Enter URL:", "http://");
-			document.execCommand("createLink", false, urlPrompt);
-		},
-		insertImage: function () { /* This can be improved */
-			var urlPrompt = prompt("Enter Image URL:", "http://");
-			document.execCommand("InsertImage", false, urlPrompt);
-		},
-		formatBlock: function (block) {
-			document.execCommand("FormatBlock", null, block);
-		},
-		removeFormat: function () {
-			document.execCommand("removeFormat", false, null);
-		},
-		copy: function () {
-			document.execCommand("Copy", false, null);
-		},
-		paste: function () {
-			document.execCommand("Paste", false, null);
-		},
-		save: function (callback) {
-			return this.each(function () {
-				(callback)($(this).attr("id"), $(this).html());
-			});
-		},
-		init: function (options) {
-			if (typeof(options) != 'undefined' && typeof(options.toolbar) != 'undefined') {
-				var $toolbar = $(options.toolbar); // put in options
-	
-				$(window).scroll(function () {
-					var docTop = $(window).scrollTop();
-	
-					var toolbarTop = $toolbar.offset().top;
-					if (docTop > toolbarTop) {
-						$("div.buttons", $toolbar).css({ "position": "fixed", "top": "0" });
-					} else {
-						$("div.buttons", $toolbar).css("position", "relative");
+			edit: function (isEditing) {
+					var focus = function() {
+							var t = $(this);
+							t.data('before', t.html());
+							return t;
+					}, blur = function() {
+							var t = $(this);
+							if (t.data('before') != t.html())
+							{
+									t.data('before', t.html());
+									t.trigger('change');
+							}
+					};
+					if (isEditing === true)
+					{
+							$(this).bind('focus', focus);
+							$(this).bind('blur keyup paste', blur);
 					}
-				});
-	
-				/* Bind Toolbar Clicks */
-	
-				$("a.toolbar_bold", $toolbar).click(function () { methods.bold.apply(this); return false; });
-				$("a.toolbar_italic", $toolbar).click(function () { methods.italicize.apply(this); return false; });
-				$("a.toolbar_underline", $toolbar).click(function () { methods.underline.apply(this); return false; });
-				$("a.toolbar_remove", $toolbar).click(function () { methods.removeFormat.apply(this); return false; });
-	
-				$("a.toolbar_link", $toolbar).click(function () { methods.createLink.apply(this); return false; });
-				$("a.toolbar_image", $toolbar).click(function () { methods.insertImage.apply(this); return false; });
-				$("a.toolbar_blockquote", $toolbar).click(function () { methods.formatBlock.apply(this, ["<BLOCKQUOTE>"]); return false; });
-				$("a.toolbar_code", $toolbar).click(function () { methods.formatBlock.apply(this, ["<PRE>"]); return false; });
-	
-				$("a.toolbar_ol", $toolbar).click(function () { methods.orderedList.apply(this); return false; });
-				$("a.toolbar_ul", $toolbar).click(function () { methods.unorderedList.apply(this); return false; });
-				$("a.toolbar_sup", $toolbar).click(function () { methods.superscript.apply(this); return false; });
-				$("a.toolbar_sub", $toolbar).click(function () { methods.subscript.apply(this); return false; });
-	
-				$("a.toolbar_p", $toolbar).click(function () { methods.formatBlock.apply(this, ["<P>"]); return false; });
-				$("a.toolbar_h1", $toolbar).click(function () { methods.formatBlock.apply(this, ["<H1>"]); return false; });
-				$("a.toolbar_h2", $toolbar).click(function () { methods.formatBlock.apply(this, ["<H2>"]); return false; });
-				$("a.toolbar_h3", $toolbar).click(function () { methods.formatBlock.apply(this, ["<H3>"]); return false; });
-				$("a.toolbar_h4", $toolbar).click(function () { methods.formatBlock.apply(this, ["<H4>"]); return false; });
-				$("a.toolbar_h5", $toolbar).click(function () { methods.formatBlock.apply(this, ["<H5>"]); return false; });
+					else
+					{
+							$(this).unbind('focus', focus);
+							$(this).unbind('blur keyup paste', blur);
+					}
+
+					return this.each(function () {
+							$(this).attr("contentEditable", (isEditing === true) ? true : false);
+					});
+			},
+			copy: function () {
+					document.execCommand("Copy", false, null);
+			},
+			paste: function () {
+					document.execCommand("Paste", false, null);
+			},
+			save: function (callback) {
+					return this.each(function () {
+							(callback)($(this).attr("id"), $(this).html());
+					});
+			},
+			init: function (options) {
+					options = $.extend({}, $.fn.fresheditor.defaults, options);
+					if (typeof options === 'object' && typeof options.onchange == 'function')
+					{
+							$(this).bind('change', options.onchange);
+					}
+					if (options.toolbarEnabled) {
+						var $toolbar = toolbar(options),
+						on_scroll = function () {
+								var docTop = $(window).scrollTop();
+
+								var toolbarTop = $toolbar.offset().top;
+								if (docTop > toolbarTop) {
+										$("div.buttons", $toolbar).css({ "position": "fixed", "top": "0" });
+								} else {
+										$("div.buttons", $toolbar).css("position", "relative");
+								}
+						}, toolbar_reset = function() {
+								$(window).unbind('scroll', on_scroll);
+								$("div.buttons", $toolbar).css("position", "relative");
+						}, toolbar_scroll = function() {
+								$(window).bind('scroll', on_scroll);
+								on_scroll();
+						};
+
+						$(this).first().before($toolbar);
+					}
+					/* Bind Toolbar Clicks */
+
+					var that = this;
+					$.each(options.commands, function(command, opts) {
+							// use self-invoking function to keep command and opts in scope after loop ends
+							methods[command] = (function(command, opts) {
+									return function() {
+										if (options.showToolbar) {
+											var $toolbar = $(this).data('fresheditor').toolbar;
+											// prevent triggering items that are not enabled
+											if ($toolbar.find('a.toolbar_' + command).size() == 0) {
+													return false;
+											}
+										}
+
+										// we allow multiple commands to be executed as one action
+										// typically, this only happens with removeFormat + unlink
+										if (typeof opts.execCommand == 'string') {
+												opts.execCommand = [opts.execCommand];
+												opts.execCommandValue = [opts.execCommandValue]
+										}
+
+										// since execCommand is now an array, loop
+										$.each(opts.execCommand, function(i, execCommand) {
+												var execCommandValue = typeof opts.execCommandValue == 'object' ? opts.execCommandValue[i] : undefined;
+												// if the command wants to provide a value to the execCommand, allow
+												// it to using a callback
+												if (typeof execCommandValue === "function") {
+														execCommandValue(function(value) {
+																// allow command to be aborted by returning false
+																if (value === false) {
+																		return false;
+																}
+
+																document.execCommand(execCommand, false, value);
+														});
+												}
+												else
+												{
+														document.execCommand(execCommand, false, execCommandValue);
+												}
+										});
+										return false;
+								};
+							})(command, opts);
+
+							// put contenteditable as this when commands are run, so commands can
+							// examine the plugin if it wants to
+							var scopedThis = function() { return methods[command].apply(that); };
+
+							if (options.showToolbar) {
+								$toolbar.find('a.toolbar_' + command).click(scopedThis);
+							}
+
+							if (!inited)
+							{
+									if (typeof opts.shortcut === 'string')
+									{
+											opts.shortcut = [opts.shortcut];
+									}
+									$.each(opts.shortcut || [], function(i, key) {
+											shortcut.add(key, scopedThis, { 'type': 'keydown', 'propagate': false });
+									});
+							}
+					});
+
+					inited = true;
+
+					return this.each(function () {
+
+							var $this = $(this), data = $this.data('fresheditor'),
+									tooltip = $('<div />', {
+											text: $this.attr('title')
+									});
+							if (options.showToolbar) {
+								$this.blur(toolbar_reset);
+								$this.focus(toolbar_scroll);
+							}
+
+							// If the plugin hasn't been initialized yet
+							if (!data) {
+									/* Do more setup stuff here */
+
+									$(this).data('fresheditor', {
+											target: $this,
+											tooltip: tooltip,
+											options: options,
+											toolbar: options.showToolbar ? $toolbar : null
+									});
+							}
+					});
 			}
-
-			var shortcuts = [
-				{ keys: 'Ctrl+l', method: function () { methods.createLink.apply(this); } },
-				{ keys: 'Ctrl+g', method: function () { methods.insertImage.apply(this); } },
-				{ keys: 'Ctrl+Alt+U', method: function () { methods.unorderedList.apply(this); } },
-				{ keys: 'Ctrl+Alt+O', method: function () { methods.orderedList.apply(this); } },
-				{ keys: 'Ctrl+q', method: function () { methods.formatBlock.apply(this, ["<BLOCKQUOTE>"]); } },
-				{ keys: 'Ctrl+Alt+k', method: function () { methods.formatBlock.apply(this, ["<PRE>"]); } },
-				{ keys: 'Ctrl+.', method: function () { methods.superscript.apply(this); } },
-				{ keys: 'Ctrl+Shift+.', method: function () { methods.subscript.apply(this); } },
-				{ keys: 'Ctrl+Alt+0', method: function () { methods.formatBlock.apply(this, ["p"]); } },
-				{ keys: 'Ctrl+enter', method: function () { console.debug ('insert new paragraph') } },
-				{ keys: 'Ctrl+b', method: function () { methods.bold.apply(this); } },
-				{ keys: 'Ctrl+i', method: function () { methods.italicize.apply(this); } },
-				{ keys: 'Ctrl+Alt+1', method: function () { methods.formatBlock.apply(this, ["h1"]); } },
-				{ keys: 'Ctrl+Alt+2', method: function () { methods.formatBlock.apply(this, ["h2"]); } },
-				{ keys: 'Ctrl+Alt+3', method: function () { methods.formatBlock.apply(this, ["h3"]); } },
-				{ keys: 'Ctrl+Alt+4', method: function () { methods.formatBlock.apply(this, ["h4"]); } },
-				{ keys: 'Ctrl+Alt+4', method: function () { methods.formatBlock.apply(this, ["h4"]); } },
-				{ keys: 'Ctrl+m', method: function () { methods.removeFormat.apply(this); } },
-				{ keys: 'Ctrl+u', method: function () { methods.underline.apply(this); } },
-				{ keys: 'Ctrl+Alt+t', method: function () { methods.strikethrough.apply(this); } },
-				{ keys: 'tab', method: function () { methods.indent.apply(this); } },
-				//{ keys: 'Ctrl+tab', method: function () { methods.indent.apply(this); } },
-				{ keys: 'Shift+tab', method: function () { methods.outdent.apply(this); } }
-			];
-
-			$.each(shortcuts, function (index, elem) {
-				shortcut.add(elem.keys, function () {
-					elem.method();
-					return false;
-				}, { 'type': 'keydown', 'propagate': false });
-			});
-
-			return this.each(function () {
-
-				var $this = $(this), data = $this.data('fresheditor'),
-					tooltip = $('<div />', {
-						text: $this.attr('title')
-					});
-
-				// If the plugin hasn't been initialized yet
-				if (!data) {
-					/* Do more setup stuff here */
-
-					$(this).data('fresheditor', {
-						target: $this,
-						tooltip: tooltip
-					});
-				}
-			});
-		}
 	};
 
 	$.fn.fresheditor = function (method) {
+			// Method calling logic
+			if (methods[method]) {
+					return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
+			} else if (typeof method === 'object' || !method) {
+					methods.init.apply(this, arguments);
+			} else {
+					$.error('Method ' + method + ' does not exist on jQuery.contentEditable');
+			}
 
-		// Method calling logic
-		if (methods[method]) {
-			return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
-		} else if (typeof method === 'object' || !method) {
-			return methods.init.apply(this, arguments);
-		} else {
-			$.error('Method ' + method + ' does not exist on jQuery.contentEditable');
-		}
+			return this;
+	};
 
-		return;
+	$.fn.fresheditor.defaults = {
+			/*
+			 * Change this option to remove some options. Note that the shortcut keys
+			 * will still be registered, but disabled for the options not present.
+			 * The sub-arrays are groups of buttons, useful for styling.
+			 */
+			enabledCommands: {
+					// character formatting
+					character: ["bold", "italic", "removeFormat", "sup", "sub", "increaseFontSize", "decreaseFontSize"],
+					// external stuff
+					external: ["createLink", "insertImage"],
+					// multiple-paragraph formatting
+					multipleParagrah: ["ol", "ul", "blockquote", "code"],
+					// headers and paragraphs
+					paragraph: ["p", "h1", "h2", "h3", "h4"]
+			},
+			/*
+			 * Strings for translation
+			 */
+			i18n: {
+					bold: "Bold",
+					italic: "Italic",
+					underline: "Underline",
+					removeFormat: "Remove formatting",
+					createLink: "Link to web page",
+					insertImage: "Insert image",
+					blockquote: "Blockquote",
+					code: "Code",
+					ol: "Numbered list",
+					ul: "Bullet list",
+					sup: "Superscript",
+					sub: "Subscript",
+					p: "Paragraph",
+					h1: "Heading 1",
+					h2: "Heading 2",
+					h3: "Heading 3",
+					h4: "Heading 4",
+					h5: "Heading 5",
+					h6: "Heading 6",
+					indent: "Indent",
+					outdent: "Outdent"
+			},
+			/*
+			 * Actual commands to run. You probably shouldn't override this completely,
+			 * but you can safely change the shortcut and toolbarHtml values.
+			 *
+			 * shortcut: the shortcut combination (can also be an array of multiple shortcuts)
+			 * execCommand: the command to send to document.execCommand
+			 * execCommandValue: optional value to send to document.execCommand, but can
+			 *	  also be a function that calls the provided callback when the value is
+			 *	  ready.
+			 * toolbarHtml: HTML to put inside the buttons (very short)
+			 */
+			commands: {
+					bold: { shortcut: "Ctrl+b", execCommand: "bold", toolbarHtml: "B" },
+					italic: { shortcut: "Ctrl+i", execCommand: "italic", toolbarHtml: "I" },
+					underline: { shortcut: "Ctrl+u", execCommand: "underline", toolbarHtml: "U" },
+					removeFormat: { shortcut: "Ctrl+m", execCommand: ["removeFormat", "unlink", "formatBlock"],
+							execCommandValue: [null, null, ["<P>"]],
+							toolbarHtml: "&minus;" },
+					createLink: {
+							shortcut: "Ctrl+l",
+							execCommand: "createLink",
+							execCommandValue: function(callback) {
+									callback(prompt("Enter URL:", "http://"));
+							},
+							toolbarHtml: "@"
+					},
+					insertImage: {
+							shortcut: "Ctrl+g",
+							execCommand: "insertImage",
+							execCommandValue: function(callback) {
+									callback(prompt("Enter image URL:", "http://"));
+							}
+					},
+					strikethrough: {shortcut: "Ctrl+Alt+t", execCommand: "strikethrough"},
+					increaseFontSize: {shortcut: "Ctrl+Alt+=", execCommand: "increasefontsize"},
+					decreaseFontSize: {shortcut: "Ctrl+Alt+m", execCommand: "decreasefontsize"}, // keyCode for - seems to be interpreted as M
+					blockquote: { shortcut: "Ctrl+q", execCommand: "formatBlock", execCommandValue: ["<BLOCKQUOTE>"], toolbarHtml: "&ldquo;&bdquo;" },
+					code: { shortcut: "Ctrl+Alt+c", execCommand: "formatBlock", execCommandValue: ["<PRE>"], toolbarHtml: "{&nbsp;}" },
+					ol: { shortcut: "Ctrl+Alt+o", execCommand: "insertorderedlist" },
+					ul: { shortcut: "Ctrl+Alt+u", execCommand: "insertunorderedlist" },
+					sup: { shortcut: "Ctrl+.", execCommand: "superscript", toolbarHtml: "x<sup>2</sup>" },
+					sub: { shortcut: "Ctrl+Shift+.", execCommand: "subscript", toolbarHtml: "x<sub>2</sub>" },
+					p: { shortcut: "Ctrl+Alt+0", execCommand: "formatBlock", execCommandValue: ["<P>"], toolbarHtml: "P" },
+					h1: { shortcut: "Ctrl+Alt+1", execCommand: "formatBlock", execCommandValue: ["<H1>"], toolbarHtml: "H<sub>1</sub>" },
+					h2: { shortcut: "Ctrl+Alt+2", execCommand: "formatBlock", execCommandValue: ["<H2>"], toolbarHtml: "H<sub>2</sub>" },
+					h3: { shortcut: "Ctrl+Alt+3", execCommand: "formatBlock", execCommandValue: ["<H3>"], toolbarHtml: "H<sub>3</sub>" },
+					h4: { shortcut: "Ctrl+Alt+4", execCommand: "formatBlock", execCommandValue: ["<H4>"], toolbarHtml: "H<sub>4</sub>" },
+					h5: { shortcut: "Ctrl+Alt+5", execCommand: "formatBlock", execCommandValue: ["<H5>"], toolbarHtml: "H<sub>5</sub>" },
+					h6: { shortcut: "Ctrl+Alt+6", execCommand: "formatBlock", execCommandValue: ["<H6>"], toolbarHtml: "H<sub>6</sub>" },
+					indent: { shortcut: "Tab", execCommand: "indent", toolbarHtml: "&rArr;" },
+					outdent: { shortcut: ["Ctrl+Tab", "Shift+Tab"], execCommand: "outdent", toolbarHtml: "&lArr;" }
+			},
+			brOnReturn: false,
+			showToolbar : false
 	};
 
 })(jQuery);
