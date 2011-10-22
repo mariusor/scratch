@@ -33,5 +33,5 @@ if (vsc::getHttpRequest()->isPost()) {
 } else {
 	$oMap = $this->map ('(\w*)/?' ,$sCurPath . 'application/processors/simpleedit.class.php');
 	$oMap->setTemplate ('main.php');
-	$oMap->setTitle ('Littr - edit protect and share html');
+	$oMap->setTitle ('Littr - edit, protect and share html');
 }
