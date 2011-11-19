@@ -9,7 +9,6 @@ class contentTable extends vscModelA {
 	public $created = null;
 	public $modified = null;
 	public $secret = null;
-	public $rand_uri;
 
 	private $connection;
 
@@ -17,7 +16,6 @@ class contentTable extends vscModelA {
 		$this->content 		= 'Welcome! This page is currently empty.<br/> You can edit it and it will be saved automatically.';
 		$this->created 		= null;
 		$this->modified		= null;
-		$this->secret 		= mmCrypter::hash('notnull');
 
 		try {
 			$this->connection = ltrSqlAccessFactory::getConnection();
@@ -149,12 +147,12 @@ class contentTable extends vscModelA {
 			}
 		}
 		$this->uri 			= $sUri;
-
+		$this->secret 		= mmCrypter::hash(' ');
 		return false;
 	}
 
 	public function updateSecret ($sUri, $sKey) {
-		if ($this->getOne($sUri) instanceof mysqli_result) {
+		if ($this->getOne($sUri) > 0) {
 			$query = 'update data set secret = :secret where uri = :uri';
 			if (!is_null($sKey)) {
 				$oCrypt = new mmCrypter();

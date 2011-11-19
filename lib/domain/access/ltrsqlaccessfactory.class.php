@@ -3,7 +3,7 @@ class ltrSqlAccessFactory extends vscNull {
 
 	static function getConnection () {
 		try {
-			return new ltRrPgAccess();
+			return new ltrPgAccess();
 		} catch (Exception $e) {
 			// if the connection failed, we try the mysql one
 			return new ltrMySqlAccess();
