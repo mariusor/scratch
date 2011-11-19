@@ -1,20 +1,22 @@
 <?php
-import ('domain/access/tables');
+import (ORM_PATH . 'res');
+import (ORM_PATH . 'lib');
+import ('domain/connections');
 
-class cBasicSqlAccess extends vscSqlAccess {
+class ltrMySqlAccess extends mySqlIm {
 	public function getDatabaseType() {
 		return vscConnectionType::mysql;
 	}
 	public function getDatabaseHost() {
-		return DB_HOST;
+		return 'localhost';
 	}
 	public function getDatabaseUser() {
-		return DB_USER;
+		return 'littr';
 	}
 	public function getDatabasePassword() {
-		return DB_PASS;
+		return '***';
 	}
 	public function getDatabaseName() {
-		return DB_NAME;
+		return 'littr';
 	}
 }
