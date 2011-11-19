@@ -9,6 +9,7 @@ define ('LOCAL_RES_PATH', realpath('../res/') . DIRECTORY_SEPARATOR);
 include (LOCAL_RES_PATH . 'functions.inc.php');
 
 define ('VSC_PATH', realpath ('/home/habarnam/workspace/vsc-v2/') . DIRECTORY_SEPARATOR);
+define ('ORM_PATH', realpath ('/home/habarnam/workspace/orm/') . DIRECTORY_SEPARATOR);
 define ('DB_HOST', 'localhost');
 define ('DB_USER', 'root');
 define ('DB_PASS', 'asd');
@@ -23,7 +24,10 @@ if (!@include(VSC_PATH . 'vsc.inc.php')) {
 	throw new ErrorException('Could not load libVSC');
 }
 
+
 import (LOCAL_LIB_PATH);
 import (LOCAL_RES_PATH);
+
+import (ORM_PATH);
 
 set_error_handler('exceptions_error_handler');
