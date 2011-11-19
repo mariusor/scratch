@@ -6,10 +6,10 @@ body {
 	margin:0px;
 	font-family: sans-serif;
 }
-#content:focus { 
+body section:focus { 
 	outline: none; 
 }
-#content {
+body section:first-child {
 	min-height:400px;
 	width:98%;
 	padding:10px 0 0 10px;

@@ -6,15 +6,16 @@ _gaq.push(['_trackPageview']);
 	ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
 	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 })();
+
 $(document).ready( function() {
-	var editable = $("#content");
+	var editable = $("body > section:first-child");
 	var waitTime = 3000; // milliseconds
 	var start = new Date(); // start of the save request
 	var finish = new Date(); // finish of the save request
 
 
-	var feedBack = $("<div/>").addClass('feedback').insertBefore(editable);
-	var a = $("<a/>").addClass('icon').appendTo (feedBack).hide();
+	var feedBack = $("<nav/>").addClass('feedback').insertAfter(editable);
+	var a = $("<a/>").addClass('icon').prop('alt', 'Locked').appendTo (feedBack).hide();
 
 	$('.feedback').mouseenter(function(e){
 		$(this).children('a').fadeIn('slow');
