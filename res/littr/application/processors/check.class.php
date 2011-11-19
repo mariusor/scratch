@@ -20,7 +20,7 @@ class check extends vscProcessorA {
 			$oUri->setUrl($sIncomingUri);
 		}
 
-		$oModel->uri		= $oUri->getPath();
+		$oModel->uri		= urldecode($oUri->getPath());
 		if ($oHttpRequest->getVar('key') == '' || stristr($oModel->uri, '/reddit') !== false) {
 			$oModel->key = null;
 		} else {

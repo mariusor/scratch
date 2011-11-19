@@ -21,7 +21,7 @@ class simpleEdit extends tsSimpleProcessor {
 		$oUri->setUrl($oUri->getCompleteUri(true));
 
 		$o = new contentTable();
-		$o->loadContent ($oUri->getPath());
+		$o->loadContent (urldecode($oUri->getPath()));
 
 		$oModel = new vscArrayModel();
 		$oModel->uri = $o->uri;
