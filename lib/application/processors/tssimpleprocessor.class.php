@@ -27,7 +27,7 @@ abstract class tsSimpleProcessor extends vscProcessorA {
 			} elseif ($e->getCode() > 400) {
 				$oModel->setPageTitle ('User error');
 			}
-			
+
 			if (vsc::getEnv()->isDevelopment()) {
 				$sContent = $e->getMessage() . vsc::nl() . '<pre class="backtrace">'. $e->getTraceAsString() .'</pre>';
 			} else {

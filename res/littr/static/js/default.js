@@ -51,16 +51,16 @@ $(document).ready( function() {
 				location.href = la.attr ('href');
 				return;
 			}
-			var lastModified = $(this).prop('modified');
+			var lastModified = $(this).prop('data-modified');
 			if (typeof (lastModified) == 'undefined') {
-				lastModified = $(this).attr('modified');
+				lastModified = $(this).attr('data-modified');
 			}
 			var d = new Date(lastModified * 1000);
-			if (d.toString() == 'Invalid Date') { // modified is empty
+			if (d.toString() == 'Invalid Date') { // data-modified is empty
 				previousContent = ' ';
 				$(this).html(previousContent);
 				var d = new Date();
-				$(this).prop('modified', d.getUTCFullYear()+'-'
+				$(this).prop('data-modified', d.getUTCFullYear()+'-'
 					+ pad(d.getUTCMonth()+1)+'-'
 					+ pad(d.getUTCDate())+'T'
 					+ pad(d.getUTCHours())+':'
@@ -141,7 +141,7 @@ $(document).ready( function() {
 						if (responseData.status != 'ok') {
 							console.debug ('Err: ' + responseData.message);
 						}
-						editable.prop('modified', responseData.modified);
+						editable.prop('data-modified', responseData.modified);
 					},
 					complete : function (data, status) {
 						bStillSaving = false;

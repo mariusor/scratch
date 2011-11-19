@@ -39,13 +39,13 @@ class check extends vscProcessorA {
 		}
 
 		$saveObject->setUri($oModel->uri);
-		$saveObject->setData($sContent);
+		$saveObject->setContent($sContent);
 
 		try {
 			if (!$saveObject->hasSecret($oModel->uri) || $saveObject->checkToken ($oModel->uri, $oHttpRequest->getVar('auth_token'))) {
-				if ($saveObject->saveData ()) {
+				if ($saveObject->saveContent ()) {
 					$oModel->status = 'ok';
-					$oModel->modified = strtotime($saveObject->creation);
+					$oModel->modified = strtotime($saveObject->modified);
 				} else {
 					$oModel->status = 'ko';
 					if (vsc::getEnv()->isDevelopment()) {

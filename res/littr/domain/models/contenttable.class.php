@@ -5,36 +5,59 @@ import (LOCAL_LIB_PATH . 'infrastructure');
 
 class contentTable extends vscModelA {
 	public $uri;
-	public $data;
-	public $creation = null;
+	public $content;
+	public $created = null;
+	public $modified = null;
 	public $secret = null;
 	public $rand_uri;
 
 	private $connection;
 
 	public function __construct () {
+		$this->content 		= 'Welcome! This page is currently empty.<br/> You can edit it and it will be saved automatically.';
+		$this->created 		= null;
+		$this->modified		= null;
+		$this->secret 		= mmCrypter::hash('notnull');
+
 		try {
-			$this->connection = new htlmConnection();
-			$this->connection->connect();
+			$this->connection = ltrSqlAccessFactory::getConnection();
+			if (!$this->connection->isConnected()) {
+				try {
+					$this->connection->connect();
+
+				} catch (Exception $e) {
+					//
+				}
+			}
+		} catch (vscException $e) {
+			if (!vsc::getEnv()->isDevelopment()) {
+				throw new vscExceptionDomain('Could not connect', 500);
+			} else {
+				throw $e;
+			}
 		} catch (ErrorException $e) {
 			if (!vsc::getEnv()->isDevelopment()) {
-				throw new vscExceptionDomain('could not connect', 500);
+				throw new vscExceptionDomain('Could not connect', 500);
 			} else {
 				throw $e;
 			}
 		}
 	}
 
+	public function validResource($oResource) {
+		return $this->getConnection()->validResource($oResource);
+	}
+
 	public function getConnection() {
 		return $this->connection;
 	}
 
-	public function setData ($sContent) {
-		$this->data = $sContent;
+	public function setContent ($sContent) {
+		$this->content = $sContent;
 	}
 
-	public function getData() {
-		return $this->data;
+	public function getContent() {
+		return $this->content;
 	}
 
 	public function setUri ($sUri) {
@@ -46,14 +69,15 @@ class contentTable extends vscModelA {
 	}
 
 	public function getSecret ($sUri) {
-		$query = 'select secret from content where uri = :uri';
+		$query = 'select secret from data where uri = :uri';
 		/* @var $oResult MySQLi_Result */
-		return $this->connection->query($query, array('uri' => $sUri));
+		return $this->query($query, array('uri' => $sUri));
 	}
 
 	public function hasSecret ($sUri) {
 		try {
-			$aResult = $this->getOne($sUri)->fetch_assoc();
+			$this->getOne($sUri);
+			$aResult = $this->getConnection()->getAssoc();
 			return !is_null($aResult['secret']);
 		} catch (vscException $e) {
 			return false;
@@ -63,7 +87,8 @@ class contentTable extends vscModelA {
 
 	public function getAuthenticationToken ($sUri, $sKey = null) {
 		try {
-			$aResult = $this->getOne($sUri)->fetch_assoc();
+			$this->getOne($sUri);
+			$aResult = $this->getConnection()->getAssoc();
 		} catch (vscException $e) {
 			$aResult = array('secret' => null);
 		}
@@ -80,44 +105,64 @@ class contentTable extends vscModelA {
 		return false;
 	}
 
-	public function getOne ($sUri) {
-		$query = 'select * from content where uri = :uri';
+	public function query ($sSql, $aParams) {
+		if (is_array($aParams)) {
+			$iAnonParamCount = substr_count($sSql, '?');
+			if ($iAnonParamCount == count ($aParams)) {
+				foreach ($aParams as $sKey => $sParam) {
+					if (is_integer($sKey)) {
+						$aReplace[] = '?';
+						$aValues[] = $this->connection->escape($sParam);
+					}
+				}
+			}
+			$i = preg_match_all('/:(\w+)/', $sSql, $aNamedParams);
+			foreach ($aNamedParams[1] as $iKey => $sKey) {
+				$aReplace[$iKey] = $aNamedParams[0][$iKey];
+				$aValues[$iKey] = $this->connection->escape($aParams[$sKey]);
+			}
+			$sSql = str_replace($aReplace, $aValues, $sSql);
+		}
 
-		return $this->connection->query($query, array('uri' => $sUri));
+		return $this->connection->query($sSql);
 	}
 
-	public function loadData ($sUri) {
-		$oResult = $this->getOne($sUri);
-		if ($oResult instanceof mysqli_result) {
-			$oTemp = $oResult->fetch_object();
+	public function getOne ($sUri) {
+		$query = 'select * from data where uri = :uri';
 
-			if ($oTemp instanceof stdClass) {
-				$this->uri 			= $oTemp->uri;
-				$this->data 		= $oTemp->data;
-				$this->creation 	= $oTemp->creation;
-				$this->secret 		= $oTemp->secret;
+		return $this->query($query, array('uri' => $sUri));
+	}
+
+	public function loadContent ($sUri) {
+		$iNumRows = $this->getOne($sUri);
+		if ($iNumRows > 0) {
+			$aTemp = $this->getConnection()->getAssoc();
+
+			if (is_array ($aTemp) && count ($aTemp) > 0) {
+				$this->uri			= $aTemp['uri'];
+				$this->content		= $aTemp['content'];
+				$this->created		= $aTemp['created'];
+				$this->modified		= $aTemp['modified'];
+				$this->secret		= $aTemp['secret'];
 
 				return true;
 			}
 		}
 		$this->uri 			= $sUri;
-		$this->data 		= 'Welcome! This page is currently empty.<br/> You can edit it and it will be saved automatically.';
-		$this->creation 	= null;
-		$this->secret 		= 'notnull';
 
 		return false;
 	}
 
 	public function updateSecret ($sUri, $sKey) {
 		if ($this->getOne($sUri) instanceof mysqli_result) {
-			$query = 'update content set secret = :secret where uri = :uri';
+			$query = 'update data set secret = :secret where uri = :uri';
 			if (!is_null($sKey)) {
 				$oCrypt = new mmCrypter();
 				$sKey = $oCrypt->hash($sKey);
 			} else {
 				$sKey = null;
 			}
-			return $this->connection->query($query, array('secret' => $sKey, 'uri' => $sUri));
+			return $this->query($query, array('secret' => $sKey, 'uri' => $sUri));
 		} else {
 			return false;
 		}
@@ -125,7 +170,8 @@ class contentTable extends vscModelA {
 
 	public function checkKey ($sUri, $sKey) {
 		try {
-			$aResult = $this->getOne($sUri)->fetch_assoc();
+			$this->getOne($sUri);
+			$aResult = $this->getConnection()->getAssoc();
 		} catch (ErrorException $e){
 			$aResult = array();
 			$aResult['secret'] = null;
@@ -136,50 +182,51 @@ class contentTable extends vscModelA {
 
 	public function checkToken ($sUri, $sToken) {
 		try {
-			$aResult = $this->getOne($sUri)->fetch_assoc();
+			$this->getOne($sUri);
+			$aResult = $this->getConnection()->getAssoc();
 		} catch (ErrorException $e){
 			$aResult = array('secret' => null);
 		}
 		return mmCrypter::check ('#' . $aResult['secret'] . '#' . $sUri . '#', $sToken);
 	}
 
-	public function updateData () {
-		$sUpdateSql = 'update content set data = :data, creation = :creation where uri = :uri';
+	public function updateContent () {
+		$sUpdateSql = 'update data set content = :content where uri = :uri';
 
 		$aParams = array(
 			'uri' => $this->uri,
-			'data' => $this->data,
-			'creation' => $this->creation
+			'content' => $this->content,
 		);
 
-		return $this->connection->query($sUpdateSql, $aParams);
+		return $this->query($sUpdateSql, $aParams);
 	}
 
-	public function insertData () {
-		$sInsertSql = 'insert into content set uri = :uri, data = :data';
+	public function insertContent () {
+		$sInsertSql = 'insert into data (uri, content) values (:uri,:content)';
 
 		$aParams = array(
 			'uri' => $this->uri,
-			'data' => $this->data,
+			'content' => $this->content
 		);
 
-		return $this->connection->query($sInsertSql, $aParams);
+		return $this->query($sInsertSql, $aParams);
 	}
 
 	public function uriExists ($sUri) {
-		$sCheckUriSql = 'select count(uri) as count from content where uri = :uri';
-		$aResult = $this->connection->query($sCheckUriSql, array ('uri' => $sUri))->fetch_array(MYSQLI_ASSOC);
+		$sCheckUriSql = 'select count(uri) as count from data where uri = :uri';
+		$this->query($sCheckUriSql, array ('uri' => $sUri));
+		$aResult = $this->getConnection()->getAssoc();
 
 		return ($aResult['count'] > 0);
 	}
 
-	public function saveData () {
+	public function saveContent () {
 		if ($this->uriExists($this->uri)) {
-			$o = $this->updateData();
+			$o = $this->updateContent();
 		} else {
-			$o = $this->insertData();
+			$o = $this->insertContent();
 		}
-		$this->loadData($this->uri);
+		$this->loadContent($this->uri);
 		return $o;
 	}
 }

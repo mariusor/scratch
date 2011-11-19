@@ -21,13 +21,16 @@ class simpleEdit extends tsSimpleProcessor {
 		$oUri->setUrl($oUri->getCompleteUri(true));
 
 		$o = new contentTable();
-		$o->loadData ($oUri->getPath());
+		$o->loadContent ($oUri->getPath());
 
 		$oModel = new vscArrayModel();
 		$oModel->uri = $o->uri;
-		$oModel->data = $o->data;
-		$oModel->creation = $o->creation;
-		$oModel->rand_uri = $oRandUrl->getCompleteUri(true);
+		$oModel->content = $o->content;
+		$oModel->created = $o->created;
+		$oModel->modified = $o->modified;
+		if ($o->uri == '/') {
+			$oModel->content = str_replace('<!--{RAND_URL}-->', $oRandUrl->getCompleteUri(true), $o->content);
+		}
 		$oModel->help = "Tab indent, Shift+Tab outdent, Ctrl+B bold, Ctrl+I italic, Ctrl+L insert a link, Ctrl+G insert an image";
 
 		return $oModel;
