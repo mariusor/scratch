@@ -28,8 +28,12 @@ function _e ($e) {
 	$sErrors = '';
 	$iLevel = ob_get_level();
 
-	for ($i = 0; $i < $iLevel; $i++) {
-		$sErrors .= ob_get_clean();
+	try {
+		for ($i = 0; $i < $iLevel; $i++) {
+			$sErrors .= ob_get_clean();
+		}
+	} catch (ErrorException $e) {
+		// zlib buffering problems
 	}
 	header ('HTTP/1.1 500 Internal Server Error');
 	echo getErrorHeaderOutput ($e);
