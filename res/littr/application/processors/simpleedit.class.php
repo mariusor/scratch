@@ -29,7 +29,7 @@ class simpleEdit extends tsSimpleProcessor {
 		$oModel->created = $o->created;
 		$oModel->modified = $o->modified;
 		if ($o->uri == '/') {
-			$oModel->content = str_replace('<!--{RAND_URL}-->', $oRandUrl->getCompleteUri(true), $o->content);
+			$oModel->content = str_replace('<!--{RANDURL}-->', $oRandUrl->getCompleteUri(true), $o->content);
 		}
 		$oModel->help = "Tab indent, Shift+Tab outdent, Ctrl+B bold, Ctrl+I italic, Ctrl+L insert a link, Ctrl+G insert an image";
 
