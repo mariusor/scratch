@@ -2,7 +2,6 @@
 $iStart		= microtime(true);
 $sContent 	= '';
 ob_start ();
-
 try {
 	include ('../config.inc.php');
 	echo getErrorHeaderOutput (); // in the case of a fatal error we have this as fallback
@@ -31,7 +30,7 @@ try {
 		exit();
 	}
 
-	// this should be moved to vsc
+	// this should be moved to vscRequest
 	if ($oRequest->getVar('lang')) {
 		$sLang = $oRequest->getVar('lang');
 		switch ($sLang) {
@@ -55,11 +54,10 @@ try {
 		setlocale(LC_ALL, $sLocale);
 	}
 
-
-//	throw new vscExceptionResponseError('test');
+// 	trigger_error('Buhihihi', E_USER_ERROR);
+// 	throw new vscExceptionResponseError('test');
 	// load the sitemap
 	$oDispatcher->loadSiteMap (LOCAL_RES_PATH . 'map.php');
-
 
 	/* @var $oProcessor vscProcessorA */
 	// get the controller
@@ -70,21 +68,33 @@ try {
 	$oFrontController 	= $oDispatcher->getFrontController ();
 
 	// get the response
+} catch (Exception $e) {
+	$oMap = new vscErrorMap();
+	$oMap->setTemplate('error.php');
+
+	$oCtrlMap = new vscErrorControllerMap();
+	$oCtrlMap->setTemplatePath(LOCAL_RES_PATH . 'littr/templates');
+
+	$oProcessor = new vscErrorProcessor($e);
+	$oProcessor->setMap($oMap);
+
+	$oFrontController = new vscHtml5Controller();
+	$oFrontController->setMap($oCtrlMap);
+}
+try {
+	ob_end_clean();
 	$oResponse 			= $oFrontController->getResponse ($oRequest, $oProcessor);
 
-//	d ($oResponse, $oFrontController, $oFrontController->getDefaultView());
+// 	d ($oResponse, $oFrontController, $oFrontController->getDefaultView());
 
 	// output the response
 	$sContent = $oResponse->getOutput();
-	ob_end_clean();
-
 } catch (Exception $e) {
 	_e ($e);
-	//debug_print_backtrace();
 }
-ob_end_clean();
 
+ob_end_clean();
 echo $sContent;
-if ($oFrontController instanceof vscXhtmlControllerI) {
+if (!isset ($oFrontController ) || $oFrontController instanceof vscXhtmlControllerI) {
 	echo ("\n".'<!-- Time: ' . number_format((microtime(true) - $iStart) * 1000, 9, ',', ' ') . ' milliseconds. Memory: ' . number_format(memory_get_usage()/1024, 4, ',', ' ').' KB -->');
 }
