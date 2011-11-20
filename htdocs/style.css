@@ -9,6 +9,9 @@ body {
 body section:focus { 
 	outline: none; 
 }
+body section a {
+	cursor: pointer;
+}
 body section:first-child {
 	min-height:400px;
 	width:98%;
