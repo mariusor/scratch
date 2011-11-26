@@ -641,14 +641,16 @@ Sanitize.prototype.clean_node = function (container) {
 												// if the command wants to provide a value to the execCommand, allow
 												// it to using a callback
 												if (typeof execCommandValue === "function") {
+													if (that.prop("contentEditable") == "true") {
 														execCommandValue(function(value) {
 																// allow command to be aborted by returning false
 																if (value === false) {
 																		return false;
 																}
-
-																document.execCommand(execCommand, false, value);
+																	document.execCommand(execCommand, false, value);
+																
 														});
+													}
 												}
 												else
 												{
