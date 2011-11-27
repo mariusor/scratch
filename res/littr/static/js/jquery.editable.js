@@ -797,7 +797,7 @@ Sanitize.prototype.clean_node = function (container) {
 									callback(prompt("Enter image URL:", "http://"));
 							}
 					},
-					inserthorizontalrule: {shortcut: "Ctrl+Alt+h", execCommand: "inserthtml", execCommandValue: ['<hr/>']},
+					inserthorizontalrule: {shortcut: "Ctrl+Alt+h", execCommand: "inserthorizontalrule"},
 					strikethrough: {shortcut: "Ctrl+Alt+t", execCommand: "strikethrough"},
 					increaseFontSize: {shortcut: "Ctrl+Alt+=", execCommand: "increasefontsize"},
 					decreaseFontSize: {shortcut: "Ctrl+Alt+m", execCommand: "decreasefontsize"}, // keyCode for - seems to be interpreted as M
