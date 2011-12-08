@@ -13,7 +13,6 @@ $(document).ready( function() {
 	var start = new Date(); // start of the save request
 	var finish = new Date(); // finish of the save request
 
-
 	var feedBack = $("<nav/>").addClass('feedback').insertAfter(editable);
 	var a = $("<a/>").addClass('icon').prop('alt', 'Locked').appendTo (feedBack).hide();
 
@@ -117,17 +116,23 @@ $(document).ready( function() {
 	}
 
 	function save () {
-//		console.debug ("saving : " + (bStillSaving ? 'yes' : 'no'));
-//		console.debug ("changes: " + (unsavedChanges ? 'yes' : 'no'));
 		var now = new Date();
+//		console.debug ("saving : " + (bStillSaving ? 'yes' : 'no'));
+//		console.debug ("is editable " + (editable.prop('contentEditable') == "true" ? 'yes' : 'no'));
+//		console.debug ("changes: " + (unsavedChanges (editable.html()) ? 'yes' : 'no'));
 //		console.debug ("last save : " + (now.getTime() - finish.getTime()) + 'ms ago');
-		if ( !bStillSaving && unsavedChanges(editable.html()) && ((now.getTime() - finish.getTime()) > waitTime)) {
+//		console.debug ("will save? : " + (editable.prop("contentEditable") == "true" && !bStillSaving && unsavedChanges(editable.html()) && ((now.getTime() - finish.getTime()) > waitTime) ? 'yes' : 'no'));
+		if ( editable.prop("contentEditable") == "true" && !bStillSaving && unsavedChanges(editable.html()) && ((now.getTime() - finish.getTime()) > waitTime)) {
 			editable.fresheditor('save', function (id, content) {
 				var postData = {
-					'action' : 'save',
-					'content' : content,
 					'auth_token' : authToken
 				};
+				if (editable.text().trim() == '') {
+					postData['action'] = 'delete';
+				} else {
+					postData['content'] = content;
+					postData['action'] = 'save';
+				}
 				$.ajax({
 					url: '/',
 					dataType: 'json',
@@ -136,13 +141,14 @@ $(document).ready( function() {
 					beforeSend : function () {
 						start = new Date();
 						bStillSaving = true;
-						previousContent = postData.content;
+						previousContent = content;
 					},
 					success : function (responseData) {
 						if (responseData.status != 'ok') {
 							console.debug ('Err: ' + responseData.message);
+						} else {
+							editable.prop('data-modified', responseData.modified);
 						}
-						editable.prop('data-modified', responseData.modified);
 					},
 					complete : function (data, status) {
 						bStillSaving = false;

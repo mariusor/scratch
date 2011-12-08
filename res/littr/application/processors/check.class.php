@@ -31,25 +31,58 @@ class check extends vscProcessorA {
 		return $oModel;
 	}
 
+	public function handleDelete ($oModel, $oHttpRequest) {
+		$oDataTable = new contentTable();
+		$sContent = $oHttpRequest->getVar('content');
+
+		if (strlen($oModel->uri) >= 254) {
+			$oModel->uri = substr ($oModel->uri, 0, 254) . '/';
+		}
+
+		$oDataTable->setUri($oModel->uri);
+		if ( strlen($sContent) > 0 ) {
+			$oDataTable->setContent($sContent);
+		}
+
+		try {
+			if (!$oDataTable->hasSecret($oModel->uri) || $oDataTable->checkToken ($oModel->uri, $oHttpRequest->getVar('auth_token'))) {
+				if ($oDataTable->delete()) {
+					$oModel->status = 'ok';
+				} else {
+					$oModel->status = 'ko';
+					$oModel->message = 'secret key needed';
+				}
+			}
+		} catch (vscException $e) {
+			$oModel->status = 'ko';
+			if (vsc::getEnv()->isDevelopment()) {
+				$oModel->message = $e->getMessage();
+			} else {
+				$oModel->message = 'exception triggered';
+			}
+		}
+		return $oModel;
+	}
+
 	public function handleSave ($oModel, $oHttpRequest) {
-		$saveObject = new contentTable();
+		$oDataTable = new contentTable();
 		$sContent = $oHttpRequest->getVar('content');
 		if (strlen($oModel->uri) >= 254) {
 			$oModel->uri = substr ($oModel->uri, 0, 254) . '/';
 		}
 
-		$saveObject->setUri($oModel->uri);
-		$saveObject->setContent($sContent);
+		$oDataTable->setUri($oModel->uri);
+		$oDataTable->setContent($sContent);
 
 		try {
-			if (!$saveObject->hasSecret($oModel->uri) || $saveObject->checkToken ($oModel->uri, $oHttpRequest->getVar('auth_token'))) {
-				if ($saveObject->saveContent ()) {
+			if (!$oDataTable->hasSecret($oModel->uri) || $oDataTable->checkToken ($oModel->uri, $oHttpRequest->getVar('auth_token'))) {
+				if ($oDataTable->save ()) {
 					$oModel->status = 'ok';
-					$oModel->modified = strtotime($saveObject->modified);
+					$oModel->modified = strtotime($oDataTable->modified);
 				} else {
 					$oModel->status = 'ko';
 					if (vsc::getEnv()->isDevelopment()) {
-						$oModel->message = $saveObject->getConnection()->getError();
+						$oModel->message = $oDataTable->getConnection()->getError();
 					} else {
 						$oModel->message = 'persistence layer error';
 					}
@@ -108,6 +141,8 @@ class check extends vscProcessorA {
 				return $this->handleUpdate ($oModel);
 			} elseif ($oModel->action == 'save') {
 				return $this->handleSave ($oModel, $oHttpRequest);
+			} elseif ($oModel->action == 'delete') {
+				return $this->handleDelete ($oModel, $oHttpRequest);
 			} else {
 				return $this->handleCheck ($oModel);
 			}

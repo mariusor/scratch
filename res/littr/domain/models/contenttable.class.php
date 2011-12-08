@@ -188,7 +188,7 @@ class contentTable extends vscModelA {
 		return mmCrypter::check ('#' . $aResult['secret'] . '#' . $sUri . '#', $sToken);
 	}
 
-	public function updateContent () {
+	public function update () {
 		$sUpdateSql = 'update data set content = :content where uri = :uri';
 
 		$aParams = array(
@@ -199,7 +199,7 @@ class contentTable extends vscModelA {
 		return $this->query($sUpdateSql, $aParams);
 	}
 
-	public function insertContent () {
+	public function insert () {
 		$sInsertSql = 'insert into data (uri, content) values (:uri,:content)';
 
 		$aParams = array(
@@ -218,13 +218,23 @@ class contentTable extends vscModelA {
 		return ($aResult['count'] > 0);
 	}
 
-	public function saveContent () {
+	public function save () {
 		if ($this->uriExists($this->uri)) {
-			$o = $this->updateContent();
+			$o = $this->update();
 		} else {
-			$o = $this->insertContent();
+			$o = $this->insert();
 		}
 		$this->loadContent($this->uri);
 		return $o;
+	}
+
+	public function delete () {
+		$sDeleteSql = 'delete from data where uri = :uri';
+
+		$aParams = array(
+			'uri' => $this->uri,
+		);
+
+		return $this->query($sDeleteSql, $aParams);
 	}
 }
