@@ -127,7 +127,7 @@ $(document).ready( function() {
 				var postData = {
 					'auth_token' : authToken
 				};
-				if (editable.text().trim() == '') {
+				if (editable.text().trim() == '' && confirm ("Without any text, this page will be deleted.\n Do you want to delete this page?")) {
 					postData['action'] = 'delete';
 				} else {
 					postData['content'] = content;
