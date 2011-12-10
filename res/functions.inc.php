@@ -29,9 +29,10 @@ function _e ($e) {
 	$iLevel = ob_get_level();
 
 	try {
-		for ($i = 0; $i < $iLevel; $i++) {
+		for ($i = 0; $i < $iLevel-1; $i++) {
 			$sErrors .= ob_get_clean();
 		}
+		ob_end_clean();
 	} catch (ErrorException $e) {
 		// zlib buffering problems
 	}

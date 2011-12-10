@@ -19,7 +19,7 @@ if (count ($aAllScripts) >= 1 ) {
 <?php
 	foreach ($aAllScripts as $sPath) {
 		if (is_file ($sPath) && is_readable($sPath)) {
-			echo file_get_contents($sPath);
+			echo file_get_contents($sPath) . "\n";
 		} else {
 			// assume it's an url
 			$aMoreScripts[] = $sPath;
@@ -46,7 +46,7 @@ if (count($aAllStyles) >= 1) {
 <?php
 	foreach ($aStyles as $sPath ) {
 		if (is_file ($sPath) && is_readable($sPath)) {
-			echo file_get_contents($sPath);
+			echo file_get_contents($sPath) . "\n";
 		} else {
 			// asume it's available as an url
 			$aMoreStyles[$sMedia][] = $sPath;
@@ -107,7 +107,7 @@ if (count ($aAllScripts) >= 1 ) {
 	$aMoreScripts = array();
 	foreach ($aAllScripts as $sPath) {
 		if (is_file ($sPath) && is_readable($sPath)) {
-			echo file_get_contents($sPath);
+			echo file_get_contents($sPath) . "\n";
 		} else {
 			// asume it's available as an url
 			$aMoreScripts[] = $sPath;
