@@ -122,11 +122,11 @@ $(document).ready( function() {
 			success : function (data) {
 				if (data.status == 'ko') {
 					// show lock icon
-					a.addClass ('locked').fadeIn('slow').fadeOut('slow');
+					a.addClass ('locked').fadeIn(1200).fadeOut(3000);
 					editable.fresheditor("edit", false);
 				} else {
 					// show unlocked
-					a.addClass ('unlocked').fadeIn('slow').fadeOut('slow');
+					a.addClass ('unlocked').fadeIn(1200).fadeOut(3000);
 					editable.fresheditor("edit", true);
 					authToken = data.auth_token;
 				}
