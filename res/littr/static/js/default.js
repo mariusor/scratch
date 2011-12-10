@@ -125,13 +125,29 @@ $(document).ready( function() {
 		if ( editable.prop("contentEditable") == "true" && !bStillSaving && unsavedChanges(editable.html()) && ((now.getTime() - finish.getTime()) > waitTime)) {
 			editable.fresheditor('save', function (id, content) {
 				var postData = {
-					'auth_token' : authToken
+					'auth_token' : authToken,
+					'action' : 'save'
 				};
-				if (editable.text().trim() == '' && confirm ("Without any text, this page will be deleted.\n Do you want to delete this page?")) {
-					postData['action'] = 'delete';
-				} else {
+				if (editable.text().trim() != '') {
 					postData['content'] = content;
-					postData['action'] = 'save';
+				} else {
+					var warning  = $('<div id="warn"/>')
+						.text("The page has no content. When you close the window it will be deleted.")
+						.appendTo(feedBack)
+						.fadeIn('slow').fadeOut(4000);
+					// bind delete on window close
+					$(window).unload(function () {
+						var postData = {
+							'auth_token' : authToken,
+							'action' : 'delete'
+						};
+						$.ajax({
+							url: '/',
+							dataType: 'json',
+							type: 'post',
+							data: postData
+						});
+					});
 				}
 				$.ajax({
 					url: '/',
