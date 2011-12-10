@@ -10,10 +10,6 @@ include (LOCAL_RES_PATH . 'functions.inc.php');
 
 define ('VSC_PATH', realpath ('/home/habarnam/workspace/vsc-v2/') . DIRECTORY_SEPARATOR);
 define ('ORM_PATH', realpath ('/home/habarnam/workspace/orm/') . DIRECTORY_SEPARATOR);
-define ('DB_HOST', 'localhost');
-define ('DB_USER', 'root');
-define ('DB_PASS', 'asd');
-define ('DB_NAME', 'htlm');
 
 date_default_timezone_set('Europe/Bucharest');
 // set function overloading for unicode
@@ -23,7 +19,6 @@ date_default_timezone_set('Europe/Bucharest');
 if (!@include(VSC_PATH . 'vsc.inc.php')) {
 	throw new ErrorException('Could not load libVSC');
 }
-
 
 import (LOCAL_LIB_PATH);
 import (LOCAL_RES_PATH);
