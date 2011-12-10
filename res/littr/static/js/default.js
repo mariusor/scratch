@@ -13,13 +13,14 @@ $(document).ready( function() {
 	var start = new Date(); // start of the save request
 	var finish = new Date(); // finish of the save request
 
+	// lock-unlock icon
 	var feedBack = $("<nav/>").addClass('feedback').insertAfter(editable);
 	var a = $("<a/>").addClass('icon').prop('alt', 'Locked').appendTo (feedBack).hide();
 
 	$('.feedback').mouseenter(function(e){
-		$(this).children('a').fadeIn('slow');
+		$(this).children('a').fadeIn(2000);
 	}).mouseleave(function (e) {
-		$(this).children('a').fadeOut('slow');
+		$(this).children('a').fadeOut(2000);
 	});
 
 	a.click (function (e) {
@@ -35,12 +36,34 @@ $(document).ready( function() {
 		}
 	});
 
+	var titleText = editable.attr('title');
 	var authToken = null;
 	var previousContent = editable.html();
 	var bStillSaving = false;
 
 	checkForSecrets ();
 	editable.fresheditor().keyup (function(e){
+		if (editable.text().trim() == '') {
+			editable.prop('title', 'Since there is no content, this page will be deleted once you close the tab or browser window.');
+			// bind delete on window close if there's no content
+			$(window).unload( function () {
+				var postData = {
+					'auth_token' : authToken,
+					'action' : 'delete'
+				};
+				$.ajax({
+					url: '/',
+					dataType: 'json',
+					type: 'post',
+					data: postData
+				});
+			});
+		} else {
+			editable.prop('title', titleText);
+			// remove the delete action if the user wrote something
+			$(window).unbind('unload');
+		}
+
 		if (isSaveKey(e)) {
 			save ();
 		}
@@ -130,24 +153,6 @@ $(document).ready( function() {
 				};
 				if (editable.text().trim() != '') {
 					postData['content'] = content;
-				} else {
-					var warning  = $('<div id="warn"/>')
-						.text("The page has no content. When you close the window it will be deleted.")
-						.appendTo(feedBack)
-						.fadeIn('slow').fadeOut(4000);
-					// bind delete on window close
-					$(window).unload(function () {
-						var postData = {
-							'auth_token' : authToken,
-							'action' : 'delete'
-						};
-						$.ajax({
-							url: '/',
-							dataType: 'json',
-							type: 'post',
-							data: postData
-						});
-					});
 				}
 				$.ajax({
 					url: '/',

@@ -29,21 +29,6 @@ body section:first-child {
 	height:30px;
 	background-color: transparent;
 }
-#warn {
-	position: fixed;
-	top: -3px;
-	right: 30px;
-	font-size: 0.7em;
-	color: #870000;
-	border-width: 1px;
-	border-top-width:0;
-	border-style: solid;
-	border-color: #870000;
-	border-radius : 3px;
-	background-color: #faeeee;
-	padding:4px;
-	padding-top:7px;
-}
 a.icon {
 	margin-top:4px;
 	margin-right:4px;
