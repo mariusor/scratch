@@ -18,7 +18,7 @@ if (count ($aAllScripts) >= 1 ) {
 <script type="text/javascript">
 <?php
 	foreach ($aAllScripts as $sPath) {
-		if (is_file ($sPath) && is_readable($sPath)) {
+		if (preg_match('#http[s]?://#', $sPath) == 0) {
 			echo file_get_contents($sPath) . "\n";
 		} else {
 			// assume it's an url
@@ -31,7 +31,7 @@ if (count ($aAllScripts) >= 1 ) {
 if (count ($aMoreScripts) >= 1 ) {
 	foreach ($aMoreScripts as $sPath) {
 ?>
-	<script type="text/javascript" src="<?php echo $sPath?>"> </script>
+	<script type="text/javascript" src="<?php echo $sPath;?>"> </script>
 <?php
 	}
 }
@@ -45,7 +45,7 @@ if (count($aAllStyles) >= 1) {
 <style type="text/css" media="<?php echo $sMedia; ?>" >
 <?php
 	foreach ($aStyles as $sPath ) {
-		if (is_file ($sPath) && is_readable($sPath)) {
+		if (preg_match('#http[s]?://#', $sPath) == 0) {
 			echo file_get_contents($sPath) . "\n";
 		} else {
 			// asume it's available as an url
@@ -83,7 +83,6 @@ if (is_array ($this->getLinks()) && count($this->getLinks()) >= 1) {
 </head>
 <body>
 	<!-- hic sunt leones -->
-
 <?php
 try {
 	$sContent = $this->fetch ($this->getTemplate());
@@ -96,7 +95,6 @@ try {
 		echo $this->fetch(dirname(__FILE__) . '/content.php');
 	}
 ?>
-
 	<!-- /hic sunt leones -->
 <?php
 $aAllScripts = $this->getScripts();
@@ -106,7 +104,7 @@ if (count ($aAllScripts) >= 1 ) {
 <?php
 	$aMoreScripts = array();
 	foreach ($aAllScripts as $sPath) {
-		if (is_file ($sPath) && is_readable($sPath)) {
+		if (preg_match('#http[s]?://#', $sPath) == 0) {
 			echo file_get_contents($sPath) . "\n";
 		} else {
 			// asume it's available as an url
@@ -120,7 +118,7 @@ if (count ($aAllScripts) >= 1 ) {
 
 if (count ($aMoreScripts) >= 1 ) {
 	foreach ($aMoreScripts as $sPath) {
-		?>
+?>
 <script type="text/javascript" src="<?php echo $sPath;?>"> </script>
 <?php
 	}
