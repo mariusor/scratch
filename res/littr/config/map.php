@@ -6,24 +6,27 @@ $sCurPath = $oModuleMap->getModulePath();
 // static files
 // $oMap = $this->map ('default.css', $sCurPath . 'static/css/default.css');
 if (vsc::getEnv()->isDevelopment()) {
-	$oMap = $this->map ('default.js', $sCurPath . 'static/js/default.js');
-	$oMap = $this->map ('editable.js', $sCurPath . 'static/js/jquery.editable.js');
-	$oModuleMap->addScript('/jquery.js');
+	$oModuleMap->addScript($sCurPath . 'static/js/jquery.js');
+	$oModuleMap->addScript($sCurPath . 'static/js/default.js');
+	$oModuleMap->addScript($sCurPath . 'static/js/jquery.editable.js');
+	$oModuleMap->addStyle($sCurPath . 'static/css/style.css');
 } else {
-	$oMap = $this->map ('default.js', $sCurPath . 'static/js/default.min.js');
-	$oMap = $this->map ('editable.js', $sCurPath . 'static/js/jquery.editable.min.js');
 	$oModuleMap->addScript('https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js');
+	$oModuleMap->addScript($sCurPath . 'static/js/default.min.js');
+	$oModuleMap->addScript($sCurPath . 'static/js/jquery.editable.min.js');
+	$oModuleMap->addStyle($sCurPath . 'static/css/style.min.css');
 }
+
 // main components
 $oModuleMap->setTemplatePath ($sCurPath . 'templates');
-$oModuleMap->addStyle('/style.css');
-$oModuleMap->addScript('/editable.js');
-$oModuleMap->addScript('/default.js');
 
 $oJsMap = $oModuleMap->mapController ('.*\.js\Z' , LOCAL_LIB_PATH . 'application/controllers/vsccacheablecontroller.class.php');
 $oJsMap->setView(VSC_RES_PATH . 'presentation/views/vscjsview.class.php');
 
-$oModuleMap->mapController('.*', VSC_RES_PATH . 'application/controllers/vschtml5controller.class.php');
+// setting the main template path to our templates folder
+$oCtrlMap = $oModuleMap->mapController('.*', VSC_RES_PATH . 'application/controllers/vschtml5controller.class.php');
+$oCtrlMap->setMainTemplatePath($sCurPath . 'templates');
+$oCtrlMap->setMainTemplate('master.php');
 
 if (vsc::getHttpRequest()->isPost()) {
 	$oMap = $this->map ('(\w*)/?' ,$sCurPath . 'application/processors/check.class.php');
