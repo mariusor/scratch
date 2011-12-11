@@ -19,22 +19,12 @@ class ltrCacheableController extends vscHtml5Controller {
 		$iExpireTime = 604800; // one week
 		$iNow = time();
 
-		// checking if the resource has not been modified so the user agent can serve from cache
-		if (
-			($oRequest->getIfNoneMatch()
-			&& ($oRequest->getIfNoneMatch() == '"'.$oResponse->getETag().'"'))
-			|| ($oRequest->getIfModifiedSince()
-			 && (strtotime($oRequest->getIfModifiedSince()) > $iNow + $iExpireTime))
-		) {
-			$oResponse->setStatus(304);
-			$oResponse->setContentLength(0);
-		}
-
 		$iLastModified = strtotime($this->getView()->getModel()->modified);
 
 		$oResponse->setCacheControl ('max-age='. $iExpireTime . ', must-revalidate');
-		$oResponse->setLastModified(strftime('%a, %d %b %Y %T GMT', $iLastModified));
 		$oResponse->setExpires(strftime('%a, %d %b %Y %T GMT', $iLastModified + $iExpireTime));
+
+		$oResponse->setLastModified(strftime('%a, %d %b %Y %T GMT', $iLastModified));
 
 		return $oResponse;
 	}
