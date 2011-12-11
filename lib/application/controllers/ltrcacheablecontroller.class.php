@@ -18,9 +18,15 @@ class ltrCacheableController extends vscHtml5Controller {
 
 		$iExpireTime = 604800; // one week
 		$iNow = time();
-
 		$iLastModified = strtotime($this->getView()->getModel()->modified);
-
+		if (
+			($oRequest->getIfNoneMatch()
+			&& ($oRequest->getIfNoneMatch() == '"'.$oResponse->getETag().'"'))
+			|| ($oRequest->getIfModifiedSince()
+			&& (strtotime($oRequest->getIfModifiedSince()) > $iNow + $iExpireTime))
+		) {
+			$oResponse->setStatus(304);
+		}
 		$oResponse->setCacheControl ('max-age='. $iExpireTime . ', must-revalidate');
 		$oResponse->setExpires(strftime('%a, %d %b %Y %T GMT', $iLastModified + $iExpireTime));
 
