@@ -14,7 +14,7 @@ class simpleEdit extends tsSimpleProcessor {
 		}
 
 		if ($oHttpRequest->hasGetVar('random')) {
-			$oRandUrl = new vscUrlRWParser();
+			$oRandUrl = new vscUrlRWParser(vscUrlParserA::getCurrentHostName());
 			$sStr = base_encode(intval(microtime(true) * 10000));
 			$oRandUrl->addPath($sStr);
 
