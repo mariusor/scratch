@@ -11,7 +11,7 @@ if (vsc::getEnv()->isDevelopment()) {
 	$oModuleMap->addScript($sCurPath . 'static/js/jquery.editable.js');
 	$oModuleMap->addStyle($sCurPath . 'static/css/style.css');
 } else {
-	$oModuleMap->addScript('https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js');
+	$oModuleMap->addScript('http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js');
 	$oModuleMap->addScript($sCurPath . 'static/js/default.min.js');
 	$oModuleMap->addScript($sCurPath . 'static/js/jquery.editable.min.js');
 	$oModuleMap->addStyle($sCurPath . 'static/css/style.min.css');
