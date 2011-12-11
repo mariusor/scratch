@@ -92,7 +92,11 @@ try {
 }
 
 ob_end_clean();
-echo preg_replace ('/\s+/mi', ' ', $sContent);
+if ($oResponse instanceof vscHttpSuccess) {
+	echo preg_replace ('/\s+/mi', ' ', $sContent);
+} else {
+	echo $sContent;
+}
 if (!isset ($oFrontController ) || $oFrontController instanceof vscXhtmlControllerI) {
 	echo ("\n".'<!-- Time: ' . number_format((microtime(true) - $iStart) * 1000, 9, ',', ' ') . ' milliseconds. Memory: ' . number_format(memory_get_usage()/1024, 4, ',', ' ').' KB -->');
 }

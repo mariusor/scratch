@@ -15,7 +15,7 @@ abstract class tsSimpleProcessor extends vscProcessorA {
 			} else {
 				throw new vscExceptionResponseError('Method not allowed', 405);
 			}
-		} catch (Exception $e) {
+		} catch (ErrorException $e) {
 			$oResponse = new vscHttpClientError();
 			if (vscExceptionResponseError::isValid($e)) {
 				$oResponse->setStatus($e->getCode());

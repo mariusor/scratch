@@ -13,26 +13,28 @@ class simpleEdit extends tsSimpleProcessor {
 			$this->aLocalVars['page'] = 'index';
 		}
 
-		$oRandUrl = new vscUrlRWParser();
-		$sStr = base_encode(intval(microtime(true) * 10000));
-		$oRandUrl->addPath($sStr);
+		if ($oHttpRequest->hasGetVar('random')) {
+			$oRandUrl = new vscUrlRWParser();
+			$sStr = base_encode(intval(microtime(true) * 10000));
+			$oRandUrl->addPath($sStr);
 
-		$oUri = new vscUrlRWParser();
-		$oUri->setUrl($oUri->getCompleteUri(true));
+			throw new vscExceptionResponseRedirect($oRandUrl->getCompleteUri(true), 303);
+		} else {
+			$oUri = new vscUrlRWParser();
+			$oUri->setUrl($oUri->getCompleteUri(true));
 
-		$o = new contentTable();
-		$o->loadContent (urldecode($oUri->getPath()));
+			$o = new contentTable();
+			$o->loadContent (urldecode($oUri->getPath()));
 
-		$oModel = new vscArrayModel();
-		$oModel->uri = $o->uri;
-		$oModel->content = $o->content;
-		$oModel->created = $o->created;
-		$oModel->modified = $o->modified;
-		if ($o->uri == '/') {
-			$oModel->content = str_replace('<!--{RANDURL}-->', $oRandUrl->getCompleteUri(true), $o->content);
+			$oModel = new vscArrayModel();
+			$oModel->uri = $o->uri;
+			$oModel->content = $o->content;
+			$oModel->created = $o->created;
+			$oModel->modified = $o->modified;
+
+			$oModel->help = "Tab indent, Shift+Tab outdent, Ctrl+B bold, Ctrl+I italic, Ctrl+L insert a link, Ctrl+G insert an image";
+
+			return $oModel;
 		}
-		$oModel->help = "Tab indent, Shift+Tab outdent, Ctrl+B bold, Ctrl+I italic, Ctrl+L insert a link, Ctrl+G insert an image";
-
-		return $oModel;
 	}
 }
