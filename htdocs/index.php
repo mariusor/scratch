@@ -54,8 +54,6 @@ try {
 		setlocale(LC_ALL, $sLocale);
 	}
 
-// 	trigger_error('Buhihihi', E_USER_ERROR);
-// 	throw new vscExceptionResponseError('test');
 	// load the sitemap
 	$oDispatcher->loadSiteMap (LOCAL_RES_PATH . 'map.php');
 
@@ -94,7 +92,7 @@ try {
 }
 
 ob_end_clean();
-echo $sContent;
+echo preg_replace ('/\s+/mi', ' ', $sContent);
 if (!isset ($oFrontController ) || $oFrontController instanceof vscXhtmlControllerI) {
 	echo ("\n".'<!-- Time: ' . number_format((microtime(true) - $iStart) * 1000, 9, ',', ' ') . ' milliseconds. Memory: ' . number_format(memory_get_usage()/1024, 4, ',', ' ').' KB -->');
 }
