@@ -30,14 +30,10 @@ class ltrCacheableController extends vscHtml5Controller {
 			$oResponse->setContentLength(0);
 		}
 
-		// if the last modified date + max-age is lower than the current date we need to extend it with $iExpireTime
 		$iLastModified = strtotime($this->getView()->getModel()->modified);
-		if ($iNow > $iExpireTime + $iLastModified) {
-			$iExpireDate = $iExpireTime + ($iNow - $iLastModified);
-		}
 
-		$oResponse->setCacheControl ('max-age='. $iExpireDate . ', must-revalidate');
-		$oResponse->setExpires (strftime('%a, %d %B %Y %T GMT', $iNow + $iExpireTime));
+		$oResponse->setCacheControl ('max-age='. $iExpireTime . ', must-revalidate');
+		$oResponse->setLastModified(strftime('%a, %d %b %Y %T GMT', $iLastModified));
 
 		return $oResponse;
 	}
