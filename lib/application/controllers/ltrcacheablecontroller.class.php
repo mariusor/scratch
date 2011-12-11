@@ -34,6 +34,7 @@ class ltrCacheableController extends vscHtml5Controller {
 
 		$oResponse->setCacheControl ('max-age='. $iExpireTime . ', must-revalidate');
 		$oResponse->setLastModified(strftime('%a, %d %b %Y %T GMT', $iLastModified));
+		$oResponse->setExpires(strftime('%a, %d %b %Y %T GMT', $iLastModified + $iExpireTime));
 
 		return $oResponse;
 	}
