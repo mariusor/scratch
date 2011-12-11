@@ -20,11 +20,12 @@ if (vsc::getEnv()->isDevelopment()) {
 // main components
 $oModuleMap->setTemplatePath ($sCurPath . 'templates');
 
-$oJsMap = $oModuleMap->mapController ('.*\.js\Z' , LOCAL_LIB_PATH . 'application/controllers/vsccacheablecontroller.class.php');
-$oJsMap->setView(VSC_RES_PATH . 'presentation/views/vscjsview.class.php');
+// $oJsMap = $oModuleMap->mapController ('.*\.js\Z' , LOCAL_LIB_PATH . 'application/controllers/vsccacheablecontroller.class.php');
+// $oJsMap->setView(VSC_RES_PATH . 'presentation/views/vscjsview.class.php');
 
 // setting the main template path to our templates folder
-$oCtrlMap = $oModuleMap->mapController('.*', VSC_RES_PATH . 'application/controllers/vschtml5controller.class.php');
+// $oCtrlMap = $oModuleMap->mapController('.*', VSC_RES_PATH . 'application/controllers/vschtml5controller.class.php');
+$oCtrlMap = $oModuleMap->mapController('.*',LOCAL_LIB_PATH . 'application/controllers/ltrcacheablecontroller.class.php');
 $oCtrlMap->setView(LOCAL_LIB_PATH . 'presentation/views/vscinlineresources.class.php');
 $oCtrlMap->setMainTemplatePath($sCurPath . 'templates');
 $oCtrlMap->setMainTemplate('master.php');
