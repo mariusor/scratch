@@ -25,6 +25,7 @@ $oJsMap->setView(VSC_RES_PATH . 'presentation/views/vscjsview.class.php');
 
 // setting the main template path to our templates folder
 $oCtrlMap = $oModuleMap->mapController('.*', VSC_RES_PATH . 'application/controllers/vschtml5controller.class.php');
+$oCtrlMap->setView(LOCAL_LIB_PATH . 'presentation/views/vscinlineresources.class.php');
 $oCtrlMap->setMainTemplatePath($sCurPath . 'templates');
 $oCtrlMap->setMainTemplate('master.php');
 
