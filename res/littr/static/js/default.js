@@ -149,11 +149,9 @@ $(document).ready( function() {
 			editable.fresheditor('save', function (id, content) {
 				var postData = {
 					'auth_token' : authToken,
-					'action' : 'save'
+					'action' : 'save',
+					'content' : content
 				};
-				if (editable.text().trim() != '') {
-					postData['content'] = content;
-				}
 				$.ajax({
 					url: '/',
 					dataType: 'json',
