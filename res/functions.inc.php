@@ -27,15 +27,14 @@ function getErrorHeaderOutput ($e = null) {
 function _e ($e) {
 	$sErrors = '';
 	$iLevel = ob_get_level();
-
-	try {
-		for ($i = 0; $i < $iLevel-1; $i++) {
-			$sErrors .= ob_get_clean();
-		}
-		ob_end_clean();
-	} catch (ErrorException $e) {
-		// zlib buffering problems
+	for ($i = 0; $i < $iLevel - 2; $i++) {
+		$sErrors .= ob_get_clean();
 	}
+	$iCleanLevel = ob_get_level();
+	for ($i = 0; $i < $iLevel; $i++) {
+		ob_end_clean();
+	}
+
 	header ('HTTP/1.1 500 Internal Server Error');
 	echo getErrorHeaderOutput ($e);
 	if (isDebug()) {
