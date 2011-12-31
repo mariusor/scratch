@@ -15,6 +15,6 @@ class ltrRedirectToRand extends vscProcessorA {
 		$sCurrentUri = urldecode($oCurUri->getPath());
 		$oUrl->addPath($sStr);
 
-		throw new vscExceptionResponseRedirect($oUrl->getCompleteUri(true));
+		throw new vscExceptionResponseRedirect($oUrl->getSiteUri() . $oUrl->getPath());
 	}
 }
