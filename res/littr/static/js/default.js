@@ -73,12 +73,7 @@ $(document).ready( function() {
 			save ();
 		}
 	}).click(function(e) {
-		if ($(this).attr ('contentEditable')) {
-			var la = $(e.target);
-			if (la.is('a')) {
-				location.href = la.attr ('href');
-				return;
-			}
+		if ($(this).attr ('contentEditable') == 'true') {
 			var lastModified = $(this).prop('data-modified');
 			if (typeof (lastModified) == 'undefined') {
 				lastModified = $(this).attr('data-modified');
@@ -95,6 +90,23 @@ $(document).ready( function() {
 					+ pad(d.getUTCMinutes())+':'
 					+ pad(d.getUTCSeconds())
 				);
+			}
+		}
+	});
+
+	// adding click events to make links to work in edit mode
+	editable.find('a').mousedown(function(e) {
+		var la = $(e.target);
+		if (la.is('a') && editable.attr ('contentEditable') == 'true') {
+			e.preventDefault();
+			e.stopPropagation();
+
+			switch (e.which) {
+			case 1:
+				location.href = la.attr ('href');
+				break;
+			case 2:
+				window.open (la.attr('href'));
 			}
 		}
 	});
