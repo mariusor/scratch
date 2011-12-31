@@ -13,20 +13,34 @@ $(document).ready( function() {
 	var start = new Date(); // start of the save request
 	var finish = new Date(); // finish of the save request
 
+	var w = $(window);
+	editable.height (w.innerHeight()-30);
+	editable.width (w.innerWidth()-26);
+
+	var titleText = editable.attr('title');
+	var authToken = null;
+	var previousContent = editable.html();
+	var bStillSaving = false;
+
+	checkForSecrets ();
+
 	// lock-unlock icon
 	var feedBack = $("<nav/>").addClass('feedback').insertAfter(editable);
 	var a = $("<a/>").addClass('icon').prop('alt', 'Locked').appendTo (feedBack).hide();
-
 	$('.feedback').mouseenter(function(e){
 		$(this).children('a').fadeIn(2000);
 	}).mouseleave(function (e) {
 		$(this).children('a').fadeOut(2000);
 	});
 
+	w.resize (function (e) {
+		editable.height(w.innerHeight()-30);
+		editable.width(w.innerWidth()-26);
+	});
+
 	a.click (function (e) {
 		var message = 'Please enter the secret key for this page.';
 		var key = prompt (message, '');
-
 		if (key != null) {
 			if ($(this).hasClass('unlocked')) {
 				checkForSecrets(key, 'update');
@@ -36,17 +50,11 @@ $(document).ready( function() {
 		}
 	});
 
-	var titleText = editable.attr('title');
-	var authToken = null;
-	var previousContent = editable.html();
-	var bStillSaving = false;
-
-	checkForSecrets ();
 	editable.fresheditor().keyup (function(e){
 		if (editable.text().trim() == '') {
 			editable.prop('title', 'Since there is no content, this page will be deleted once you close the tab or browser window.');
 			// bind delete on window close if there's no content
-			$(window).unload( function () {
+			$(window).bind ('beforeunload', function (e) {
 				var postData = {
 					'auth_token' : authToken,
 					'action' : 'delete'
@@ -59,12 +67,9 @@ $(document).ready( function() {
 				});
 			});
 		} else {
-			editable.prop('title', titleText);
+			editable.prop ('title', titleText);
 			// remove the delete action if the user wrote something
-			$(window).unbind('unload');
-		}
-
-		if (isSaveKey(e)) {
+			$(window).unbind ('beforeunload');
 			save ();
 		}
 	}).click(function(e) {
@@ -93,6 +98,7 @@ $(document).ready( function() {
 			}
 		}
 	});
+
 	var id = setInterval(function () {
 		save();
 	}, waitTime);

@@ -14,8 +14,10 @@ if (count($this->getMetaHeaders()) >= 1) {
 $aAllScripts = $this->getScripts(true);
 $aMoreScripts = array();
 if (count ($aAllScripts) >= 1 ) {
-	foreach ($aAllScripts as $sPath) {
-		static::outputScript ($sPath);
+	if (!$request->hasGetVar('show-index')) {
+		foreach ($aAllScripts as $sPath) {
+			static::outputScript ($sPath);
+		}
 	}
 }
 
@@ -61,8 +63,10 @@ try {
 <?php
 $aAllScripts = $this->getScripts();
 if (count ($aAllScripts) >= 1 ) {
-	foreach ($aAllScripts as $sPath) {
-		static::outputScript ($sPath);
+	if (!$request->hasGetVar('show-index')) {
+		foreach ($aAllScripts as $sPath) {
+			static::outputScript ($sPath);
+		}
 	}
 }
 ?>

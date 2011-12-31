@@ -1,5 +1,5 @@
 <?php
-class redirectToRand extends vscProcessorA {
+class ltrRedirectToRand extends vscProcessorA {
 	public function __construct() {
 	}
 
@@ -7,8 +7,12 @@ class redirectToRand extends vscProcessorA {
 
 	public function handleRequest (vscHttpRequestA $oHttpRequest) {
 		$oUrl = new vscUrlRWParser();
-		$sStr = substr(sha1(rand (1,100)), 0, 7);
+		$sStr = base_encode(intval(microtime(true) * 10000));
 
+		$oCurUri = new vscUrlRWParser();
+		$oCurUri->setUrl($oCurUri->getCompleteUri(true));
+
+		$sCurrentUri = urldecode($oCurUri->getPath());
 		$oUrl->addPath($sStr);
 
 		throw new vscExceptionResponseRedirect($oUrl->getCompleteUri(true));

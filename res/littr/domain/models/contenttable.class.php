@@ -72,6 +72,20 @@ class contentTable extends vscModelA {
 		return $this->query($query, array('uri' => $sUri));
 	}
 
+	public function getChildrenUris ($sUri) {
+		$sUri = $sUri . '%';
+		$query = 'select uri, date_part(\'epoch\',modified) as modified, case when length(secret) is null then 0 else 1 end hassecret from data where uri like :uri order by length(uri) asc';
+
+		$oResult = $this->query($query, array('uri' => $sUri));
+		$iRows = pg_num_rows($oResult);
+		$aReturn = array();
+		for ($i = 0 ; $i < $iRows ; $i++ ) {
+			$aReturn[$i] = pg_fetch_assoc($oResult);
+		}
+
+		return $aReturn;
+	}
+
 	public function hasSecret ($sUri) {
 		try {
 			$this->getOne($sUri);
@@ -121,6 +135,7 @@ class contentTable extends vscModelA {
 			}
 			$sSql = str_replace($aReplace, $aValues, $sSql);
 		}
+// 		d ($sSql);
 
 		return $this->connection->query($sSql);
 	}

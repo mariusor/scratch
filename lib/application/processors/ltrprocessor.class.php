@@ -1,7 +1,7 @@
 <?php
 import ('domain/models');
 
-abstract class tsSimpleProcessor extends vscProcessorA {
+abstract class ltrProcessor extends vscProcessorA {
 
 	abstract function handleGet(vscHttpRequestA $oHttpRequest);
 	abstract function handlePost(vscHttpRequestA $oHttpRequest);
@@ -16,7 +16,7 @@ abstract class tsSimpleProcessor extends vscProcessorA {
 				throw new vscExceptionResponseError('Method not allowed', 405);
 			}
 		} catch (ErrorException $e) {
-			$oResponse = new vscHttpClientError();
+			$oResponse = new vscHttpResponse();
 			if (vscExceptionResponseError::isValid($e)) {
 				$oResponse->setStatus($e->getCode());
 			}

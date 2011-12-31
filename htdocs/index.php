@@ -19,7 +19,7 @@ try {
 	if(!vscUrlRWParser::hasGoodTermination($oRequest->getUri())) {
 		// fixing(?) urls which don't have an ending slash
 		// or a filename.ext termination
-		$oResponse = new vscHttpRedirection();
+		$oResponse = new vscHttpResponse();
 		$oResponse->setStatus(301); // 301 permanently moved
 		$oResponse->setLocation($oRequest->getUriObject()->getCompleteUri(true));
 

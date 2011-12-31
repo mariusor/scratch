@@ -1,7 +1,7 @@
 <?php
 import ('domain/models');
 
-class check extends vscProcessorA {
+class ltrCheck extends vscProcessorA {
 
 	public function __construct() {}
 
@@ -96,7 +96,7 @@ class check extends vscProcessorA {
 			if (vsc::getEnv()->isDevelopment()) {
 				$oModel->message = $e->getMessage();
 			} else {
-				$oModel->message = 'exception triggered';
+				$oModel->message = 'oops!';
 			}
 		}
 		return $oModel;
