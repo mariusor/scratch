@@ -124,20 +124,31 @@ $(document).ready( function() {
 	}, waitTime);
 
 	function handleFileSelect(e) {
+		e.stopPropagation();
+		e.preventDefault();
+
 		evt = e.originalEvent;
 
-		var files = evt.dataTransfer.files; // FileList object.
+		var files = evt.dataTransfer.files; // FileList object
+
 		if (files.length != 0) {
-			e.stopPropagation();
-			e.preventDefault();
-			var reader = new FileReader();
-			reader.onload = function(e) {
-				var img = $('<img src="'+reader.result+'"/>');
-				var elem = $(evt.target);
-				elem.append (img);
-				save();
-			};
 			for (var i = 0, f; f = files[i]; i++) {
+				if (!f.type.match('image.*')) {
+					continue;
+				}
+
+				var reader = new FileReader();
+
+				reader.onload = (function (theFile) {
+					return function(e) {
+						var img = $('<img src="' + e.target.result + '" data-name="'+theFile.name+'"/>');
+						var elem = $(evt.target);
+
+						elem.append (img);
+					};
+					save();
+				})(f);
+
 				reader.readAsDataURL (f);
 			}
 		}
@@ -192,12 +203,13 @@ $(document).ready( function() {
 	}
 
 	function save () {
-		var now = new Date();
 //		console.debug ("saving : " + (bStillSaving ? 'yes' : 'no'));
 //		console.debug ("is editable " + (editable.prop('contentEditable') == "true" ? 'yes' : 'no'));
 //		console.debug ("changes: " + (unsavedChanges (editable.html()) ? 'yes' : 'no'));
 //		console.debug ("last save : " + (now.getTime() - finish.getTime()) + 'ms ago');
 //		console.debug ("will save? : " + (editable.prop("contentEditable") == "true" && !bStillSaving && unsavedChanges(editable.html()) && ((now.getTime() - finish.getTime()) > waitTime) ? 'yes' : 'no'));
+		var now = new Date();
+		editable.prop('data-modified',now.getTime());
 		if ( editable.prop("contentEditable") == "true" && !bStillSaving && unsavedChanges(editable.html()) && ((now.getTime() - finish.getTime()) > waitTime)) {
 			editable.fresheditor('save', function (id, content) {
 				var postData = {
