@@ -6,46 +6,6 @@ _gaq.push(['_trackPageview']);
 	ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
 	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 })();
-
-function handleFileSelect(e) {
-	evt = e.originalEvent;
-
-	var files = evt.dataTransfer.files; // FileList object.
-	if (files.length != 0) {
-		e.stopPropagation();
-		e.preventDefault();
-		var reader = new FileReader();
-	//	reader.onerror = function () {
-	//		console.debug('error');
-	//	};
-	//	reader.onabort = function(e) {
-	//		console.debug('File read cancelled');
-	//	};
-	//	reader.onloadstart = function(e) {
-	//		console.debug('File upload started');
-	//	};
-	//	reader.onprogress = function(e) {
-	//		console.debug ('progressing');
-	//	};
-		reader.onload = function(e) {
-			var img = $('<img src="'+reader.result+'"/>');
-
-			console.debug (evt);
-			$(evt.target).append (img);
-		};
-		for (var i = 0, f; f = files[i]; i++) {
-			reader.readAsDataURL (f);
-		}
-	}
-}
-
-function handleDragOver(e) {
-	evt = e.originalEvent;
-	e.stopPropagation();
-	e.preventDefault();
-	evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
-}
-
 $(document).ready( function() {
 	var editable = $("body > section:first-child");
 	editable.emptyContent = function () {
@@ -137,8 +97,8 @@ $(document).ready( function() {
 	}).click(function(e) {
 		editable.emptyContent();
 	}).bind('dragover', function(e) {
+		// firefox apparently handles drag and drop from file browser pretty good
 		editable.emptyContent();
-
 		handleDragOver(e);
 	}).bind('drop', function (e) {
 		handleFileSelect(e);
@@ -163,6 +123,32 @@ $(document).ready( function() {
 	var id = setInterval(function () {
 		save();
 	}, waitTime);
+
+	function handleFileSelect(e) {
+		evt = e.originalEvent;
+
+		var files = evt.dataTransfer.files; // FileList object.
+		if (files.length != 0) {
+			e.stopPropagation();
+			e.preventDefault();
+			var reader = new FileReader();
+			reader.onload = function(e) {
+				var img = $('<img src="'+reader.result+'"/>');
+				var elem = $(evt.target);
+				elem.append (img);
+			};
+			for (var i = 0, f; f = files[i]; i++) {
+				reader.readAsDataURL (f);
+			}
+		}
+	}
+
+	function handleDragOver(e) {
+		evt = e.originalEvent;
+		e.stopPropagation();
+		e.preventDefault();
+		evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+	}
 
 	function checkForSecrets (key, action) {
 		var postData = {};
