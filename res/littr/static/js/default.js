@@ -97,7 +97,6 @@ $(document).ready( function() {
 	}).click(function(e) {
 		editable.emptyContent();
 	}).bind('dragover', function(e) {
-		// firefox apparently handles drag and drop from file browser pretty good
 		editable.emptyContent();
 		handleDragOver(e);
 	}).bind('drop', function (e) {
@@ -136,6 +135,7 @@ $(document).ready( function() {
 				var img = $('<img src="'+reader.result+'"/>');
 				var elem = $(evt.target);
 				elem.append (img);
+				save();
 			};
 			for (var i = 0, f; f = files[i]; i++) {
 				reader.readAsDataURL (f);
