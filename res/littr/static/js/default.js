@@ -7,8 +7,70 @@ _gaq.push(['_trackPageview']);
 	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 })();
 
+function handleFileSelect(e) {
+	evt = e.originalEvent;
+
+	var files = evt.dataTransfer.files; // FileList object.
+	if (files.length != 0) {
+		e.stopPropagation();
+		e.preventDefault();
+		var reader = new FileReader();
+	//	reader.onerror = function () {
+	//		console.debug('error');
+	//	};
+	//	reader.onabort = function(e) {
+	//		console.debug('File read cancelled');
+	//	};
+	//	reader.onloadstart = function(e) {
+	//		console.debug('File upload started');
+	//	};
+	//	reader.onprogress = function(e) {
+	//		console.debug ('progressing');
+	//	};
+		reader.onload = function(e) {
+			var img = $('<img src="'+reader.result+'"/>');
+
+			console.debug (evt);
+			$(evt.target).append (img);
+		};
+		for (var i = 0, f; f = files[i]; i++) {
+			reader.readAsDataURL (f);
+		}
+	}
+}
+
+function handleDragOver(e) {
+	evt = e.originalEvent;
+	e.stopPropagation();
+	e.preventDefault();
+	evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+}
+
 $(document).ready( function() {
 	var editable = $("body > section:first-child");
+	editable.emptyContent = function () {
+		var that = $(this);
+		if (that.attr ('contentEditable') == 'true') {
+			var lastModified = $(this).prop('data-modified');
+			if (typeof (lastModified) == 'undefined') {
+				lastModified = $(this).attr('data-modified');
+			}
+			var d = new Date(lastModified * 1000);
+			if (d.toString() == 'Invalid Date') { // data-modified is empty
+				previousContent = ' ';
+				that.html(previousContent);
+				var d = new Date();
+				that.prop('data-modified', d.getUTCFullYear()+'-'
+					+ pad(d.getUTCMonth()+1)+'-'
+					+ pad(d.getUTCDate())+'T'
+					+ pad(d.getUTCHours())+':'
+					+ pad(d.getUTCMinutes())+':'
+					+ pad(d.getUTCSeconds())
+				);
+			}
+		}
+	};
+
 	var waitTime = 3000; // milliseconds
 	var start = new Date(); // start of the save request
 	var finish = new Date(); // finish of the save request
@@ -73,25 +135,13 @@ $(document).ready( function() {
 			save ();
 		}
 	}).click(function(e) {
-		if ($(this).attr ('contentEditable') == 'true') {
-			var lastModified = $(this).prop('data-modified');
-			if (typeof (lastModified) == 'undefined') {
-				lastModified = $(this).attr('data-modified');
-			}
-			var d = new Date(lastModified * 1000);
-			if (d.toString() == 'Invalid Date') { // data-modified is empty
-				previousContent = ' ';
-				$(this).html(previousContent);
-				var d = new Date();
-				$(this).prop('data-modified', d.getUTCFullYear()+'-'
-					+ pad(d.getUTCMonth()+1)+'-'
-					+ pad(d.getUTCDate())+'T'
-					+ pad(d.getUTCHours())+':'
-					+ pad(d.getUTCMinutes())+':'
-					+ pad(d.getUTCSeconds())
-				);
-			}
-		}
+		editable.emptyContent();
+	}).bind('dragover', function(e) {
+		editable.emptyContent();
+
+		handleDragOver(e);
+	}).bind('drop', function (e) {
+		handleFileSelect(e);
 	});
 
 	// adding click events to make links to work in edit mode
@@ -100,7 +150,6 @@ $(document).ready( function() {
 		if (la.is('a') && editable.attr ('contentEditable') == 'true') {
 			e.preventDefault();
 			e.stopPropagation();
-
 			switch (e.which) {
 			case 1:
 				location.href = la.attr ('href');
