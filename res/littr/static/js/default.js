@@ -92,14 +92,14 @@ $(document).ready( function() {
 			$(window).unbind ('beforeunload');
 			save ();
 		}
-	}).bind('mouseup', function(e) {
+	}).bind('click', function(e) {
 		selection = window.getSelection();
 		editable.emptyContent();
 	}).bind('dragover', function(e) {
-		e.preventDefault();
-		e.stopPropagation();
 		selection = window.getSelection();
 		editable.emptyContent();
+		e.preventDefault();
+		e.stopPropagation();
 	}).bind('drop', function (e) {
 		selection = window.getSelection();//.getRangeAt(0);
 		handleFileSelect(e);
@@ -149,6 +149,8 @@ $(document).ready( function() {
 //						var img = $('<img src="' + e.target.result + '" data-name="'+theFile.name+'"/>');
 						var img = document.createElement ("img");
 						img.src = e.target.result;
+						img.title = theFile.name;
+						img.dataSize= theFile.size;
 						img.dataName=theFile.name;
 
 						if (selection.rangeCount > 0 && selection.getRangeAt(0).startContainer != $('body').get(0)) {
