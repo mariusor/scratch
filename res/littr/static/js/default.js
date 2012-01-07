@@ -7,6 +7,7 @@ _gaq.push(['_trackPageview']);
 	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 })();
 $(document).ready( function() {
+	var w = $(window);
 	var editable = $("body > section:first-child");
 	editable.emptyContent = function () {
 		var that = $(this);
@@ -30,21 +31,18 @@ $(document).ready( function() {
 			}
 		}
 	};
+	editable.height (w.innerHeight()-30);
+	editable.width (w.innerWidth()-26);
 
 	var waitTime = 3000; // milliseconds
 	var start = new Date(); // start of the save request
 	var finish = new Date(); // finish of the save request
 
-	var w = $(window);
-	editable.height (w.innerHeight()-30);
-	editable.width (w.innerWidth()-26);
-
 	var titleText = editable.attr('title');
 	var authToken = null;
 	var previousContent = editable.html();
 	var bStillSaving = false;
-
-	checkForSecrets ();
+	var selection = null;
 
 	// lock-unlock icon
 	var feedBack = $("<nav/>").addClass('feedback').insertAfter(editable);
@@ -94,12 +92,16 @@ $(document).ready( function() {
 			$(window).unbind ('beforeunload');
 			save ();
 		}
-	}).click(function(e) {
+	}).bind('mouseup', function(e) {
+		selection = window.getSelection();
 		editable.emptyContent();
 	}).bind('dragover', function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		selection = window.getSelection();
 		editable.emptyContent();
-		handleDragOver(e);
 	}).bind('drop', function (e) {
+		selection = window.getSelection();//.getRangeAt(0);
 		handleFileSelect(e);
 	});
 
@@ -119,11 +121,16 @@ $(document).ready( function() {
 		}
 	});
 
+	checkForSecrets ();
+
 	var id = setInterval(function () {
 		save();
 	}, waitTime);
 
 	function handleFileSelect(e) {
+//		if ($.browser.mozilla) {
+//			return;
+//		}
 		e.stopPropagation();
 		e.preventDefault();
 
@@ -136,17 +143,27 @@ $(document).ready( function() {
 				if (!f.type.match('image.*')) {
 					continue;
 				}
-
 				var reader = new FileReader();
-
 				reader.onload = (function (theFile) {
 					return function(e) {
-						var img = $('<img src="' + e.target.result + '" data-name="'+theFile.name+'"/>');
-						var elem = $(evt.target);
+//						var img = $('<img src="' + e.target.result + '" data-name="'+theFile.name+'"/>');
+						var img = document.createElement ("img");
+						img.src = e.target.result;
+						img.dataName=theFile.name;
 
-						elem.append (img);
+						if (selection.rangeCount > 0 && selection.getRangeAt(0).startContainer != $('body').get(0)) {
+							var range = selection.getRangeAt(0);
+							var fragment = document.createDocumentFragment();
+							fragment.appendChild (img);
+
+							range.deleteContents();
+							range.insertNode(fragment);
+						} else {
+							var elem = $(evt.target);
+							elem.append (img);
+						}
+						save();
 					};
-					save();
 				})(f);
 
 				reader.readAsDataURL (f);
@@ -155,9 +172,9 @@ $(document).ready( function() {
 	}
 
 	function handleDragOver(e) {
-		evt = e.originalEvent;
 		e.stopPropagation();
 		e.preventDefault();
+		evt = e.originalEvent;
 		evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
 	}
 
@@ -209,7 +226,7 @@ $(document).ready( function() {
 //		console.debug ("last save : " + (now.getTime() - finish.getTime()) + 'ms ago');
 //		console.debug ("will save? : " + (editable.prop("contentEditable") == "true" && !bStillSaving && unsavedChanges(editable.html()) && ((now.getTime() - finish.getTime()) > waitTime) ? 'yes' : 'no'));
 		var now = new Date();
-		editable.prop('data-modified',now.getTime());
+		editable.prop('data-modified', now.getTime());
 		if ( editable.prop("contentEditable") == "true" && !bStillSaving && unsavedChanges(editable.html()) && ((now.getTime() - finish.getTime()) > waitTime)) {
 			editable.fresheditor('save', function (id, content) {
 				var postData = {
