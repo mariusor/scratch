@@ -43,8 +43,12 @@ try {
 		}
 	} else {
 		$aLanguages = $oRequest->getHttpAcceptLanguage();
-		$sLocale = str_replace('-', '_', $aLanguages[0]);
-		$sLocale = substr ($sLocale, 0, -2) . strtoupper(substr ($sLocale, -2));
+		if (count($aLanguages) > 0) {
+			$sLocale = str_replace('-', '_', $aLanguages[0]);
+			$sLocale = substr ($sLocale, 0, -2) . strtoupper(substr ($sLocale, -2));
+		} else {
+			$sLocale = 'en';
+		}
 	}
 	if (!empty($sLocale)) {
 		$aCharsets = $oRequest->getHttpAcceptCharset();
