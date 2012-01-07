@@ -18,7 +18,6 @@ class ltrSimpleEdit extends ltrProcessor {
 		$sAction	= array_shift ($aGetKeys);
 
 		$oUri = new vscUrlRWParser();
-		$oUri->setUrl($oUri->getCompleteUri(true));
 
 		$sCurrentUri = urldecode($oUri->getPath());
 		$o = new contentTable();
@@ -27,7 +26,6 @@ class ltrSimpleEdit extends ltrProcessor {
 		$oModel->uri = $o->uri;
 
 		$o->loadContent ($sCurrentUri);
-// 		d ($o);
 
 		$oModel->content	= $o->content;
 		$oModel->created	= $o->created;
