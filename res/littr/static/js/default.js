@@ -74,22 +74,26 @@ $(document).ready( function() {
 		if (editable.text().trim() == '') {
 			editable.prop('title', 'Since there is no content, this page will be deleted once you close the tab or browser window.');
 			// bind delete on window close if there's no content
-			$(window).bind ('beforeunload', function (e) {
-				var postData = {
-					'auth_token' : authToken,
-					'action' : 'delete'
-				};
-				$.ajax({
-					url: '/',
-					dataType: 'json',
-					type: 'post',
-					data: postData
+			if (typeof($(window).data('events').beforeunload) == 'undefined') {
+				$(window).bind ('beforeunload', function (e) {
+					var postData = {
+						'auth_token' : authToken,
+						'action' : 'delete'
+					};
+					$.ajax({
+						url: '/',
+						dataType: 'json',
+						type: 'post',
+						data: postData
+					});
 				});
-			});
+			}
 		} else {
 			editable.prop ('title', titleText);
 			// remove the delete action if the user wrote something
-			$(window).unbind ('beforeunload');
+			if (typeof($(window).data('events').beforeunload) == 'undefined') {
+				$(window).unbind ('beforeunload');
+			}
 			save ();
 		}
 	}).bind('click', function(e) {
