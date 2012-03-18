@@ -12,7 +12,8 @@ $(document).ready( function() {
 	editable.emptyContent = function () {
 		var that = $(this);
 		if (that.attr ('contentEditable') == 'true') {
-			var lastModified = $(this).prop('data-modified');
+			var lastModified = $(this).data('modified');
+
 			if (typeof (lastModified) == 'undefined') {
 				lastModified = $(this).attr('data-modified');
 			}
@@ -20,17 +21,10 @@ $(document).ready( function() {
 			if (d.toString() == 'Invalid Date') { // data-modified is empty
 				previousContent = ' ';
 				that.html(previousContent);
-				var d = new Date();
-				that.prop('data-modified', d.getUTCFullYear()+'-'
-					+ pad(d.getUTCMonth()+1)+'-'
-					+ pad(d.getUTCDate())+'T'
-					+ pad(d.getUTCHours())+':'
-					+ pad(d.getUTCMinutes())+':'
-					+ pad(d.getUTCSeconds())
-				);
 			}
 		}
 	};
+
 	editable.height (w.innerHeight()-30);
 	editable.width (w.innerWidth()-26);
 
@@ -71,7 +65,7 @@ $(document).ready( function() {
 	});
 
 	editable.fresheditor().keyup (function(e){
-		if (editable.text().trim() == '') {
+		if (editable.text().trim() == '' && editable.children("img").length == 0) {
 			editable.prop('title', 'Since there is no content, this page will be deleted once you close the tab or browser window.');
 			// bind delete on window close if there's no content
 			if (typeof($(window).data('events').beforeunload) == 'undefined') {
@@ -91,21 +85,21 @@ $(document).ready( function() {
 		} else {
 			editable.prop ('title', titleText);
 			// remove the delete action if the user wrote something
-			if (typeof($(window).data('events').beforeunload) == 'undefined') {
+			if (typeof($(window).data('events').beforeunload) != 'undefined') {
 				$(window).unbind ('beforeunload');
 			}
-			save ();
 		}
 	}).bind('click', function(e) {
-		selection = window.getSelection();
 		editable.emptyContent();
+		selection = window.getSelection();
 	}).bind('dragover', function(e) {
-		selection = window.getSelection();
 		editable.emptyContent();
+		selection = window.getSelection();
 		e.preventDefault();
 		e.stopPropagation();
 	}).bind('drop', function (e) {
 		selection = window.getSelection();//.getRangeAt(0);
+		editable.emptyContent();
 		handleFileSelect(e);
 	});
 
@@ -232,8 +226,8 @@ $(document).ready( function() {
 //		console.debug ("last save : " + (now.getTime() - finish.getTime()) + 'ms ago');
 //		console.debug ("will save? : " + (editable.prop("contentEditable") == "true" && !bStillSaving && unsavedChanges(editable.html()) && ((now.getTime() - finish.getTime()) > waitTime) ? 'yes' : 'no'));
 		var now = new Date();
-		editable.prop('data-modified', now.getTime());
 		if ( editable.prop("contentEditable") == "true" && !bStillSaving && unsavedChanges(editable.html()) && ((now.getTime() - finish.getTime()) > waitTime)) {
+			editable.data('modified', now.getTime());
 			editable.fresheditor('save', function (id, content) {
 				var postData = {
 					'auth_token' : authToken,
@@ -254,7 +248,7 @@ $(document).ready( function() {
 						if (responseData.status != 'ok') {
 							console.debug ('Err: ' + responseData.message);
 						} else {
-							editable.prop('data-modified', responseData.modified);
+							editable.data('modified', responseData.modified);
 						}
 					},
 					complete : function (data, status) {
