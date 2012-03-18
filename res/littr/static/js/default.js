@@ -42,9 +42,13 @@ $(document).ready( function() {
 	var feedBack = $("<nav/>").addClass('feedback').insertAfter(editable);
 	var a = $("<a/>").addClass('icon').prop('alt', 'Locked').appendTo (feedBack).hide();
 	$('.feedback').mouseenter(function(e){
-		$(this).children('a').fadeIn(2000);
+		$(this).children('a').fadeIn(1500);
 	}).mouseleave(function (e) {
-		$(this).children('a').fadeOut(2000);
+		$(this).children('a').fadeOut(1500);
+	}).click(function (e){
+		if ($(this).children('a').css('opacity') == 0 || $(this).children('a').css('display') == 'none') {
+			$(this).children('a').fadeIn(1200).fadeOut(1200);
+		}
 	});
 
 	w.resize (function (e) {
