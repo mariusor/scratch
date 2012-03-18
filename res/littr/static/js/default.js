@@ -27,6 +27,10 @@ $(document).ready( function() {
 
 	editable.height (w.innerHeight()-30);
 	editable.width (w.innerWidth()-26);
+	w.resize (function (e) {
+		editable.height(w.innerHeight()-30);
+		editable.width(w.innerWidth()-26);
+	});
 
 	var waitTime = 3000; // milliseconds
 	var start = new Date(); // start of the save request
@@ -49,11 +53,6 @@ $(document).ready( function() {
 		if ($(this).children('a').css('opacity') == 0 || $(this).children('a').css('display') == 'none') {
 			$(this).children('a').fadeIn(1200).fadeOut(1200);
 		}
-	});
-
-	w.resize (function (e) {
-		editable.height(w.innerHeight()-30);
-		editable.width(w.innerWidth()-26);
 	});
 
 	a.click (function (e) {
