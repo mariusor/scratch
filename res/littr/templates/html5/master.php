@@ -63,7 +63,8 @@ try {
 <?php
 $aAllScripts = $this->getScripts();
 if (count ($aAllScripts) >= 1 ) {
-	if (!$request->hasGetVar('show-index')) {
+	if ($view->getTemplate() != 'showindex.php') {
+		// if we display the show index links - we don't need javascripts
 		foreach ($aAllScripts as $sPath) {
 			static::outputScript ($sPath);
 		}
