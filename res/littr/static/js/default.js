@@ -72,7 +72,7 @@ $(document).ready( function() {
 			editable.prop('title', 'Since there is no content, this page will be deleted once you close the tab or browser window.');
 			// bind delete on window close if there's no content
 			if (typeof($(window).data('events').beforeunload) == 'undefined') {
-				$(window).bind ('beforeunload', function (e) {
+				$(window).bind ('beforeunload', function () {
 					var postData = {
 						'auth_token' : authToken,
 						'action' : 'delete'

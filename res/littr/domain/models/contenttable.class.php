@@ -13,8 +13,8 @@ class contentTable extends vscModelA {
 	private $connection;
 
 	public function __construct () {
-		$this->content 		= 'Welcome! This page is currently empty.<br/> You can edit it and it will be saved automatically.';
-		$this->created 		= null;
+		$this->content		= 'Welcome! This page is currently empty.<br/> You can edit it and it will be saved automatically.';
+		$this->created		= null;
 		$this->modified		= null;
 
 		try {

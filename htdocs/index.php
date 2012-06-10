@@ -1,11 +1,13 @@
 <?php
 $iStart		= microtime(true);
 $sContent 	= '';
+
 ob_start ();
 try {
 	include ('../config.inc.php');
 	echo getErrorHeaderOutput (); // in the case of a fatal error we have this as fallback
 	ob_start ();
+
 	// here be dragons
 	import ('exceptions');
 
@@ -71,6 +73,9 @@ try {
 
 	// get the response
 } catch (Exception $e) {
+	import ('application/processors');
+	import ('application/controllers');
+	import ('application/sitemaps');
 	$oMap = new vscErrorMap();
 	$oMap->setTemplate('error.php');
 
@@ -83,11 +88,10 @@ try {
 	$oFrontController = new vscHtml5Controller();
 	$oFrontController->setMap($oCtrlMap);
 }
-try {
-	ob_end_clean();
-	$oResponse 			= $oFrontController->getResponse ($oRequest, $oProcessor);
 
-// 	d ($oResponse, $oFrontController, $oFrontController->getDefaultView());
+try {
+	$aErrors = cleanBuffers();
+	$oResponse 			= $oFrontController->getResponse ($oRequest, $oProcessor);
 
 	// output the response
 	$sContent = $oResponse->getOutput();
@@ -95,12 +99,5 @@ try {
 	_e ($e);
 }
 
-ob_end_clean();
-if ($oResponse instanceof vscHttpSuccess) {
-	echo preg_replace ('/\s+/mi', ' ', $sContent);
-} else {
-	echo $sContent;
-}
-if (!isset ($oFrontController ) || $oFrontController instanceof vscXhtmlControllerI) {
-	echo ("\n".'<!-- Time: ' . number_format((microtime(true) - $iStart) * 1000, 9, ',', ' ') . ' milliseconds. Memory: ' . number_format(memory_get_usage()/1024, 4, ',', ' ').' KB -->');
-}
+echo $sContent;
+
