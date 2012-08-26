@@ -14,9 +14,9 @@ try {
 	import ('application/controllers');
 
 	/* @var $oDispatcher vscRwDispatcher */
-	$oDispatcher = vsc::getDispatcher();
+	$oDispatcher = vsc::getEnv()->getDispatcher();
 	// here definitely should be a factory
-	$oRequest = vsc::getHttpRequest();
+	$oRequest = vsc::getEnv()->getHttpRequest();
 
 	if(!vscUrlRWParser::hasGoodTermination($oRequest->getUri())) {
 		// fixing(?) urls which don't have an ending slash
@@ -91,6 +91,7 @@ try {
 
 try {
 	$aErrors = cleanBuffers();
+
 	$oResponse 			= $oFrontController->getResponse ($oRequest, $oProcessor);
 
 	// output the response
