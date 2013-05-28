@@ -32,6 +32,8 @@ $(document).ready( function() {
 		editable.width(w.innerWidth()-26);
 	});
 
+	var maxHeight = Math.max(w.innerHeight(),$(this).height());
+
 	var waitTime = 3000; // milliseconds
 	var start = new Date(); // start of the save request
 	var finish = new Date(); // finish of the save request
@@ -70,9 +72,9 @@ $(document).ready( function() {
 	editable.fresheditor().keyup (function(e){
 		if (editable.text().trim() == '' && editable.children("img").length == 0) {
 			editable.prop('title', 'Since there is no content, this page will be deleted once you close the tab or browser window.');
-			// bind delete on window close if there's no content
-			if (typeof($(window).data('events').beforeunload) == 'undefined') {
-				$(window).bind ('beforeunload', function () {
+			if (typeof ($._data(window, 'events').beforeunload) == 'undefined') {
+				// bind delete on window close if there's no content
+				$(window).bind ('beforeunload', function (e) {
 					var postData = {
 						'auth_token' : authToken,
 						'action' : 'delete'
@@ -88,7 +90,7 @@ $(document).ready( function() {
 		} else {
 			editable.prop ('title', titleText);
 			// remove the delete action if the user wrote something
-			if (typeof($(window).data('events').beforeunload) != 'undefined') {
+			if (typeof ($._data(window, 'events').beforeunload) != 'undefined') {
 				$(window).unbind ('beforeunload');
 			}
 		}

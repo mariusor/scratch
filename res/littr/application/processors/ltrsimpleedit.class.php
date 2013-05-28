@@ -20,19 +20,7 @@ class ltrSimpleEdit extends ltrProcessor {
 		$oUri = new vscUrlRWParser();
 
 		$sCurrentUri = urldecode($oUri->getPath());
-		$o = new contentTable();
-
-		$oModel = new vscArrayModel();
-		$oModel->uri = $o->uri;
-
-		$o->loadContent ($sCurrentUri);
-
-		$oModel->content	= $o->content;
-		$oModel->created	= $o->created;
-		$oModel->modified	= $o->modified;
-		$oModel->secret		= $o->secret;
-
-		$oModel->help = "Tab indent, Shift+Tab outdent, Ctrl+B bold, Ctrl+I italic, Ctrl+L insert a link, Ctrl+G insert an image";
+		$oModel = new ltrEditModel($sCurrentUri);
 
 		return $oModel;
 	}

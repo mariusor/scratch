@@ -43,12 +43,14 @@ if ( vsc::getEnv()->getHttpRequest()->isPost() ) {
 
 		if (vsc::getEnv()->isDevelopment()) {
 			$oMap->addScript($sCurPath . 'static/js/jquery.js');
-			$oMap->addScript($sCurPath . 'static/js/default.js');
+			$oMap->addScript($sCurPath . 'static/js/finediff.class.js');
 			$oMap->addScript($sCurPath . 'static/js/jquery.editable.js');
+			$oMap->addScript($sCurPath . 'static/js/default.js');
 		} else {
-			$oMap->addScript('http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js');
-			$oMap->addScript($sCurPath . 'static/js/default.min.js');
+			// this needs an extra step of minifying the sources on the server
+			$oMap->addScript('//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js');
 			$oMap->addScript($sCurPath . 'static/js/jquery.editable.min.js');
+			$oMap->addScript($sCurPath . 'static/js/default.min.js');
 		}
 	}
 }
