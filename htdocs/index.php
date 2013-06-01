@@ -10,7 +10,6 @@ try {
 
 	// here be dragons
 	import ('exceptions');
-
 	import ('application/controllers');
 
 	/* @var $oDispatcher vscRwDispatcher */
@@ -91,8 +90,7 @@ try {
 
 try {
 	$aErrors = cleanBuffers();
-
-	$oResponse 			= $oFrontController->getResponse ($oRequest, $oProcessor);
+	$oResponse			= $oFrontController->getResponse ($oRequest, $oProcessor);
 
 	// output the response
 	$sContent = $oResponse->getOutput();

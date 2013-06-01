@@ -7,14 +7,9 @@ class ltrRedirectToRand extends vscProcessorA {
 
 	public function handleRequest (vscHttpRequestA $oHttpRequest) {
 		$oUrl = new vscUrlRWParser();
-		$sStr = base_encode(intval(microtime(true) * 10000));
+		$oUrl->addPath(vscString::baseEncode(intval(microtime(true) * 10000)));
+		$oUrl->setQueryParameters(null);
 
-		$oCurUri = new vscUrlRWParser();
-		$oCurUri->setUrl($oCurUri->getCompleteUri(true));
-
-		$sCurrentUri = urldecode($oCurUri->getPath());
-		$oUrl->addPath($sStr);
-
-		throw new vscExceptionResponseRedirect($oUrl->getSiteUri() . $oUrl->getPath());
+		throw new vscExceptionResponseRedirect($oUrl->getCompleteUri(true));
 	}
 }

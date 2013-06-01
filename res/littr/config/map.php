@@ -42,7 +42,8 @@ if ( vsc::getEnv()->getHttpRequest()->isPost() ) {
 		$oMap->setTitle ('Littr - edit, protect and share html');
 
 		if (vsc::getEnv()->isDevelopment()) {
-			$oMap->addScript($sCurPath . 'static/js/jquery.js');
+// 			$oMap->addScript($sCurPath . 'static/js/jquery.js');
+			$oMap->addScript('//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js');
 			$oMap->addScript($sCurPath . 'static/js/finediff.class.js');
 			$oMap->addScript($sCurPath . 'static/js/jquery.editable.js');
 			$oMap->addScript($sCurPath . 'static/js/default.js');
