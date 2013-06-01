@@ -12,11 +12,12 @@ CREATE ROLE littr LOGIN
 CREATE DATABASE littr
   WITH OWNER = littr
        ENCODING = 'UTF8'
+       TEMPLATE = template0
        TABLESPACE = pg_default
        LC_COLLATE = 'C'
        LC_CTYPE = 'en_US.UTF-8'
        CONNECTION LIMIT = -1;
-       GRANT ALL ON DATABASE littr TO littr;
+GRANT ALL ON DATABASE littr TO littr;
 
 -- Table: data
 
