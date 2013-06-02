@@ -74,7 +74,7 @@ class contentTable extends vscModelA {
 
 	public function getChildrenUris ($sUri) {
 		$sUri = $sUri . '%';
-		$query = 'select uri, date_part(\'epoch\',modified) as modified, case when length(secret) is null then 0 else 1 end hassecret from data where uri like :uri order by length(uri) asc';
+		$query = 'select uri, length(content) as size, date_part(\'epoch\',modified) as modified, case when length(secret) is null then 0 else 1 end hassecret from data where uri like :uri order by length(uri) asc';
 
 		$oResult = $this->query($query, array('uri' => $sUri));
 		$iRows = pg_num_rows($oResult);

@@ -25,6 +25,7 @@ class ltrShowIndex extends ltrProcessor {
 			$iModified = (int)$aData['modified'];
 			$iMaxModified = max ($iMaxModified, $iModified);
 			$aLinks[$i]['modified'] = $iModified;
+			$aLinks[$i]['size'] = $aData['size'];
 		}
 		$oModel->links		= $aLinks;
 		$oModel->modified	= $iMaxModified;

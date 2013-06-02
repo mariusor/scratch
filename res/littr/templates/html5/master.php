@@ -1,4 +1,4 @@
-<?php /* @var $this vscInlineResources */ ?>
+<?php /* @var $this ltrView */ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -63,11 +63,8 @@ try {
 <?php
 $aAllScripts = $this->getScripts();
 if (count ($aAllScripts) >= 1 ) {
-	if ($view->getTemplate() != 'showindex.php') {
-		// if we display the show index links - we don't need javascripts
-		foreach ($aAllScripts as $sPath) {
-			static::outputScript ($sPath);
-		}
+	foreach ($aAllScripts as $sPath) {
+		static::outputScript ($sPath);
 	}
 }
 ?>
