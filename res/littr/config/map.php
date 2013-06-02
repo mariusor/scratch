@@ -38,12 +38,10 @@ if ( vsc::getEnv()->getHttpRequest()->isPost() ) {
 	}
 
 	$oMap->addScript('//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js');
-	if (!vsc::getEnv()->isDevelopment()) {
+	if (vsc::getEnv()->isDevelopment()) {
 		if ( stristr($oMap->getPath(), 'simpleedit') !== false ) {
 			$oMap->setTemplate ('main.php');
 			$oMap->setTitle ('Littr - edit, protect and share html');
-//	 		$oMap->addScript($sCurPath . 'static/js/jquery.js');
-			$oMap->addScript($sCurPath . 'static/js/finediff.class.js');
 			$oMap->addScript($sCurPath . 'static/js/jquery.editable.js');
 			$oMap->addScript($sCurPath . 'static/js/default.js');
 		}
