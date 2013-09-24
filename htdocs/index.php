@@ -89,6 +89,10 @@ try {
 }
 
 try {
+	if (!vscHttpRequestA::isValid($oRequest)) {
+		$oRequest = vsc::getEnv()->getHttpRequest();
+	}
+
 	$aErrors = cleanBuffers();
 	$oResponse			= $oFrontController->getResponse ($oRequest, $oProcessor);
 
