@@ -1,5 +1,9 @@
 <?php
-class vscInlineResources extends vscHtml5View {
+namespace littrme\presentation\views;
+
+use vsc\presentation\views\Html5View;
+
+class InlineResources extends Html5View {
 
 	static public function outputScript ($sPath) {
 		if (preg_match('#http[s]?://#', $sPath) == 0 && is_file($sPath)) {

@@ -7,9 +7,12 @@
  * @date 2011.03.23
  */
 
-import ('imported');
+namespace littrme\infrastructure;
 
-class mmCrypter extends vscNull {
+use Phpass\PasswordHash;
+use vsc\infrastructure\Null;
+
+class mmCrypter extends Null {
 	static private $oInstance;
 	/**
 	 * @var PasswordHash

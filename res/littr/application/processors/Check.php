@@ -1,15 +1,27 @@
 <?php
-import ('domain/models');
+namespace littrme\littr\application\processors;
 
-class ltrCheck extends vscProcessorA {
+use littrme\littr\domain\models\ContentTable;
+use vsc\application\processors\ProcessorA;
+use vsc\domain\models\ArrayModel;
+use vsc\domain\models\ModelA;
+use vsc\infrastructure\urls\UrlRWParser;
+use vsc\infrastructure\vsc;
+use vsc\presentation\requests\HttpRequestA;
+
+class Check extends ProcessorA {
 
 	public function __construct() {}
 
 	public function init () {}
 
+	/**
+	 * @param HttpRequestA $oHttpRequest
+	 * @return ArrayModel
+	 */
 	public function getModel ($oHttpRequest) {
-		$oModel = new vscArrayModel();
-		$oUri = new vscUrlRWParser();
+		$oModel = new ArrayModel();
+		$oUri = new UrlRWParser();
 
 		$sRefererUri = $oHttpRequest->getHttpReferer();
 		if (!empty ($sRefererUri)) {
@@ -31,8 +43,13 @@ class ltrCheck extends vscProcessorA {
 		return $oModel;
 	}
 
+	/**
+	 * @param ModelA $oModel
+	 * @param HttpRequestA $oHttpRequest
+	 * @return ModelA
+	 */
 	public function handleDelete ($oModel, $oHttpRequest) {
-		$oDataTable = new contentTable();
+		$oDataTable = new ContentTable();
 		$sContent = $oHttpRequest->getVar('content');
 
 		if (strlen($oModel->uri) >= 254) {
@@ -53,7 +70,7 @@ class ltrCheck extends vscProcessorA {
 					$oModel->message = 'secret key needed';
 				}
 			}
-		} catch (vscException $e) {
+		} catch (\Exception $e) {
 			$oModel->status = 'ko';
 			if (vsc::getEnv()->isDevelopment()) {
 				$oModel->message = $e->getMessage();
@@ -64,8 +81,13 @@ class ltrCheck extends vscProcessorA {
 		return $oModel;
 	}
 
+	/**
+	 * @param ModelA $oModel
+	 * @param HttpRequestA $oHttpRequest
+	 * @return ModelA
+	 */
 	public function handleSave ($oModel, $oHttpRequest) {
-		$oDataTable = new contentTable();
+		$oDataTable = new ContentTable();
 		$sContent = $oHttpRequest->getVar('content');
 		if (strlen($oModel->uri) >= 254) {
 			$oModel->uri = substr ($oModel->uri, 0, 254) . '/';
@@ -91,7 +113,7 @@ class ltrCheck extends vscProcessorA {
 				$oModel->status = 'ko';
 				$oModel->message = 'secret key needed';
 			}
-		} catch (vscException $e) {
+		} catch (\Exception $e) {
 			$oModel->status = 'ko';
 			if (vsc::getEnv()->isDevelopment()) {
 				$oModel->message = $e->getMessage();
@@ -101,9 +123,12 @@ class ltrCheck extends vscProcessorA {
 		}
 		return $oModel;
 	}
-
+	/**
+	 * @param ModelA $oModel
+	 * @return ModelA
+	 */
 	public function handleCheck ($oModel) {
-		$oTable = new contentTable();
+		$oTable = new ContentTable();
 		if ($oTable->hasSecret ($oModel->uri)) {
 			if ($oModel->auth_token != '' && $oTable->checkToken( $oModel->uri, $oModel->auth_token )) {
 				$oModel->status = 'ok';
@@ -121,8 +146,12 @@ class ltrCheck extends vscProcessorA {
 		return $oModel;
 	}
 
+	/**
+	 * @param ModelA $oModel
+	 * @return ModelA
+	 */
 	public function handleUpdate ($oModel) {
-		$oTable = new contentTable();
+		$oTable = new ContentTable();
 		$oModel = $this->handleCheck ($oModel);
 
 		if ($oModel->status = 'ok') {
@@ -133,8 +162,11 @@ class ltrCheck extends vscProcessorA {
 
 		return $oModel;
 	}
-
-	public function handleRequest (vscHttpRequestA $oHttpRequest) {
+	/**
+	 * @param HttpRequestA $oHttpRequest
+	 * @return ModelA
+	 */
+	public function handleRequest (HttpRequestA $oHttpRequest) {
 		$oModel = $this->getModel($oHttpRequest);
 		if ($oHttpRequest->isPost()) {
 			if ($oModel->action == 'update') {

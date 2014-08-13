@@ -1,4 +1,7 @@
-<?php /* @var $this ltrView */ ?>
+<?php
+/* @var \littrme\presentation\views\View $this*/
+use vsc\ExceptionPath;
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -50,7 +53,7 @@ if (is_array ($this->getLinks()) && count($this->getLinks()) >= 1) {
 <?php
 try {
 	$sContent = $this->fetch ($this->getTemplate());
-} catch (vscExceptionPath $e) {
+} catch (ExceptionPath $e) {
 	// the template could not be found
 }
 	if (!empty($sContent)) {

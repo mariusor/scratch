@@ -1,10 +1,12 @@
 <?php
-import (ORM_PATH . 'res');
-import (ORM_PATH . 'lib');
-import ('domain/connections');
-class ltrPgAccess extends postgreSql {
+namespace littrme\domain\access;
+
+use orm\domain\access\connections\PostgreSql as vscPostgreSql;
+use orm\domain\connections\ConnectionType;
+
+class PostgreSql extends vscPostgreSql {
 	protected function getDatabaseType() {
-		return vscConnectionType::postgresql;
+		return ConnectionType::postgresql;
 	}
 	protected function getDatabaseHost() {
 		return 'localhost';

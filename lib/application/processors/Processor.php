@@ -1,27 +1,34 @@
 <?php
-import ('domain/models');
+namespace littrme\application\processors;
 
-abstract class ltrProcessor extends vscProcessorA {
+use vsc\application\processors\ProcessorA;
+use vsc\domain\models\EmptyModel;
+use vsc\infrastructure\vsc;
+use vsc\presentation\requests\HttpRequestA;
+use vsc\presentation\responses\ExceptionResponseError;
+use vsc\presentation\responses\HttpResponse;
 
-	abstract function handleGet(vscHttpRequestA $oHttpRequest);
-	abstract function handlePost(vscHttpRequestA $oHttpRequest);
+abstract class Processor extends ProcessorA {
 
-	public function handleRequest (vscHttpRequestA $oHttpRequest) {
+	abstract function handleGet(HttpRequestA $oHttpRequest);
+	abstract function handlePost(HttpRequestA $oHttpRequest);
+
+	public function handleRequest (HttpRequestA $oHttpRequest) {
 		try {
 			if ($oHttpRequest->isGet()) {
 				return $this->handleGet($oHttpRequest);
 			} elseif ($oHttpRequest->isPost())  {
 				return $this->handlePost($oHttpRequest);
 			} else {
-				throw new vscExceptionResponseError('Method not allowed', 405);
+				throw new ExceptionResponseError('Method not allowed', 405);
 			}
-		} catch (ErrorException $e) {
-			$oResponse = new vscHttpResponse();
-			if (vscExceptionResponseError::isValid($e)) {
+		} catch (\ErrorException $e) {
+			$oResponse = new HttpResponse();
+			if (ExceptionResponseError::isValid($e)) {
 				$oResponse->setStatus($e->getCode());
 			}
 
-			$oModel = new vscEmptyModel();
+			$oModel = new EmptyModel();
 			if ($e->getCode() > 500) {
 				$oModel->setPageTitle ('Internal error');
 			} elseif ($e->getCode() > 400) {

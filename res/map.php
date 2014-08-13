@@ -8,13 +8,10 @@
  * @author marius orcsik <marius@habarnam.ro>
  * @date 09.08.30
  */
-/* @var $this vscRwSiteMap */
+/* @var \vsc\application\sitemaps\RwSiteMap $this */
 
 //$this->getCurrentModuleMap()->addStyle('/s/css/capitals.css');
 //$this->getCurrentModuleMap()->addStyle('/s/css/screen.css');
-
-// loading the vsc default map - handles main controllers
-//$this->map ('.*', VSC_RES_PATH . 'application/map.php');
 
 // this will break if the current map is the first loaded
 $this->getCurrentModuleMap()->setMainTemplatePath(VSC_RES_PATH . 'templates');
@@ -23,6 +20,6 @@ $this->getCurrentModuleMap()->setMainTemplate('main.php');
 $oMap = $this->map ('', LOCAL_RES_PATH . 'littr/config/map.php');
 
 // 404 controller
-$oMap = $this->map ('(.+)\Z', VSC_RES_PATH . 'application/processors/vscerrorprocessor.class.php');
+$oMap = $this->map ('(.+)\Z', '\\vsc\\application\\processors\\ErrorProcessor');
 $oMap->setTemplatePath(VSC_RES_PATH . 'templates');
 $oMap->setTemplate ('404.php');

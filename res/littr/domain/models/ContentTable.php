@@ -1,9 +1,13 @@
 <?php
-import ('domain/domain');
-import ('domain/access');
-import (LOCAL_LIB_PATH . 'infrastructure');
+namespace littrme\littr\domain\models;
 
-class contentTable extends vscModelA {
+use littrme\domain\access\SqlAccessFactory;
+use littrme\infrastructure\mmCrypter;
+use orm\domain\domain\ExceptionDomain;
+use vsc\domain\models\ModelA;
+use vsc\infrastructure\vsc;
+
+class ContentTable extends ModelA {
 	public $uri;
 	public $content;
 	public $created = null;
@@ -18,24 +22,24 @@ class contentTable extends vscModelA {
 		$this->modified		= null;
 
 		try {
-			$this->connection = ltrSqlAccessFactory::getConnection();
+			$this->connection = SqlAccessFactory::getConnection();
 			if (!$this->connection->isConnected()) {
 				try {
 					$this->connection->connect();
 
-				} catch (Exception $e) {
+				} catch (\Exception $e) {
 					//
 				}
 			}
-		} catch (vscException $e) {
+		} catch (\Exception $e) {
 			if (!vsc::getEnv()->isDevelopment()) {
-				throw new vscExceptionDomain('Could not connect', 500);
+				throw new ExceptionDomain('Could not connect', 500);
 			} else {
 				throw $e;
 			}
-		} catch (ErrorException $e) {
+		} catch (\ErrorException $e) {
 			if (!vsc::getEnv()->isDevelopment()) {
-				throw new vscExceptionDomain('Could not connect', 500);
+				throw new ExceptionDomain('Could not connect', 500);
 			} else {
 				throw $e;
 			}
@@ -68,7 +72,6 @@ class contentTable extends vscModelA {
 
 	public function getSecret ($sUri) {
 		$query = 'select secret from data where uri = :uri';
-		/* @var $oResult MySQLi_Result */
 		return $this->query($query, array('uri' => $sUri));
 	}
 
@@ -91,7 +94,7 @@ class contentTable extends vscModelA {
 			$this->getOne($sUri);
 			$aResult = $this->getConnection()->getAssoc();
 			return !is_null($aResult['secret']);
-		} catch (vscException $e) {
+		} catch (\Exception $e) {
 			return false;
 		}
 		return false;
@@ -101,7 +104,7 @@ class contentTable extends vscModelA {
 		try {
 			$this->getOne($sUri);
 			$aResult = $this->getConnection()->getAssoc();
-		} catch (vscException $e) {
+		} catch (\Exception $e) {
 			$aResult = array('secret' => null);
 		}
 
@@ -185,7 +188,7 @@ class contentTable extends vscModelA {
 		try {
 			$this->getOne($sUri);
 			$aResult = $this->getConnection()->getAssoc();
-		} catch (ErrorException $e){
+		} catch (\ErrorException $e){
 			$aResult = array();
 			$aResult['secret'] = null;
 		}
@@ -197,7 +200,7 @@ class contentTable extends vscModelA {
 		try {
 			$this->getOne($sUri);
 			$aResult = $this->getConnection()->getAssoc();
-		} catch (ErrorException $e){
+		} catch (\ErrorException $e){
 			$aResult = array('secret' => null);
 		}
 		return mmCrypter::check ('#' . $aResult['secret'] . '#' . $sUri . '#', $sToken);

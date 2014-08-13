@@ -14,6 +14,10 @@
 		{
 			"type": "vcs",
 			"url": "https://gitorious.org/vsc-v2/vsc-v2.git"
+		},
+		{
+			"type": "vcs",
+			"url": "https://gitorious.org/vsc-v2/vsc-orm.git"
 		}
 	],
 	"autoload": {
@@ -21,6 +25,9 @@
 	},
 	"require": {
 		"php": ">=5.3.0",
-		"vsc/vsc": "dev-composer_migration"
+		"cogpowered/finediff" : "dev-master",
+		"xjtuwangke/passwordhash": "dev-master",
+		"vsc/vsc": "dev-composer_migration",
+		"vsc/orm": "dev-composer_migration"
 	}
 }

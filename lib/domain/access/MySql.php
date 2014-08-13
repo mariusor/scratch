@@ -1,11 +1,12 @@
 <?php
-import (ORM_PATH . 'res');
-import (ORM_PATH . 'lib');
-import ('domain/connections');
+namespace littrme\domain\access;
 
-class ltrMySqlAccess extends mySqlIm {
+use orm\domain\access\connections\MySqlIm;
+use orm\domain\connections\ConnectionType;
+
+class MySql extends MySqlIm {
 	public function getDatabaseType() {
-		return vscConnectionType::mysql;
+		return ConnectionType::mysql;
 	}
 	public function getDatabaseHost() {
 		return 'localhost';
