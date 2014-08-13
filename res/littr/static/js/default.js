@@ -1,3 +1,4 @@
+/*/
 var _gaq = _gaq || [];
 _gaq.push(['_setAccount', 'UA-110656-5']);
 _gaq.push(['_trackPageview']);
@@ -6,6 +7,7 @@ _gaq.push(['_trackPageview']);
 	ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
 	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 })();
+/**/
 $(document).ready( function() {
 	var w = $(window);
 	var editable = $("body > section:first-child");
@@ -233,12 +235,16 @@ $(document).ready( function() {
 		var now = new Date();
 		if ( editable.prop("contentEditable") == "true" && !bStillSaving && unsavedChanges(editable.html()) && ((now.getTime() - finish.getTime()) > waitTime)) {
 			editable.data('modified', now.getTime());
+			//FineDiff.FineDiff (previousContent, editable.html(), FineDiff.granularity.paragraph);
+//			var t = new FineDiff(previousContent, editable.html(), Diff.granularity.paragraph);
+//			console.debug (t);
 			editable.fresheditor('save', function (id, content) {
 				var postData = {
 					'auth_token' : authToken,
 					'action' : 'save',
 					'content' : content
 				};
+
 				$.ajax({
 					url: '/',
 					dataType: 'json',

@@ -17,7 +17,7 @@ class ltrSimpleEdit extends ltrProcessor {
 		$aGetKeys	= array_keys ($aGetVars);
 		$sAction	= array_shift ($aGetKeys);
 
-		$oUri = new vscUrlRWParser();
+		$oUri = new vscUrlRWParser(vscUrlRWParser::getCurrentUrl());
 
 		$sCurrentUri = urldecode($oUri->getPath());
 		$oModel = new ltrEditModel($sCurrentUri);

@@ -1,10 +1,11 @@
 <?php
 $iStart		= microtime(true);
 $sContent 	= '';
-
 ob_start ();
 try {
+
 	include ('../config.inc.php');
+
 	echo getErrorHeaderOutput (); // in the case of a fatal error we have this as fallback
 	ob_start ();
 
@@ -51,6 +52,7 @@ try {
 			$sLocale = 'en';
 		}
 	}
+
 	if (!empty($sLocale)) {
 		$aCharsets = $oRequest->getHttpAcceptCharset();
 		if (in_array('UTF-8',$aCharsets))

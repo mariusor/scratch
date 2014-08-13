@@ -1,6 +1,6 @@
 <?php
 function isDebug () { return true; }
-
+/*/
 function getErrorHeaderOutput ($e = null) {
 	header ('HTTP/1.1 500 Internal Server Error');
 	$sRet = '<?xml version="1.0" encoding="utf-8"?>';
@@ -47,7 +47,7 @@ function _e ($e) {
 	echo '</html>';
 	exit (0);
 }
-
+/**/
 function base_encode($val, $base=62, $chars='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ') {
 	// can't handle numbers larger than 2^31-1 = 2147483647
 	$str = '';

@@ -14,7 +14,7 @@ class ltrMySqlAccess extends mySqlIm {
 		return 'littr';
 	}
 	public function getDatabasePassword() {
-		return '***';
+		return '';
 	}
 	public function getDatabaseName() {
 		return 'littr';

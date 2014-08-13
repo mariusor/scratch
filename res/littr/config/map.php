@@ -19,7 +19,7 @@ $oCtrlMap->setMainTemplate ('master.php');
 if ( vsc::getEnv()->getHttpRequest()->isPost() ) {
 	$oMap = $this->map ('(\w*)/?' ,$sCurPath . 'application/processors/ltrcheck.class.php');
 	$oMap->setTemplate('check.php');
-	$oSaveCtrlMap = $oMap->mapController(VSC_RES_PATH . 'application/controllers/vscjsoncontroller.class.php');
+	$oSaveCtrlMap = $oMap->mapController('.*', VSC_RES_PATH . 'application/controllers/vscjsoncontroller.class.php');
 	$oSaveCtrlMap->setView (VSC_RES_PATH . 'presentation/views/vscjsonview.class.php');
 } else {
 	// we do this ugly thing as the vscUrlRwDispatcher doesn't know about GET variables
