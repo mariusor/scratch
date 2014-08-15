@@ -1,4 +1,8 @@
-<?php  /* @var $model vscErrorModel */ ?>
+<?php
+/* @var \vsc\domain\models\ErrorModel $model */
+use vsc\infrastructure\vsc;
+
+?>
 <h2><?php echo $model->getPageTitle(); ?></h2>
 <p><?php echo $model->getPageContent();?></p>
 <?php if (vsc::getEnv()->isDevelopment()) { ?>

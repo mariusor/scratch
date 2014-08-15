@@ -14,15 +14,15 @@ $oModuleMap->addStyle ($sCurPath . 'static/css/style.css');
 
 // setting the main template path to our templates folder
 $oCtrlMap = $oModuleMap->mapController ('.*', '\\vsc\\application\\controllers\\Html5Controller');
-$oCtrlMap->setView ( LOCAL_LIB_PATH . 'presentation/views/View.php');
+$oCtrlMap->setView ('\\littrme\\presentation\\views\\View');
 $oCtrlMap->setMainTemplatePath ($sCurPath . 'templates');
 $oCtrlMap->setMainTemplate ('master.php');
 
 if ( vsc::getEnv()->getHttpRequest()->isPost() ) {
-	$oMap = $this->map ('(\w*)/?' , '\\littrme\\littr\\application\\processors\\Check.php');
+	$oMap = $this->map ('(\w*)/?' , '\\littrme\\littr\\application\\processors\\Check');
 	$oMap->setTemplate('check.php');
 	$oSaveCtrlMap = $oMap->mapController('.*', '\\vsc\\application\\controllers\\JsonController');
-	$oSaveCtrlMap->setView (VSC_RES_PATH . 'presentation/views/vscjsonview.class.php');
+	$oSaveCtrlMap->setView ('\\vsc\\presentation\\views\\JsonView');
 } else {
 	// we do this ugly thing as the vscUrlRwDispatcher doesn't know about GET variables
 	if ( vsc::getEnv()->getHttpRequest()->hasGetVars() ) {
@@ -47,9 +47,6 @@ if ( vsc::getEnv()->getHttpRequest()->isPost() ) {
 			$oMap->addScript($sCurPath . 'static/js/jquery.editable.js');
 			$oMap->addScript($sCurPath . 'static/js/default.js');
 		}
-// 		if ( stristr($oMap->getPath(), 'showindex') !== false) {
-// 			$oMap->addScript($sCurPath . 'static/js/display-links.js');
-// 		}
 	} else {
 		// this needs an extra step of minifying the sources on the server
 		if ( stristr($oMap->getPath(), 'simpleedit') !== false ) {
@@ -58,8 +55,5 @@ if ( vsc::getEnv()->getHttpRequest()->isPost() ) {
 			$oMap->addScript($sCurPath . 'static/js/jquery.editable.min.js');
 			$oMap->addScript($sCurPath . 'static/js/default.min.js');
 		}
-// 		if ( stristr($oMap->getPath(), 'showindex') !== false) {
-// 			$oMap->addScript($sCurPath . 'static/js/display-links.min.js');
-// 		}
 	}
 }

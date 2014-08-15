@@ -1,7 +1,7 @@
 <?php
 namespace littrme\domain\access;
 
-use orm\domain\access\connections\PostgreSql as vscPostgreSql;
+use orm\domain\connections\PostgreSql as vscPostgreSql;
 use orm\domain\connections\ConnectionType;
 
 class PostgreSql extends vscPostgreSql {

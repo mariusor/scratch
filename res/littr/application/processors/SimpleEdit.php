@@ -3,6 +3,7 @@ namespace littrme\littr\application\processors;
 
 use littrme\littr\domain\models\EditModel;
 use vsc\infrastructure\urls\UrlRWParser;
+use vsc\infrastructure\vsc;
 use vsc\presentation\requests\HttpRequestA;
 use littrme\application\processors\Processor;
 
@@ -23,7 +24,7 @@ class SimpleEdit extends Processor {
 		$aGetKeys	= array_keys ($aGetVars);
 		$sAction	= array_shift ($aGetKeys);
 
-		$oUri = new UrlRWParser();
+		$oUri = UrlRWParser::getCurrentUrl();
 
 		$sCurrentUri = urldecode($oUri->getPath());
 		$oModel = new EditModel($sCurrentUri);

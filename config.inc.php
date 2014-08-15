@@ -25,7 +25,7 @@ if ( file_exists('vendor' . DIRECTORY_SEPARATOR . 'vsc' . DIRECTORY_SEPARATOR . 
 	throw new RuntimeException('Unable to load vsc library. Run `php composer.phar install`.');
 }
 
-if ( file_exists('vendor' . DIRECTORY_SEPARATOR . 'vsc' . DIRECTORY_SEPARATOR . 'orm' . DIRECTORY_SEPARATOR . 'vsc.inc.php') ) {
+if ( file_exists('vendor' . DIRECTORY_SEPARATOR . 'vsc' . DIRECTORY_SEPARATOR . 'orm' . DIRECTORY_SEPARATOR . 'orm.inc.php') ) {
 	include_once 'vendor' . DIRECTORY_SEPARATOR . 'vsc' . DIRECTORY_SEPARATOR . 'orm' . DIRECTORY_SEPARATOR . 'orm.inc.php';
 } else {
 	throw new RuntimeException('Unable to load vsc\'s library orm module. Run `php composer.phar install`.');
