@@ -6,16 +6,17 @@ $oModuleMap = $this->getCurrentModuleMap();
 $sCurPath = $oModuleMap->getModulePath();
 
 // static files
-// $oMap = $this->map ('default.css', $sCurPath . 'static/css/default.css');
+//$oMap = $this->map ('default.css', 'static/css/style.css');
+//$oMap = $this->map ('default.js', 'static/js/default.js');
 
 // main components
-$oModuleMap->setTemplatePath ($sCurPath . 'templates');
-$oModuleMap->addStyle ($sCurPath . 'static/css/style.css');
+$oModuleMap->setTemplatePath ('templates');
+$oModuleMap->addStyle ('static/css/style.css');
 
 // setting the main template path to our templates folder
 $oCtrlMap = $oModuleMap->mapController ('.*', '\\vsc\\application\\controllers\\Html5Controller');
 $oCtrlMap->setView ('\\littrme\\presentation\\views\\View');
-$oCtrlMap->setMainTemplatePath ($sCurPath . 'templates');
+$oCtrlMap->setMainTemplatePath ('templates');
 $oCtrlMap->setMainTemplate ('master.php');
 
 if ( vsc::getEnv()->getHttpRequest()->isPost() ) {
@@ -24,7 +25,7 @@ if ( vsc::getEnv()->getHttpRequest()->isPost() ) {
 	$oSaveCtrlMap = $oMap->mapController('.*', '\\vsc\\application\\controllers\\JsonController');
 	$oSaveCtrlMap->setView ('\\vsc\\presentation\\views\\JsonView');
 } else {
-	// we do this ugly thing as the vscUrlRwDispatcher doesn't know about GET variables
+	// we do this ugly thing as the @var UrlRwDispatcher doesn't know about GET variables
 	if ( vsc::getEnv()->getHttpRequest()->hasGetVars() ) {
 		if ( vsc::getEnv()->getHttpRequest()->hasGetVar ('show-index') ) {
 			$oMap = $this->map ('(.*)/?\Z', '\\littrme\\littr\\application\\processors\\ShowIndex');
@@ -40,20 +41,14 @@ if ( vsc::getEnv()->getHttpRequest()->isPost() ) {
 	}
 
 	$oMap->addScript('//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js');
-	if (vsc::getEnv()->isDevelopment()) {
-		if ( stristr($oMap->getPath(), 'simpleedit') !== false ) {
-			$oMap->setTemplate ('main.php');
-			$oMap->setTitle ('Littr - edit, protect and share html');
-			$oMap->addScript($sCurPath . 'static/js/jquery.editable.js');
-			$oMap->addScript($sCurPath . 'static/js/default.js');
-		}
-	} else {
-		// this needs an extra step of minifying the sources on the server
-		if ( stristr($oMap->getPath(), 'simpleedit') !== false ) {
-			$oMap->setTemplate ('main.php');
-			$oMap->setTitle ('Littr - edit, protect and share html');
-			$oMap->addScript($sCurPath . 'static/js/jquery.editable.min.js');
-			$oMap->addScript($sCurPath . 'static/js/default.min.js');
-		}
+	// this needs an extra step of minifying the sources on the server
+	if ( stristr($oMap->getPath(), 'simpleedit') !== false ) {
+		$oMap->setTemplate ('main.php');
+		$oMap->setTitle ('Littr - edit, protect and share html');
+		$oMap->addScript( 'static/js/jquery.editable.min.js' );
+		$oMap->addScript( 'static/js/default.min.js' );
+	}
+	if ( stristr($oMap->getPath(), 'showindex') !== false) {
+		$oMap->addScript('static/js/display-links.min.js' );
 	}
 }

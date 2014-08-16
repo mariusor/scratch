@@ -3,6 +3,7 @@ namespace littrme\application\processors;
 
 use vsc\application\processors\ProcessorA;
 use vsc\domain\models\EmptyModel;
+use vsc\domain\models\ErrorModel;
 use vsc\infrastructure\vsc;
 use vsc\presentation\requests\HttpRequestA;
 use vsc\presentation\responses\ExceptionResponseError;
@@ -28,19 +29,7 @@ abstract class Processor extends ProcessorA {
 				$oResponse->setStatus($e->getCode());
 			}
 
-			$oModel = new EmptyModel();
-			if ($e->getCode() > 500) {
-				$oModel->setPageTitle ('Internal error');
-			} elseif ($e->getCode() > 400) {
-				$oModel->setPageTitle ('User error');
-			}
-
-			if (vsc::getEnv()->isDevelopment()) {
-				$sContent = $e->getMessage() . vsc::nl() . '<pre class="backtrace">'. $e->getTraceAsString() .'</pre>';
-			} else {
-				$sContent = $e->getMessage();
-			}
-			$oModel->setPageContent($sContent);
+			$oModel = new ErrorModel($e);
 			$this->getMap()->setResponse($oResponse);
 			$this->getMap()->setTemplate('error.php');
 		}

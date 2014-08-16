@@ -12,8 +12,10 @@ $iStart		= microtime(true);
 $sContent 	= '';
 
 ob_start ();
+
 try {
 	include ('../config.inc.php');
+
 	echo \littrme\getErrorHeaderOutput(); // in the case of a fatal error we have this as fallback
 	ob_start ();
 
