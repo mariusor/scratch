@@ -19,7 +19,7 @@ $aMoreScripts = array();
 if (count ($aAllScripts) >= 1 ) {
 	if (!$request->hasGetVar('show-index')) {
 		foreach ($aAllScripts as $sPath) {
-			static::outputScript ($sPath);
+			echo static::outputScript ($sPath);
 		}
 	}
 }
@@ -29,7 +29,7 @@ if (count($aAllStyles) >= 1) {
 	foreach ($aAllStyles as $sMedia => $aStyles) {
 		if (is_array($aStyles)) {
 			foreach ($aStyles as $sPath ) {
-				static::outputStyle ($sPath, $sMedia);
+				echo static::outputStyle ($sPath, $sMedia);
 			}
 		}
 	}
@@ -67,7 +67,7 @@ try {
 $aAllScripts = $this->getScripts();
 if (count ($aAllScripts) >= 1 ) {
 	foreach ($aAllScripts as $sPath) {
-		static::outputScript ($sPath);
+		echo static::outputScript ($sPath);
 	}
 }
 ?>
