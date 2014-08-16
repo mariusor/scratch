@@ -46,7 +46,7 @@ $(document).ready( function() {
 
 	// lock-unlock icon
 	var feedBack = $("<nav/>").addClass('feedback').insertAfter(editable);
-	var a = $("<a/>").addClass('icon').css({display:"block", float:"right"}).prop('alt', 'Locked').appendTo (feedBack).hide();
+	var a = $("<a/>").addClass('icon').css({"display":"block", "float":"right"}).prop('alt', 'Locked').appendTo (feedBack).hide();
 	$('.feedback').mouseenter(function(e){
 		$(this).children('a').fadeIn(1500);
 	}).mouseleave(function (e) {
@@ -149,7 +149,7 @@ $(document).ready( function() {
 				var reader = new FileReader();
 				reader.onload = (function (theFile) {
 					return function(e) {
-//						var img = $('<img src="' + e.target.result + '" data-name="'+theFile.name+'"/>');
+						//var img = $('<img src="' + e.target.result + '" data-name="'+theFile.name+'"/>');
 						var img = document.createElement ("img");
 						img.src = e.target.result;
 						img.title = theFile.name;
