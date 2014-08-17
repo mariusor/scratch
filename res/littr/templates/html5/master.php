@@ -1,4 +1,7 @@
-<?php /* @var $this ltrView */ ?>
+<?php
+/* @var \littrme\presentation\views\View $this*/
+use vsc\ExceptionPath;
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -16,7 +19,7 @@ $aMoreScripts = array();
 if (count ($aAllScripts) >= 1 ) {
 	if (!$request->hasGetVar('show-index')) {
 		foreach ($aAllScripts as $sPath) {
-			static::outputScript ($sPath);
+			echo static::outputScript ($sPath);
 		}
 	}
 }
@@ -26,7 +29,7 @@ if (count($aAllStyles) >= 1) {
 	foreach ($aAllStyles as $sMedia => $aStyles) {
 		if (is_array($aStyles)) {
 			foreach ($aStyles as $sPath ) {
-				static::outputStyle ($sPath, $sMedia);
+				echo static::outputStyle ($sPath, $sMedia);
 			}
 		}
 	}
@@ -50,7 +53,7 @@ if (is_array ($this->getLinks()) && count($this->getLinks()) >= 1) {
 <?php
 try {
 	$sContent = $this->fetch ($this->getTemplate());
-} catch (vscExceptionPath $e) {
+} catch (ExceptionPath $e) {
 	// the template could not be found
 }
 	if (!empty($sContent)) {
@@ -64,7 +67,7 @@ try {
 $aAllScripts = $this->getScripts();
 if (count ($aAllScripts) >= 1 ) {
 	foreach ($aAllScripts as $sPath) {
-		static::outputScript ($sPath);
+		echo static::outputScript ($sPath);
 	}
 }
 ?>

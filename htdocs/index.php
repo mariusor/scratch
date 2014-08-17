@@ -1,27 +1,34 @@
 <?php
+use vsc\infrastructure\vsc;
+use vsc\infrastructure\urls\UrlRWParser;
+use vsc\presentation\responses\HttpResponse;
+use vsc\application\sitemaps\ErrorMap;
+use vsc\application\sitemaps\ErrorControllerMap;
+use vsc\application\processors\ErrorProcessor;
+use vsc\application\controllers\Html5Controller;
+use vsc\presentation\requests\HttpRequestA;
+
 $iStart		= microtime(true);
 $sContent 	= '';
 ob_start ();
+
 try {
 
 	include ('../config.inc.php');
 
-	echo getErrorHeaderOutput (); // in the case of a fatal error we have this as fallback
+	echo \littrme\getErrorHeaderOutput(); // in the case of a fatal error we have this as fallback
 	ob_start ();
 
 	// here be dragons
-	import ('exceptions');
-	import ('application/controllers');
-
-	/* @var $oDispatcher vscRwDispatcher */
+	/* @var  \vsc\application\dispatchers\RwDispatcher $oDispatcher */
 	$oDispatcher = vsc::getEnv()->getDispatcher();
 	// here definitely should be a factory
 	$oRequest = vsc::getEnv()->getHttpRequest();
 
-	if(!vscUrlRWParser::hasGoodTermination($oRequest->getUri())) {
+	if(!UrlRWParser::hasGoodTermination($oRequest->getUri())) {
 		// fixing(?) urls which don't have an ending slash
 		// or a filename.ext termination
-		$oResponse = new vscHttpResponse();
+		$oResponse = new HttpResponse();
 		$oResponse->setStatus(301); // 301 permanently moved
 		$oResponse->setLocation($oRequest->getUriObject()->getCompleteUri(true));
 
@@ -64,40 +71,41 @@ try {
 	// load the sitemap
 	$oDispatcher->loadSiteMap (LOCAL_RES_PATH . 'map.php');
 
-	/* @var $oProcessor vscProcessorA */
+	/* @var \vsc\application\processors\ProcessorA $oProcessor */
 	// get the controller
 	$oProcessor			= $oDispatcher->getProcessController ($oRequest);
 
-	/* @var $oFrontController vscFrontControllerA */
+	/* @var \vsc\application\controllers\FrontControllerA $oFrontController */
 	// get the front controller
 	$oFrontController 	= $oDispatcher->getFrontController ();
 
 	// get the response
 } catch (Exception $e) {
-	import ('application/processors');
-	import ('application/controllers');
-	import ('application/sitemaps');
-	$oMap = new vscErrorMap();
+	$oMap = new ErrorMap();
 	$oMap->setTemplate('error.php');
 
-	$oCtrlMap = new vscErrorControllerMap();
+	$oCtrlMap = new ErrorControllerMap();
 	$oCtrlMap->setTemplatePath(LOCAL_RES_PATH . 'littr/templates');
 
-	$oProcessor = new vscErrorProcessor($e);
+	$oProcessor = new ErrorProcessor($e);
 	$oProcessor->setMap($oMap);
 
-	$oFrontController = new vscHtml5Controller();
+	$oFrontController = new Html5Controller();
 	$oFrontController->setMap($oCtrlMap);
 }
 
 try {
-	$aErrors = cleanBuffers();
+	if (!HttpRequestA::isValid($oRequest)) {
+		$oRequest = vsc::getEnv()->getHttpRequest();
+	}
+
+	$aErrors = \vsc\cleanBuffers();
 	$oResponse			= $oFrontController->getResponse ($oRequest, $oProcessor);
 
 	// output the response
 	$sContent = $oResponse->getOutput();
 } catch (Exception $e) {
-	_e ($e);
+	\vsc\_e ($e);
 }
 
 echo $sContent;

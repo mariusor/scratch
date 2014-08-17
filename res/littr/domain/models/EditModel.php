@@ -1,5 +1,9 @@
 <?php
-class ltrEditModel extends vscCacheableModelA {
+namespace littrme\littr\domain\models;
+
+use vsc\domain\models\CacheableModelA;
+
+class EditModel extends CacheableModelA {
 	public $uri;
 	public $help;
 	public $content;
@@ -8,7 +12,7 @@ class ltrEditModel extends vscCacheableModelA {
 	public $secret;
 
 	public function __construct ($sCurrentUri) {
-		$o = new contentTable();
+		$o = new ContentTable();
 		$o->loadContent ($sCurrentUri);
 
 		$this->uri			= $o->uri;

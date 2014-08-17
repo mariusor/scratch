@@ -1,5 +1,7 @@
 <?php
-class ltrView extends vscInlineResources {
+namespace littrme\presentation\views;
+
+class View extends InlineResources {
 	public function dateFormat ($sFormat, $iTimestamp) {
 		if ($sFormat == '%fancy') {
 			$sWhen = 'ago';

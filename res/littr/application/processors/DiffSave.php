@@ -1,17 +1,24 @@
 <?php
-import ('domain/models');
+namespace littrme\littr\application\processors;
 
-class diffSave extends vscProcessorA {
+use littrme\littr\domain\models\ContentTable;
+use vsc\application\processors\ProcessorA;
+use vsc\domain\models\ArrayModel;
+use vsc\infrastructure\urls\UrlRWParser;
+use vsc\infrastructure\vsc;
+use vsc\presentation\requests\HttpRequestA;
+
+class DiffSave extends ProcessorA {
 	public function __construct() {
 	}
 
 	public function init () {
 	}
 
-	public function handleRequest (vscHttpRequestA $oHttpRequest) {
-		$oModel = new vscArrayModel();
-		$saveObject = new contentTable();
-		$oUri = new vscUrlRWParser();
+	public function handleRequest (HttpRequestA $oHttpRequest) {
+		$oModel = new ArrayModel();
+		$saveObject = new ContentTable();
+		$oUri = new UrlRWParser();
 
 		if ($oHttpRequest->isPost()) {
 			$sRefererUri = $oHttpRequest->getHttpReferer();
@@ -49,7 +56,7 @@ class diffSave extends vscProcessorA {
 					$oModel->status = 'ko';
 					$oModel->message = 'secret key needed';
 				}
-			} catch (vscException $e) {
+			} catch (\Exception $e) {
 				$oModel->status = 'ko';
 				if (vsc::getEnv()->isDevelopment()) {
 					$oModel->message = $e->getMessage();
