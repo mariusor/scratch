@@ -3,8 +3,9 @@ namespace littrme\littr\domain\models;
 
 use littrme\domain\access\SqlAccessFactory;
 use littrme\infrastructure\mmCrypter;
-use orm\domain\domain\ExceptionDomain;
+use orm\domain\ExceptionDomain;
 use vsc\domain\models\ModelA;
+use vsc\ExceptionError;
 use vsc\infrastructure\vsc;
 
 class ContentTable extends ModelA {
@@ -37,7 +38,7 @@ class ContentTable extends ModelA {
 			} else {
 				throw $e;
 			}
-		} catch (\ErrorException $e) {
+		} catch (ExceptionError $e) {
 			if (!vsc::getEnv()->isDevelopment()) {
 				throw new ExceptionDomain('Could not connect', 500);
 			} else {

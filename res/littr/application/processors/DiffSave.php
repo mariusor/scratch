@@ -21,9 +21,9 @@ class DiffSave extends ProcessorA {
 		$oUri = new UrlRWParser();
 
 		if ($oHttpRequest->isPost()) {
-			$sRefererUri = $oHttpRequest->getHttpReferer();
-			if (!empty ($sRefererUri)) {
-				$oUri->setUrl($sRefererUri);
+			$sReferrerUri = $oHttpRequest->getHttpReferrer();
+			if (!empty ($sReferrerUri)) {
+				$oUri->setUrl($sReferrerUri);
 			}
 			$sIncomingUri = $oHttpRequest->getVar('uri');
 			if (!empty($sIncomingUri)) {
