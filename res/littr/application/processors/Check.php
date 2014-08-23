@@ -23,9 +23,9 @@ class Check extends ProcessorA {
 		$oModel = new ArrayModel();
 		$oUri = new UrlRWParser();
 
-		$sReferrerUri = $oHttpRequest->getHttpReferer();
-		if (!empty ($sReferrerUri)) {
-			$oUri->setUrl($sReferrerUri);
+		$sRefererUri = $oHttpRequest->getHttpReferer();
+		if (!empty ($sRefererUri)) {
+			$oUri->setUrl($sRefererUri);
 		}
 		$sIncomingUri = $oHttpRequest->getVar('uri');
 		if (!empty($sIncomingUri)) {
