@@ -242,7 +242,8 @@ $(document).ready( function() {
 				var postData = {
 					'auth_token' : authToken,
 					'action' : 'save',
-					'content' : content
+					'content' : content,
+					'uri' : $(location).attr('href')
 				};
 
 				$.ajax({
