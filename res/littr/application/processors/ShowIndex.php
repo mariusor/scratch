@@ -17,8 +17,7 @@ class ShowIndex extends Processor {
 	public function handlePost (HttpRequestA $oHttpRequest) {}
 
 	public function handleGet (HttpRequestA $oHttpRequest) {
-		$oUri = new UrlRWParser();
-		$oUri->setUrl($oUri->getCompleteUri(true));
+		$oUri = UrlRWParser::getCurrentUrl();
 
 		$sCurrentUri = urldecode($oUri->getPath());
 		$o = new ContentTable();
