@@ -154,7 +154,6 @@ class ContentTable extends ModelA {
 		$iNumRows = $this->getOne($sUri);
 		if ($iNumRows > 0) {
 			$aTemp = $this->getConnection()->getAssoc();
-
 			if (is_array ($aTemp) && count ($aTemp) > 0) {
 				$this->uri			= $aTemp['uri'];
 				$this->content		= $aTemp['content'];
@@ -166,7 +165,7 @@ class ContentTable extends ModelA {
 			}
 		}
 		$this->uri 			= $sUri;
-		$this->secret 		= mmCrypter::hash(' ');
+		$this->secret 		= mmCrypter::hash('');
 		return false;
 	}
 
