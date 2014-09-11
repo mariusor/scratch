@@ -14,30 +14,30 @@ $oModuleMap->setTemplatePath ('templates');
 $oModuleMap->addStyle ('static/css/style.css');
 
 // setting the main template path to our templates folder
-$oCtrlMap = $oModuleMap->mapController ('.*', '\\vsc\\application\\controllers\\Html5Controller');
-$oCtrlMap->setView ('\\littrme\\presentation\\views\\View');
+$oCtrlMap = $oModuleMap->mapController ('.*', \vsc\application\controllers\Html5Controller::class);
+$oCtrlMap->setView (\littrme\presentation\views\View::class);
 $oCtrlMap->setMainTemplatePath ('templates');
 $oCtrlMap->setMainTemplate ('master.php');
 
 if ( vsc::getEnv()->getHttpRequest()->isPost() ) {
-	$oMap = $this->map ('(\w*)/?' , '\\littrme\\littr\\application\\processors\\Check');
+	$oMap = $this->map ('(\w*)/?' , \littrme\littr\application\processors\Check::class);
 	$oMap->setTemplate('check.php');
-	$oSaveCtrlMap = $oMap->mapController('.*', '\\vsc\\application\\controllers\\JsonController');
-	$oSaveCtrlMap->setView ('\\vsc\\presentation\\views\\JsonView');
+	$oSaveCtrlMap = $oMap->mapController('.*', \vsc\application\controllers\JsonController::class);
+	$oSaveCtrlMap->setView (\vsc\presentation\views\JsonView::class);
 } else {
 	// we do this ugly thing as the @var UrlRwDispatcher doesn't know about GET variables
 	if ( vsc::getEnv()->getHttpRequest()->hasGetVars() ) {
 		if ( vsc::getEnv()->getHttpRequest()->hasGetVar ('show-index') ) {
-			$oMap = $this->map ('(.*)/?\Z', '\\littrme\\littr\\application\\processors\\ShowIndex');
+			$oMap = $this->map ('(.*)/?\Z', \littrme\littr\application\processors\ShowIndex::class);
 			$oMap->setTemplate ('showindex.php');
 			$oMap->setTitle ('Littr - listing of child pages');
 		} elseif ( vsc::getEnv()->getHttpRequest()->hasGetVar ('random') ) {
-			$oMap = $this->map ('(.*)/?\Z', '\\littrme\\littr\\application\\processors\\RedirectToRand');
+			$oMap = $this->map ('(.*)/?\Z', \littrme\littr\application\processors\RedirectToRand::class);
 		} else {
-			$oMap = $this->map ('(.*)/?\Z', '\\littrme\\littr\\application\\processors\\SimpleEdit');
+			$oMap = $this->map ('(.*)/?\Z', \littrme\littr\application\processors\SimpleEdit::class);
 		}
 	} else {
-		$oMap = $this->map ('(.*)/?\Z', '\\littrme\\littr\\application\\processors\\SimpleEdit');
+		$oMap = $this->map ('(.*)/?\Z', littrme\littr\application\processors\SimpleEdit::class);
 	}
 
 	$oMap->addScript('//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js');
