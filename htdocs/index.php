@@ -30,7 +30,7 @@ try {
 		// or a filename.ext termination
 		$oResponse = new HttpResponse();
 		$oResponse->setStatus(301); // 301 permanently moved
-		$oResponse->setLocation($oRequest->getUriObject()->getCompleteUri(true));
+		$oResponse->setLocation(UrlRWParser::getCurrentUrl());
 
 		// output the response
 		$sContent = $oResponse->getOutput();

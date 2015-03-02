@@ -35,9 +35,9 @@ class SimpleEdit extends Processor {
 
 			$Titles = $DOMDoc->getElementsByTagName ( 'h1' );
 			if ( $Titles->length > 0 ) {
-				$sTitle = trim ( $Titles->item ( 0 )->textContent );
+				$sTitle = trim ($Titles->item (0)->textContent);
 
-				$this->getMap ()->setTitle ( $sTitle );
+				$this->getMap ()->setTitle ($sTitle);
 			}
 		}
 
