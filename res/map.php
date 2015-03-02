@@ -13,10 +13,6 @@
 //$this->getCurrentModuleMap()->addStyle('/s/css/capitals.css');
 //$this->getCurrentModuleMap()->addStyle('/s/css/screen.css');
 
-// this will break if the current map is the first loaded
-$this->getCurrentModuleMap()->setMainTemplatePath('templates');
-$this->getCurrentModuleMap()->setMainTemplate('main.php');
-
 $oMap = $this->map ('', LOCAL_RES_PATH . 'littr/config/map.php');
 
 // 404 controller

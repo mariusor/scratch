@@ -3,6 +3,9 @@ use vsc\infrastructure\vsc;
 
 /* @var \vsc\application\sitemaps\RwSiteMap $this */
 $oModuleMap = $this->getCurrentModuleMap();
+// this will break if the current map is the first loaded
+$oModuleMap->setMainTemplatePath('templates');
+$oModuleMap->setMainTemplate('main.php');
 $sCurPath = $oModuleMap->getModulePath();
 
 // static files
