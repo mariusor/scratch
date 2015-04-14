@@ -2,9 +2,9 @@
 namespace littrme\domain\access;
 
 use orm\domain\connections\NullSql;
-use vsc\infrastructure\Null;
-use vsc\infrastructure\vsc;
-class SqlAccessFactory extends Null {
+use vsc\infrastructure\Base;
+
+class SqlAccessFactory extends Base {
 	static function getConnection () {
 		try {
 			return new PostgreSql();
