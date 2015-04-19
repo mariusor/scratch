@@ -13,11 +13,11 @@
 	"repositories": [
 		{
 			"type": "vcs",
-			"url": "https://gitorious.org/vsc-v2/vsc-v2.git"
+			"url": "https://github.com/lpbm/vsc.git"
 		},
 		{
 			"type": "vcs",
-			"url": "https://gitorious.org/vsc-v2/vsc-orm.git"
+			"url": "https://github.com/lpbm/vsc-orm.git"
 		}
 	],
 	"autoload": {
