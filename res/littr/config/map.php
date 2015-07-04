@@ -8,10 +8,6 @@ $oModuleMap->setMainTemplatePath('templates');
 $oModuleMap->setMainTemplate('main.php');
 $sCurPath = $oModuleMap->getModulePath();
 
-// static files
-//$oMap = $this->map ('default.css', 'static/css/style.css');
-//$oMap = $this->map ('default.js', 'static/js/default.js');
-
 // main components
 $oModuleMap->setTemplatePath ('templates');
 $oModuleMap->addStyle ('static/css/style.css');

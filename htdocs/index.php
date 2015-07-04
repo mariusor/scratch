@@ -1,6 +1,6 @@
 <?php
 use vsc\infrastructure\vsc;
-use vsc\infrastructure\urls\UrlRWParser;
+use vsc\infrastructure\urls\UrlParserA;
 use vsc\presentation\responses\HttpResponse;
 use vsc\application\sitemaps\ErrorMap;
 use vsc\application\sitemaps\ErrorControllerMap;
@@ -25,12 +25,12 @@ try {
 	// here definitely should be a factory
 	$oRequest = vsc::getEnv()->getHttpRequest();
 
-	if(!UrlRWParser::hasGoodTermination($oRequest->getUri())) {
+	if(!UrlParserA::hasGoodTermination($oRequest->getUri())) {
 		// fixing(?) urls which don't have an ending slash
 		// or a filename.ext termination
 		$oResponse = new HttpResponse();
 		$oResponse->setStatus(301); // 301 permanently moved
-		$oResponse->setLocation(UrlRWParser::getCurrentUrl());
+		$oResponse->setLocation(UrlParserA::getCurrentUrl());
 
 		// output the response
 		$sContent = $oResponse->getOutput();

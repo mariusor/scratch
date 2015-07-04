@@ -5,7 +5,7 @@ use littrme\littr\domain\models\ContentTable;
 use vsc\application\processors\ProcessorA;
 use vsc\domain\models\ArrayModel;
 use vsc\domain\models\ModelA;
-use vsc\infrastructure\urls\UrlRWParser;
+use vsc\infrastructure\urls\Url;
 use vsc\infrastructure\vsc;
 use vsc\presentation\requests\HttpRequestA;
 
@@ -21,7 +21,7 @@ class Check extends ProcessorA {
 	 */
 	public function getModel ($oHttpRequest) {
 		$oModel = new ArrayModel();
-		$oUri = new UrlRWParser();
+		$oUri = new Url();
 
 		$sRefererUri = $oHttpRequest->getHttpReferer();
 		if (!empty ($sRefererUri)) {

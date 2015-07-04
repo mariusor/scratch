@@ -4,7 +4,7 @@ namespace littrme\littr\application\processors;
 use littrme\application\processors\Processor;
 use littrme\littr\domain\models\ContentTable;
 use vsc\domain\models\ArrayModel;
-use vsc\infrastructure\urls\UrlRWParser;
+use vsc\infrastructure\urls\UrlParserA;
 use vsc\presentation\requests\HttpRequestA;
 
 class ShowIndex extends Processor {
@@ -17,7 +17,7 @@ class ShowIndex extends Processor {
 	public function handlePost (HttpRequestA $oHttpRequest) {}
 
 	public function handleGet (HttpRequestA $oHttpRequest) {
-		$oUri = UrlRWParser::getCurrentUrl();
+		$oUri = UrlParserA::getCurrentUrl();
 
 		$sCurrentUri = urldecode($oUri->getPath());
 		$o = new ContentTable();

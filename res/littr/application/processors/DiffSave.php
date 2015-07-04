@@ -4,7 +4,7 @@ namespace littrme\littr\application\processors;
 use littrme\littr\domain\models\ContentTable;
 use vsc\application\processors\ProcessorA;
 use vsc\domain\models\ArrayModel;
-use vsc\infrastructure\urls\UrlRWParser;
+use vsc\infrastructure\urls\Url;
 use vsc\infrastructure\vsc;
 use vsc\presentation\requests\HttpRequestA;
 
@@ -18,7 +18,7 @@ class DiffSave extends ProcessorA {
 	public function handleRequest (HttpRequestA $oHttpRequest) {
 		$oModel = new ArrayModel();
 		$saveObject = new ContentTable();
-		$oUri = new UrlRWParser();
+		$oUri = new Url();
 
 		if ($oHttpRequest->isPost()) {
 			$sRefererUri = $oHttpRequest->getHttpReferer();
