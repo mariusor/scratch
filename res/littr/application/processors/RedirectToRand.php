@@ -17,8 +17,8 @@ class RedirectToRand extends ProcessorA {
 	public function handleRequest (HttpRequestA $oHttpRequest) {
 		$oUrl = UrlRWParser::getCurrentUrl();
 		$oUrl->addPath(StringUtils::baseEncode(intval(microtime(true) * 10000)));
-		$oUrl->setQueryParameters(null);
+		$oUrl->setQuery(null);
 
-		throw new ExceptionResponseRedirect($oUrl->getCompleteUri(true));
+		throw new ExceptionResponseRedirect($oUrl->getUrl(3));
 	}
 }
