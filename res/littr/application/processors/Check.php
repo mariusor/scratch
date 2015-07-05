@@ -6,6 +6,7 @@ use vsc\application\processors\ProcessorA;
 use vsc\domain\models\ArrayModel;
 use vsc\domain\models\ModelA;
 use vsc\infrastructure\urls\Url;
+use vsc\infrastructure\urls\UrlParserA;
 use vsc\infrastructure\vsc;
 use vsc\presentation\requests\HttpRequestA;
 
@@ -21,15 +22,14 @@ class Check extends ProcessorA {
 	 */
 	public function getModel ($oHttpRequest) {
 		$oModel = new ArrayModel();
-		$oUri = new Url();
 
 		$sRefererUri = $oHttpRequest->getHttpReferer();
 		if (!empty ($sRefererUri)) {
-			$oUri->setUrl($sRefererUri);
+			$oUri = UrlParserA::url($sRefererUri);
 		}
 		$sIncomingUri = $oHttpRequest->getVar('uri');
 		if (!empty($sIncomingUri)) {
-			$oUri->setUrl($sIncomingUri);
+			$oUri = UrlParserA::url($sIncomingUri);
 		}
 
 		$oModel->uri		= urldecode($oUri->getPath());

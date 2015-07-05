@@ -1,7 +1,6 @@
 <?php
 namespace littrme\presentation\views;
 
-use vsc\infrastructure\vsc;
 use vsc\presentation\views\Html5View;
 
 class InlineResources extends Html5View {
