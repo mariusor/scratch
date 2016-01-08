@@ -6,7 +6,6 @@ use vsc\infrastructure\StringUtils;
 use vsc\infrastructure\urls\UrlParserA;
 use vsc\presentation\requests\HttpRequestA;
 use vsc\presentation\responses\ExceptionResponseRedirect;
-use vsc\infrastructure\String;
 
 class RedirectToRand extends ProcessorA {
 	public function __construct() {
