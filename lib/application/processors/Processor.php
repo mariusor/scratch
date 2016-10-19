@@ -2,9 +2,7 @@
 namespace littrme\application\processors;
 
 use vsc\application\processors\ProcessorA;
-use vsc\domain\models\EmptyModel;
 use vsc\domain\models\ErrorModel;
-use vsc\infrastructure\vsc;
 use vsc\presentation\requests\HttpRequestA;
 use vsc\presentation\responses\ExceptionResponseError;
 use vsc\presentation\responses\HttpResponse;

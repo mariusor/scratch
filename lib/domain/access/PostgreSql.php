@@ -20,4 +20,7 @@ class PostgreSql extends vscPostgreSql {
 	protected function getDatabaseName() {
 		return 'littr';
 	}
+	public function getError() {
+		return $this->error;
+	}
 }

@@ -72,7 +72,14 @@ $(document).ready( function() {
 	});
 
 	editable.fresheditor().keyup (function(e){
-		if (editable.text().trim() == '' && editable.children("img").length == 0) {
+		if (
+			(
+				editable.text().trim() == ''
+				|| editable.text().trim() == 'Welcome! This page is currently empty. ' +
+				'You can edit it and it will be saved automatically.'
+			)
+			&& editable.children("img").length == 0
+		) {
 			editable.prop('title', 'Since there is no content, this page will be deleted once you close the tab or browser window.');
 			if (typeof ($._data(window, 'events').beforeunload) == 'undefined') {
 				// bind delete on window close if there's no content
@@ -85,7 +92,10 @@ $(document).ready( function() {
 						url: '/',
 						dataType: 'json',
 						type: 'post',
-						data: postData
+						data: postData,
+						complete: function (jqXHR, status) {
+							console.debug(status)
+						}
 					});
 				});
 			}
@@ -133,9 +143,6 @@ $(document).ready( function() {
 	}, waitTime);
 
 	function handleFileSelect(e) {
-//		if ($.browser.mozilla) {
-//			return;
-//		}
 		e.stopPropagation();
 		e.preventDefault();
 

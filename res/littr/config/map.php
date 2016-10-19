@@ -13,7 +13,7 @@ $oModuleMap->setTemplatePath ('templates');
 $oModuleMap->addStyle ('static/css/style.css');
 
 // setting the main template path to our templates folder
-$oCtrlMap = $oModuleMap->mapController ('.*', \vsc\application\controllers\Html5Controller::class);
+$oCtrlMap = $oModuleMap->map('.*', \vsc\application\controllers\Html5Controller::class);
 $oCtrlMap->setView (\littrme\presentation\views\View::class);
 $oCtrlMap->setMainTemplatePath ('templates');
 $oCtrlMap->setMainTemplate ('master.php');
@@ -21,7 +21,7 @@ $oCtrlMap->setMainTemplate ('master.php');
 if ( vsc::getEnv()->getHttpRequest()->isPost() ) {
 	$oMap = $this->map ('(\w*)/?' , \littrme\littr\application\processors\Check::class);
 	$oMap->setTemplate('check.php');
-	$oSaveCtrlMap = $oMap->mapController('.*', \vsc\application\controllers\JsonController::class);
+	$oSaveCtrlMap = $oMap->map('.*', \vsc\application\controllers\JsonController::class);
 	$oSaveCtrlMap->setView (\vsc\presentation\views\JsonView::class);
 } else {
 	// we do this ugly thing as the @var UrlRwDispatcher doesn't know about GET variables
@@ -39,15 +39,27 @@ if ( vsc::getEnv()->getHttpRequest()->isPost() ) {
 		$oMap = $this->map ('(.*)/?\Z', littrme\littr\application\processors\SimpleEdit::class);
 	}
 
-	$oMap->addScript('//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js');
+	$oMap->addScript('//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js');
 	// this needs an extra step of minifying the sources on the server
-	if ( stristr($oMap->getPath(), 'simpleedit') !== false ) {
-		$oMap->setTemplate ('main.php');
-		$oMap->setTitle ('Littr - edit, protect and share html');
-		$oMap->addScript( 'static/js/jquery.editable.min.js' );
-		$oMap->addScript( 'static/js/default.min.js' );
+	if (stristr($oMap->getPath(), 'simpleedit') !== false) {
+		$oMap->setTemplate('main.php');
+		$oMap->setTitle('Littr - edit, protect and share html');
 	}
-	if ( stristr($oMap->getPath(), 'showindex') !== false) {
-		$oMap->addScript('static/js/display-links.min.js' );
+
+	if (!vsc::getEnv()->isDevelopment()) {
+		if (stristr($oMap->getPath(), 'simpleedit') !== false) {
+			$oMap->addScript('static/js/default.min.js');
+		}
+		if (stristr($oMap->getPath(), 'showindex') !== false) {
+			$oMap->addScript('static/js/display-links.min.js');
+		}
+	} else {
+		if (stristr($oMap->getPath(), 'simpleedit') !== false) {
+			$oMap->addScript('static/js/jquery.editable.js');
+			$oMap->addScript('static/js/default.js');
+		}
+		if (stristr($oMap->getPath(), 'showindex') !== false) {
+			$oMap->addScript('static/js/display-links.js');
+		}
 	}
 }
