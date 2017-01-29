@@ -2,7 +2,7 @@
 use vsc\infrastructure\vsc;
 use vsc\infrastructure\urls\UrlParserA;
 use vsc\presentation\responses\HttpResponse;
-use vsc\application\sitemaps\ErrorMap;
+use vsc\application\sitemaps\ErrorProcessorMap;
 use vsc\application\sitemaps\ErrorControllerMap;
 use vsc\application\processors\ErrorProcessor;
 use vsc\application\controllers\Html5Controller;
@@ -81,7 +81,7 @@ try {
 
 	// get the response
 } catch (Exception $e) {
-	$oMap = new ErrorMap();
+	$oMap = new ErrorProcessorMap();
 	$oMap->setTemplate('error.php');
 
 	$oCtrlMap = new ErrorControllerMap();

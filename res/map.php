@@ -14,5 +14,5 @@ $oMap = $this->map ('', LOCAL_RES_PATH . 'littr/config/map.php');
 
 // 404 controller
 $oMap = $this->map ('(.+)\Z', \vsc\application\processors\ErrorProcessor::class);
-$oMap->setTemplatePath(VSC_RES_PATH . 'templates');
+$oMap->setTemplatePath(VSC_SRC_PATH . 'templates');
 $oMap->setTemplate ('404.php');
