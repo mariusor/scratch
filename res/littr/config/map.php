@@ -10,7 +10,6 @@ $sCurPath = $oModuleMap->getModulePath();
 
 // main components
 $oModuleMap->setTemplatePath ('templates');
-$oModuleMap->addStyle ('static/css/style.css');
 
 // setting the main template path to our templates folder
 $oCtrlMap = $oModuleMap->map('.*', \vsc\application\controllers\Html5Controller::class);
@@ -39,6 +38,7 @@ if ( vsc::getEnv()->getHttpRequest()->isPost() ) {
 		$oMap = $this->map ('(.*)/?\Z', littrme\littr\application\processors\SimpleEdit::class);
 	}
 
+	$oMap->addStyle ('static/css/style.css');
 	$oMap->addScript('//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js');
 	// this needs an extra step of minifying the sources on the server
 	if (stristr($oMap->getPath(), 'simpleedit') !== false) {
