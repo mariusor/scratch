@@ -1,5 +1,0 @@
-RewriteEngine On
-ErrorDocument 404 /404
-RewriteCond %{SCRIPT_FILENAME} !-f
-RewriteCond %{SCRIPT_FILENAME} !-d
-RewriteRule !\.(js|ico|gif|jpg|png|css)$ index.php
