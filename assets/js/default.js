@@ -1,6 +1,10 @@
 $(document).ready( function() {
 	var w = $(window);
 	var editable = $("body > section:first-child");
+
+	let lock = $('<svg aria-hidden="true" class="icon"><use xlink:href="/icons.svg#icon-lock"><title>Locked</title></use></svg>')
+	let unlock = $('<svg aria-hidden="true" class="icon"><use xlink:href="/icons.svg#icon-unlock"><title>Unlocked</title></use></svg>')
+
 	editable.emptyContent = function () {
 		var that = $(this);
 		if (that.attr ('contentEditable') == 'true') {
@@ -10,7 +14,7 @@ $(document).ready( function() {
 				lastModified = $(this).attr('data-modified');
 			}
 			var d = new Date(lastModified * 1000);
-			if (d.toString() == 'Invalid Date') { // data-modified is empty
+			if (d.toString() == 'Invalid Date') {
 				previousContent = ' ';
 				that.html(previousContent);
 			}
@@ -26,7 +30,7 @@ $(document).ready( function() {
 
 	var maxHeight = Math.max(w.innerHeight(),$(this).height());
 
-	var waitTime = 3000; // milliseconds
+	let waitTime = 3000; // milliseconds
 	var start = new Date(); // start of the save request
 	var finish = new Date(); // finish of the save request
 
@@ -36,16 +40,18 @@ $(document).ready( function() {
 	var bStillSaving = false;
 	var selection = null;
 
+	var icon = unlock;
+
+	var a = $('<a/>').addClass('hidden').append(icon);
+	var feedBack = $("<nav/>").addClass('feedback').append(a).insertAfter(editable);
 	// lock-unlock icon
-	var feedBack = $("<nav/>").addClass('feedback').insertAfter(editable);
-	var a = $("<a/>").addClass('icon').css({"display":"block", "float":"right"}).prop('alt', 'Locked').appendTo (feedBack).hide();
-	$('.feedback').mouseenter(function(e){
-		$(this).children('a').fadeIn(1500);
+	feedBack.mouseenter(function(e) {
+		a.toggleClass("hidden");
 	}).mouseleave(function (e) {
-		$(this).children('a').fadeOut(1500);
-	}).click(function (e){
-		if ($(this).children('a').css('opacity') == 0 || $(this).children('a').css('display') == 'none') {
-			$(this).children('a').fadeIn(1200).fadeOut(1200);
+		a.toggleClass("hidden");
+	}).click(function (e) {
+		if (a.css('opacity') == 0 || a.css('display') == 'none') {
+			a.fadeIn(1200).fadeOut(1200);
 		}
 	});
 
@@ -207,11 +213,11 @@ $(document).ready( function() {
 			success : function (data) {
 				if (data.status == 'ko') {
 					// show lock icon
-					a.addClass ('locked').fadeIn(1200).fadeOut(3000);
+					icon = lock;
 					editable.fresheditor("edit", false);
 				} else {
 					// show unlocked
-					a.addClass ('unlocked').fadeIn(1200).fadeOut(3000);
+					icon = unlock;
 					editable.fresheditor("edit", true);
 					authToken = data.auth_token;
 				}
@@ -224,17 +230,17 @@ $(document).ready( function() {
 	}
 
 	function save () {
-//		console.debug ("saving : " + (bStillSaving ? 'yes' : 'no'));
-//		console.debug ("is editable " + (editable.prop('contentEditable') == "true" ? 'yes' : 'no'));
-//		console.debug ("changes: " + (unsavedChanges (editable.html()) ? 'yes' : 'no'));
-//		console.debug ("last save : " + (now.getTime() - finish.getTime()) + 'ms ago');
-//		console.debug ("will save? : " + (editable.prop("contentEditable") == "true" && !bStillSaving && unsavedChanges(editable.html()) && ((now.getTime() - finish.getTime()) > waitTime) ? 'yes' : 'no'));
 		var now = new Date();
+		console.debug ("saving : " + (bStillSaving ? 'yes' : 'no'));
+		console.debug ("is editable " + (editable.prop('contentEditable') == "true" ? 'yes' : 'no'));
+		console.debug ("changes: " + (unsavedChanges (editable.html()) ? 'yes' : 'no'));
+		console.debug ("last save : " + (now.getTime() - finish.getTime()) + 'ms ago');
+		console.debug ("will save? : " + (editable.prop("contentEditable") == "true" && !bStillSaving && unsavedChanges(editable.html()) && ((now.getTime() - finish.getTime()) > waitTime) ? 'yes' : 'no'));
 		if ( editable.prop("contentEditable") == "true" && !bStillSaving && unsavedChanges(editable.html()) && ((now.getTime() - finish.getTime()) > waitTime)) {
 			editable.data('modified', now.getTime());
 			//FineDiff.FineDiff (previousContent, editable.html(), FineDiff.granularity.paragraph);
 //			var t = new FineDiff(previousContent, editable.html(), Diff.granularity.paragraph);
-//			console.debug (t);
+			console.debug (t);
 			editable.fresheditor('save', function (id, content) {
 				var postData = {
 					'auth_token' : authToken,
