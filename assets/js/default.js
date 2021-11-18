@@ -1,13 +1,31 @@
 $(document).ready( function() {
 	var w = $(window);
 	var editable = $("body > section:first-child");
+	editable.attr("contentEditable", true);
 
 	let lock = $('<svg aria-hidden="true" class="icon"><use xlink:href="/icons.svg#icon-lock"><title>Locked</title></use></svg>')
 	let unlock = $('<svg aria-hidden="true" class="icon"><use xlink:href="/icons.svg#icon-unlock"><title>Unlocked</title></use></svg>')
 
+	var icon = unlock;
+
+	var a = $('<a/>').addClass('hidden').append(icon);
+	var feedBack = $("<nav/>").addClass('feedback').append(a);
+	$("body").prepend(feedBack);
+
+	// lock-unlock icon
+	feedBack.mouseenter(function(e) {
+		a.toggleClass("hidden");
+	}).mouseleave(function (e) {
+		a.toggleClass("hidden");
+	}).click(function (e) {
+		if (a.css('opacity') == 0 || a.css('display') == 'none') {
+			a.fadeIn(1200).fadeOut(1200);
+		}
+	});
+
 	editable.emptyContent = function () {
 		var that = $(this);
-		if (that.attr ('contentEditable') == 'true') {
+		if (that.attr('contentEditable') == 'true') {
 			var lastModified = $(this).data('modified');
 
 			if (typeof (lastModified) == 'undefined') {
@@ -40,21 +58,6 @@ $(document).ready( function() {
 	var bStillSaving = false;
 	var selection = null;
 
-	var icon = unlock;
-
-	var a = $('<a/>').addClass('hidden').append(icon);
-	var feedBack = $("<nav/>").addClass('feedback').append(a).insertAfter(editable);
-	// lock-unlock icon
-	feedBack.mouseenter(function(e) {
-		a.toggleClass("hidden");
-	}).mouseleave(function (e) {
-		a.toggleClass("hidden");
-	}).click(function (e) {
-		if (a.css('opacity') == 0 || a.css('display') == 'none') {
-			a.fadeIn(1200).fadeOut(1200);
-		}
-	});
-
 	a.click (function (e) {
 		var message = 'Please enter the secret key for this page.';
 		var key = prompt (message, '');
@@ -67,7 +70,7 @@ $(document).ready( function() {
 		}
 	});
 
-	editable.fresheditor().keyup (function(e){
+	editable.keyup (function(e){
 		if (
 			(
 				editable.text().trim() == ''
@@ -214,11 +217,11 @@ $(document).ready( function() {
 				if (data.status == 'ko') {
 					// show lock icon
 					icon = lock;
-					editable.fresheditor("edit", false);
+					editable.attr("contentEditable", false);
 				} else {
 					// show unlocked
 					icon = unlock;
-					editable.fresheditor("edit", true);
+					editable.attr("contentEditable", true);
 					authToken = data.auth_token;
 				}
 			}
@@ -238,9 +241,6 @@ $(document).ready( function() {
 		console.debug ("will save? : " + (editable.prop("contentEditable") == "true" && !bStillSaving && unsavedChanges(editable.html()) && ((now.getTime() - finish.getTime()) > waitTime) ? 'yes' : 'no'));
 		if ( editable.prop("contentEditable") == "true" && !bStillSaving && unsavedChanges(editable.html()) && ((now.getTime() - finish.getTime()) > waitTime)) {
 			editable.data('modified', now.getTime());
-			//FineDiff.FineDiff (previousContent, editable.html(), FineDiff.granularity.paragraph);
-//			var t = new FineDiff(previousContent, editable.html(), Diff.granularity.paragraph);
-			console.debug (t);
 			editable.fresheditor('save', function (id, content) {
 				var postData = {
 					'auth_token' : authToken,
