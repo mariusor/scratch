@@ -3,6 +3,7 @@ package scratch
 import (
 	"bytes"
 	"html/template"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -26,10 +27,8 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	if r.Method == http.MethodPost || r.Method == http.MethodDelete {
-		out := make([]byte, 0)
-
-		defer r.Body.Close()
-		if _, err := r.Body.Read(out); err != nil {
+		out, err := ioutil.ReadAll(r.Body)
+		if err != nil {
 			log.Printf("Error: %s", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
