@@ -1,5 +1,8 @@
 $(document).ready( function() {
 	var w = $(window);
+
+	let uri = $(location).attr('href');
+
 	var editable = $("body > section:first-child");
 	editable.attr("contentEditable", true);
 
@@ -88,8 +91,8 @@ $(document).ready( function() {
 						'action' : 'delete'
 					};
 					$.ajax({
-						url: '/',
-						dataType: 'json',
+						url: uri,
+						contentType: 'multipart/form-data',
 						type: 'post',
 						data: postData,
 						complete: function (jqXHR, status) {
@@ -127,7 +130,7 @@ $(document).ready( function() {
 			e.stopPropagation();
 			switch (e.which) {
 			case 1:
-				location.href = la.attr ('href');
+				location.href = la.attr('href');
 				break;
 			case 2:
 				window.open (la.attr('href'));
@@ -192,9 +195,8 @@ $(document).ready( function() {
 	}
 
 	function checkForSecrets (key, action) {
-		var postData = {};
-		postData.uri = $(location).attr('href');
 
+		var postData = {};
 		if (typeof(key) != 'undefined' && key != null) {
 			postData.key = key;
 		}
@@ -209,8 +211,8 @@ $(document).ready( function() {
 		}
 
 		$.ajax({
-			url: '/',
-			dataType: 'json',
+			url: uri,
+			contentType: 'multipart/form-data',
 			type: 'post',
 			data: postData,
 			success : function (data) {
@@ -246,12 +248,11 @@ $(document).ready( function() {
 					'auth_token' : authToken,
 					'action' : 'save',
 					'content' : content,
-					'uri' : $(location).attr('href')
 				};
 
 				$.ajax({
-					url: '/',
-					dataType: 'json',
+					url: uri,
+					contentType: 'multipart/form-data',
 					type: 'post',
 					data: postData,
 					beforeSend : function () {

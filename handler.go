@@ -3,7 +3,6 @@ package scratch
 import (
 	"bytes"
 	"html/template"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -20,6 +19,13 @@ type Page struct {
 
 const HelpMsg = "Tab indent, Shift+Tab outdent, Ctrl+B bold, Ctrl+I italic, Ctrl+L insert a link, Ctrl+G insert an image"
 
+func UpdateCurrentPath(r *http.Request) error {
+	//log.Printf("%#v", r.Header)
+	ff := r.Form
+	log.Printf("%s", ff)
+	return nil
+}
+
 func Handle(w http.ResponseWriter, r *http.Request) {
 	st := time.Now()
 	defer func() {
@@ -27,14 +33,12 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	if r.Method == http.MethodPost || r.Method == http.MethodDelete {
-		out, err := ioutil.ReadAll(r.Body)
-		if err != nil {
+		if err := UpdateCurrentPath(r); err != nil {
 			log.Printf("Error: %s", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
-			return
 		}
-		log.Printf("%s", out)
+		return
 	}
 	if r.Method == http.MethodGet || r.Method == http.MethodHead {
 		out := new(bytes.Buffer)
@@ -56,6 +60,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		w.Write(out.Bytes())
+		return
 	}
 	http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 }
