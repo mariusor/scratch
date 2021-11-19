@@ -41,7 +41,7 @@ func main() {
 	if err := assetFiles.Routes(mux); err != nil {
 		log.Panicf("Error: %s", err)
 	}
-	mux.HandleFunc("/", scratch.Handler)
+	mux.HandleFunc("/", scratch.Handle)
 
 	listenOn := "HTTP"
 	setters := []w.SetFn{w.Handler(mux)}

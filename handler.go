@@ -20,7 +20,7 @@ type Page struct {
 
 const HelpMsg = "Tab indent, Shift+Tab outdent, Ctrl+B bold, Ctrl+I italic, Ctrl+L insert a link, Ctrl+G insert an image"
 
-func Handler(w http.ResponseWriter, r *http.Request) {
+func Handle(w http.ResponseWriter, r *http.Request) {
 	st := time.Now()
 	defer func() {
 		log.Printf("[%s] %s %s", r.Method, r.URL.Path, time.Now().Sub(st).String())
@@ -57,4 +57,5 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		}
 		w.Write(out.Bytes())
 	}
+	http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 }
