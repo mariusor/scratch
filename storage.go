@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"time"
 
 	"github.com/pkg/errors"
 )
@@ -39,7 +40,15 @@ func (s storage) SavePath(content, to string) error {
 	return writeToPath(to, []byte(content))
 }
 
-func (s storage) DeletePath(path string) error {
+func (s storage) DeletePath(what string) error {
+	content := path.Join(string(s), what, ContentFileName)
+	if err := os.RemoveAll(content); err != nil {
+		return err
+	}
+	key := path.Join(string(s), what, KeyFileName)
+	if err := os.RemoveAll(key); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -50,6 +59,16 @@ func (s storage) LoadPath(from string) (string, error) {
 		return "", err
 	}
 	return string(content), nil
+}
+
+func (s storage) ModTimePath(from string) (time.Time, error) {
+	from = path.Join(string(s), from, ContentFileName)
+	fi, err := os.Stat(from)
+	if err != nil {
+		return (time.Time{}).UTC(), err
+	}
+
+	return fi.ModTime().UTC(), nil
 }
 
 func mkDirIfNotExists(p string) error {
