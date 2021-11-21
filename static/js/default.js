@@ -17,9 +17,9 @@ $(document).ready( function() {
 
 	// lock-unlock icon
 	feedBack.mouseenter(function(e) {
-		a.toggleClass("hidden");
+		a.fadeIn(1200, () => { a.addClass("hidden"); });
 	}).mouseleave(function (e) {
-		a.toggleClass("hidden");
+		a.fadeOut(1200, () => { a.removeClass("hidden"); });
 	}).click(function (e) {
 		if (a.css('opacity') == 0 || a.css('display') == 'none') {
 			a.fadeIn(1200).fadeOut(1200);
@@ -41,15 +41,6 @@ $(document).ready( function() {
 			}
 		}
 	};
-
-	editable.height (w.innerHeight()-30);
-	editable.width (w.innerWidth()-26);
-	w.resize (function (e) {
-		editable.height(w.innerHeight()-30);
-		editable.width(w.innerWidth()-26);
-	});
-
-	var maxHeight = Math.max(w.innerHeight(),$(this).height());
 
 	let waitTime = 3000; // milliseconds
 	var start = new Date(); // start of the save request
