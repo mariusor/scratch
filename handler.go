@@ -5,8 +5,9 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"os"
 	"time"
+
+	"git.sr.ht/~mariusor/scratch/internal/assets"
 )
 
 type Page struct {
@@ -42,12 +43,15 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 	}
 	if r.Method == http.MethodGet || r.Method == http.MethodHead {
 		out := new(bytes.Buffer)
+		templates := assets.Maps{
+			"main.html": {"./templates/main.html"},
+		}
 		t := template.New("main.html").Funcs(template.FuncMap{
 			"help": func() template.HTMLAttr {
 				return template.HTMLAttr(HelpMsg)
 			},
 		})
-		if _, err := t.ParseFS(os.DirFS("templates"), "main.html"); err != nil {
+		if _, err := t.ParseFS(templates, templates.Names()...); err != nil {
 			log.Printf("Error: %s", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))

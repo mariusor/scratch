@@ -9,16 +9,12 @@ import (
 	"html/template"
 	"io/fs"
 	"net/http"
-	"os"
 	"path"
 	"path/filepath"
 	"time"
 )
 
 const (
-	templateDir = "templates/"
-	assetsDir   = "assets/"
-
 	year = 8766 * time.Hour
 )
 
@@ -41,8 +37,17 @@ func (a Maps) ReadAll(name string) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+func (a Maps) Names() []string {
+	names := make([]string, 0)
+	for n := range a {
+		names = append(names, n)
+	}
+	return names
+}
+
 func (a Maps) Open(name string) (fs.File, error) {
-	return openFsFn(name)
+	names, _ := a[name]
+	return openFsFn(names[0])
 }
 
 func (a Maps) Routes(m *http.ServeMux) error {
@@ -84,6 +89,7 @@ func GetFullFile(name string) ([]byte, error) {
 	return getFileContent(name)
 }
 
+/*
 // TemplateNames returns asset names necessary for unrolled.Render
 func TemplateNames() []string {
 	names := make([]string, 0)
@@ -95,6 +101,7 @@ func TemplateNames() []string {
 	})
 	return names
 }
+*/
 
 func getFileContent(name string) ([]byte, error) {
 	f, err := openFsFn(name)
@@ -112,7 +119,7 @@ func getFileContent(name string) ([]byte, error) {
 }
 
 func assetPath(pieces ...string) string {
-	return path.Clean(path.Join(assetsDir, path.Join(pieces...)))
+	return path.Clean(path.Join(pieces...))
 }
 
 // Svg returns an svg by path for display inside templates
