@@ -23,19 +23,22 @@ body section a {
 	cursor: pointer;
 	float: right;
 }
-body section:first-child {
+body section {
 	padding:10px 0 0 10px;
+	height: 100%;
+}
+body section:empty::after {
+	content: "This page is currently empty";
 }
 .feedback {
 	position: absolute;
-	top:0;
-	right:0;
-	width:140px;
-	height:140px;
+	top: 10px;
+	right: 10px;
+	width: 33%;
+	height: 33%;
 	background-color: transparent;
 }
 .feedback a svg {
 	float: right;
-	margin: 10px;
 }
 .hidden { display:none; }
