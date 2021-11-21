@@ -14,11 +14,12 @@ import (
 )
 
 type config struct {
-	Secure   bool
-	KeyPath  string
-	CertPath string
-	Listen   string
-	TimeOut  time.Duration
+	Secure      bool
+	StoragePath string
+	KeyPath     string
+	CertPath    string
+	Listen      string
+	TimeOut     time.Duration
 }
 
 var assetFiles = assets.WithPrefix("static", assets.Maps{
@@ -31,17 +32,27 @@ var assetFiles = assets.WithPrefix("static", assets.Maps{
 })
 
 func main() {
+	wd, err := os.Getwd()
+	if err != nil {
+		log.Panicf("Error: %s", err)
+	}
+
 	conf := config{
-		Listen: "localhost:8097",
+		Listen:      "localhost:8097",
+		StoragePath: wd,
 	}
 
 	ctx, cancelFn := context.WithTimeout(context.TODO(), conf.TimeOut)
+
+	handler := scratch.Handler{
+		BasePath: scratch.Storage(conf.StoragePath),
+	}
 
 	mux := http.NewServeMux()
 	if err := assets.Routes(mux, assetFiles); err != nil {
 		log.Panicf("Error: %s", err)
 	}
-	mux.HandleFunc("/", scratch.Handle)
+	mux.HandleFunc("/", handler.Handle)
 
 	listenOn := "HTTP"
 	setters := []w.SetFn{w.Handler(mux)}
