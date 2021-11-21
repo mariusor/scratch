@@ -92,7 +92,6 @@ $(document).ready( function() {
 					};
 					$.ajax({
 						url: uri,
-						contentType: 'multipart/form-data',
 						type: 'post',
 						data: postData,
 						complete: function (jqXHR, status) {
@@ -212,7 +211,6 @@ $(document).ready( function() {
 
 		$.ajax({
 			url: uri,
-			contentType: 'multipart/form-data',
 			type: 'post',
 			data: postData,
 			success : function (data) {
@@ -252,7 +250,6 @@ $(document).ready( function() {
 
 				$.ajax({
 					url: uri,
-					contentType: 'multipart/form-data',
 					type: 'post',
 					data: postData,
 					beforeSend : function () {
