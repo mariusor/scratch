@@ -21,7 +21,6 @@ body section:focus {
 }
 body section a {
 	cursor: pointer;
-	float: right;
 }
 body section {
 	padding:10px 0 0 10px;
