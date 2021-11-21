@@ -10,7 +10,11 @@
     :root.inverted { --main-bg-color: #EFF0F1; --main-fg-color: #232627; --main-link-color: blue; --main-linkvisited-color: rebeccapurple; --main-linkactive-color: red; }
 }
 svg.icon {
-	height: 1em; width: 1em; fill: currentColor; vertical-align: middle;
+	height: 1.4em; width: 1.4em; fill: currentColor; vertical-align: middle;
+}
+body {
+	height: 90%;
+	margin: 0;
 }
 body section:focus {
 	outline: none;
