@@ -34,7 +34,7 @@ $(document).ready( function() {
 			if (typeof (lastModified) == 'undefined') {
 				lastModified = $(this).attr('data-modified');
 			}
-			var d = new Date(lastModified * 1000);
+			var d = new Date(lastModified);
 			if (d.toString() == 'Invalid Date') {
 				previousContent = ' ';
 				that.html(previousContent);
