@@ -11,11 +11,9 @@
 	<title>Index</title>
 </head>
 <body>
-	<section title="{{ help }}" {{- if not .Modified.IsZero }}data-modified="{{ .Modified }}"{{ end }}>
-	<!-- hic sunt leones -->
-		{{ .Content }}
-	<!-- hic sunt leones -->
-	</section>
+<!-- hic sunt leones -->
+	<section title="{{ help }}" {{- if not .Modified.IsZero }}data-modified="{{ .Modified.UTC.UnixMilli }}"{{ end }}>{{ .Content }}</section>
+<!-- hic sunt leones -->
 <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
 	<script src="/main.js"></script>
 </body>
