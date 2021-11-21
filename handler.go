@@ -2,10 +2,12 @@ package scratch
 
 import (
 	"bytes"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"html/template"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"path"
@@ -72,7 +74,9 @@ func (h Handler) UpdateRequest(r *http.Request) error {
 		log.Printf("unknown action: %s", action)
 	}
 	delete(ff, "action")
-	log.Printf("%s", ff)
+	if len(ff) > 0 {
+		log.Printf("%s", ff)
+	}
 	return nil
 }
 
@@ -149,6 +153,18 @@ func (h Handler) Handle(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	case http.MethodGet:
+		if r.URL.Query().Has("random") {
+			rand := rand.New(rand.NewSource(time.Now().UnixNano())).Uint32()
+			rPath := base64.RawURLEncoding.Strict().EncodeToString([]byte(fmt.Sprintf("%d", rand)))
+
+			u := *r.URL
+			u.Host = r.Host
+			u.Path = path.Join(u.Path, rPath)
+			u.RawQuery = ""
+			http.Redirect(w, r, u.String(), http.StatusTemporaryRedirect)
+			log.Printf("Redirecting to %s", u.String())
+			return
+		}
 		out, err := h.ShowRequest(r)
 		if err != nil {
 			writeError(w, err)
