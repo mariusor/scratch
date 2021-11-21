@@ -64,39 +64,28 @@ $(document).ready( function() {
 		}
 	});
 
-	editable.keyup (function(e){
-		if (
-			(
-				editable.text().trim() == ''
-				|| editable.text().trim() == 'Welcome! This page is currently empty. ' +
-				'You can edit it and it will be saved automatically.'
-			)
-			&& editable.children("img").length == 0
-		) {
-			editable.prop('title', 'Since there is no content, this page will be deleted once you close the tab or browser window.');
-			if (typeof ($._data(window, 'events').beforeunload) == 'undefined') {
-				// bind delete on window close if there's no content
-				$(window).bind ('beforeunload', function (e) {
-					var postData = {
-						'auth_token' : authToken,
-						'action' : 'delete'
-					};
-					$.ajax({
-						url: uri,
-						type: 'post',
-						data: postData,
-						complete: function (jqXHR, status) {
-							console.debug(status)
-						}
-					});
+	editable.keyup (function(e) {
+		if (editable.text().trim().length == 0 && editable.children("img").length == 0) {
+			const warning = 'Since there is no content, this page will be deleted once you close the tab or browser window.';
+			editable.prop('title', warning);
+			// bind delete on window close if there's no content
+			window.addEventListener ('beforeunload', (e) => {
+				var postData = {
+					'auth_token' : authToken,
+				};
+				$.ajax({
+					url: uri,
+					type: 'delete',
+					complete: function (jqXHR, status) {
+						console.debug(status)
+					}
 				});
-			}
+				return warning;
+			});
 		} else {
 			editable.prop ('title', titleText);
 			// remove the delete action if the user wrote something
-			if (typeof ($._data(window, 'events').beforeunload) != 'undefined') {
-				$(window).unbind ('beforeunload');
-			}
+			$(window).unbind ('beforeunload');
 		}
 	}).bind('click', function(e) {
 		editable.emptyContent();
@@ -230,6 +219,7 @@ $(document).ready( function() {
 		console.debug ("changes: " + (unsavedChanges (editable.html()) ? 'yes' : 'no'));
 		console.debug ("last save : " + (now.getTime() - finish.getTime()) + 'ms ago');
 		console.debug ("will save? : " + (editable.prop("contentEditable") == "true" && !bStillSaving && unsavedChanges(editable.html()) && ((now.getTime() - finish.getTime()) > waitTime) ? 'yes' : 'no'));
+		console.debug ("last modified : " + new Date(editable.data("modified")));
 		if ( editable.prop("contentEditable") == "true" && !bStillSaving && unsavedChanges(editable.html()) && ((now.getTime() - finish.getTime()) > waitTime)) {
 			editable.data('modified', now.getTime());
 			editable.fresheditor('save', function (id, content) {
@@ -250,7 +240,7 @@ $(document).ready( function() {
 					},
 					success : function (responseData) {
 						if (responseData.status != 'ok') {
-							console.debug ('Err: ' + responseData.message);
+							console.debug(responseData.message);
 						} else {
 							editable.data('modified', responseData.modified);
 						}
