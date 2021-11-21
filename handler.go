@@ -91,7 +91,7 @@ func writeError(w http.ResponseWriter, err error) {
 
 func (h Handler) ShowRequest(r *http.Request) ([]byte, error) {
 	out := new(bytes.Buffer)
-	templates := assets.WithPrefix("templates", assets.Maps{
+	templates := assets.WithPrefix("static/templates", assets.Maps{
 		"main.html": {"main.html"},
 	})
 	t := template.New("main.html").Funcs(template.FuncMap{

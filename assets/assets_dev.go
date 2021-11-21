@@ -1,5 +1,5 @@
-//go:build !prod && !qa
-// +build !prod,!qa
+//go:build !prod
+// +build !prod
 
 package assets
 
