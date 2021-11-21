@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"git.sr.ht/~mariusor/scratch"
-	"git.sr.ht/~mariusor/scratch/internal/assets"
+	"git.sr.ht/~mariusor/scratch/assets"
 	w "git.sr.ht/~mariusor/wrapper"
 )
 
@@ -21,14 +21,14 @@ type config struct {
 	TimeOut  time.Duration
 }
 
-var assetFiles = assets.Maps{
+var assetFiles = assets.WithPrefix("static", assets.Maps{
 	"/main.js":     { /*"js/base.js",*/ "js/default.js", "js/jquery.editable.js"},
 	"/index.js":    { /*"js/base.js",*/ "js/display-links.js"},
 	"/main.css":    {"css/style.css"},
 	"/robots.txt":  {"robots.txt"},
 	"/favicon.ico": {"favicon.ico"},
 	"/icons.svg":   {"icons.svg"},
-}
+})
 
 func main() {
 	conf := config{
@@ -38,7 +38,7 @@ func main() {
 	ctx, cancelFn := context.WithTimeout(context.TODO(), conf.TimeOut)
 
 	mux := http.NewServeMux()
-	if err := assetFiles.Routes(mux); err != nil {
+	if err := assets.Routes(mux, assetFiles); err != nil {
 		log.Panicf("Error: %s", err)
 	}
 	mux.HandleFunc("/", scratch.Handle)

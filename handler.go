@@ -2,12 +2,14 @@ package scratch
 
 import (
 	"bytes"
+	"errors"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"time"
 
-	"git.sr.ht/~mariusor/scratch/internal/assets"
+	"git.sr.ht/~mariusor/scratch/assets"
 )
 
 type Page struct {

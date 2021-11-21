@@ -50,10 +50,22 @@ func (a Maps) Open(name string) (fs.File, error) {
 	return openFsFn(names[0])
 }
 
-func (a Maps) Routes(m *http.ServeMux) error {
+func WithPrefix(prefix string, assetMap Maps) Maps {
+	newMap := make(Maps)
+	for k, assets := range assetMap {
+		newAssets := make([]string, len(assets))
+		for i, asset := range assets {
+			newAssets[i] = path.Join(prefix, asset)
+		}
+		newMap[k] = newAssets
+	}
+	return newMap
+}
+
+func Routes(m *http.ServeMux, a Maps) error {
 	for asset := range a {
 		if !path.IsAbs(asset) {
-			return fmt.Errorf("Asset path %q needs to be absolute", asset)
+			return fmt.Errorf("asset path %q needs to be absolute", asset)
 		}
 		m.HandleFunc(asset, ServeAsset(a))
 	}
