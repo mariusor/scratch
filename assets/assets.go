@@ -18,10 +18,7 @@ const (
 	year = 8766 * time.Hour
 )
 
-type (
-	Maps     map[string][]string
-	Contents map[string][]byte
-)
+type Maps map[string][]string
 
 func (a Maps) ReadAll(name string) ([]byte, error) {
 	files, ok := a[name]
@@ -30,7 +27,7 @@ func (a Maps) ReadAll(name string) ([]byte, error) {
 	}
 	buf := bytes.Buffer{}
 	for _, file := range files {
-		if piece, _ := getFileContent(assetPath(file)); len(piece) > 0 {
+		if piece, _ := a.getFileContent(assetPath(file)); len(piece) > 0 {
 			buf.Write(piece)
 		}
 	}
@@ -43,11 +40,6 @@ func (a Maps) Names() []string {
 		names = append(names, n)
 	}
 	return names
-}
-
-func (a Maps) Open(name string) (fs.File, error) {
-	names, _ := a[name]
-	return openFsFn(names[0])
 }
 
 func WithPrefix(prefix string, assetMap Maps) Maps {
@@ -83,7 +75,7 @@ func (a Maps) SubresourceIntegrityHash(name string) (string, bool) {
 		if len(ext) <= 1 {
 			continue
 		}
-		dat, err := getFileContent(assetPath(ext[1:], asset))
+		dat, err := a.getFileContent(assetPath(ext[1:], asset))
 		if err != nil {
 			continue
 		}
@@ -96,12 +88,12 @@ func (a Maps) SubresourceIntegrityHash(name string) (string, bool) {
 	return sha(b), true
 }
 
+/*
 // GetFullFile
 func GetFullFile(name string) ([]byte, error) {
-	return getFileContent(name)
+	return a.getFileContent(name)
 }
 
-/*
 // TemplateNames returns asset names necessary for unrolled.Render
 func TemplateNames() []string {
 	names := make([]string, 0)
@@ -115,8 +107,8 @@ func TemplateNames() []string {
 }
 */
 
-func getFileContent(name string) ([]byte, error) {
-	f, err := openFsFn(name)
+func (a Maps) getFileContent(name string) ([]byte, error) {
+	f, err := a.Open(name)
 	if err != nil {
 		return nil, err
 	}
@@ -135,23 +127,23 @@ func assetPath(pieces ...string) string {
 }
 
 // Svg returns an svg by path for display inside templates
-func Svg(name string) template.HTML {
-	return Asset()(name)
+func (a Maps) Svg(name string) template.HTML {
+	return Asset(a)(name)
 }
 
 // Style returns a style by path for displaying inline
-func Style(name string) template.CSS {
-	return template.CSS(Asset()("css/" + name))
+func (a Maps) Style(name string) template.CSS {
+	return template.CSS(Asset(a)("css/" + name))
 }
 
-// Svg returns an svg by path for displaying inline
-func Js(name string) template.HTML {
-	return Asset()("js/" + name)
+// Js returns an svg by path for displaying inline
+func (a Maps) Js(name string) template.HTML {
+	return Asset(a)("js/" + name)
 }
 
 // Template returns an asset by path for unrolled.Render
-func Template(name string) ([]byte, error) {
-	return getFileContent(name)
+func (a Maps) Template(name string) ([]byte, error) {
+	return a.getFileContent(name)
 }
 
 func sha(d []byte) string {
@@ -159,8 +151,8 @@ func sha(d []byte) string {
 	return base64.StdEncoding.EncodeToString(sha[:])
 }
 
-func AssetSha(name string) string {
-	dat, err := getFileContent(assetPath(name))
+func (a Maps) AssetSha(name string) string {
+	dat, err := a.getFileContent(assetPath(name))
 	if err != nil || len(dat) == 0 {
 		return ""
 	}
@@ -168,8 +160,8 @@ func AssetSha(name string) string {
 }
 
 // Integrity gives us the integrity attribute for Subresource Integrity
-func Integrity(name string) template.HTMLAttr {
-	return template.HTMLAttr(fmt.Sprintf(` identity="sha256-%s"`, AssetSha(name)))
+func (a Maps) Integrity(name string) template.HTMLAttr {
+	return template.HTMLAttr(fmt.Sprintf(` identity="sha256-%s"`, a.AssetSha(name)))
 }
 
 func ServeAsset(s Maps) func(w http.ResponseWriter, r *http.Request) {

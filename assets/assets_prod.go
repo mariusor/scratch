@@ -13,9 +13,11 @@ import (
 	"path/filepath"
 )
 
-// generated with custom broccoli - see /assets.go
-var walkFsFn = assets.Walk
-var openFsFn = assets.Open
+type Contents map[string][]byte
+
+func (a Maps) Open(name string) (fs.File, error) {
+	return assets.Open(name)
+}
 
 func writeAsset(s Maps) func(http.ResponseWriter, *http.Request) {
 	assetContents := make(Contents)
@@ -48,7 +50,7 @@ func writeAsset(s Maps) func(http.ResponseWriter, *http.Request) {
 	}
 }
 
-func assetLoad() func(string) template.HTML {
+func assetLoad(a Maps) func(string) template.HTML {
 	assetContents := make(Contents)
 	return func(name string) template.HTML {
 		cont, ok := assetContents[name]
