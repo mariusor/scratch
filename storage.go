@@ -1,6 +1,7 @@
 package scratch
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"path"
@@ -22,7 +23,11 @@ func Storage(base string) storage {
 }
 
 func (s storage) CheckKeyForPath(key []byte, to string) bool {
-	return true
+	k, err := s.LoadKeyForPath(to)
+	if err != nil && len(key) > 0 {
+		return false
+	}
+	return bytes.Equal(key, k)
 }
 
 func (s storage) SaveKeyForPath(key []byte, to string) error {
