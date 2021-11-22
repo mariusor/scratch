@@ -53,12 +53,15 @@ $(document).ready( function() {
 
 	a.click (function (e) {
 		const message = 'Please enter the secret key for this page.';
-		const key = prompt (message, '');
-		if (key != null) {
-			if ($(this).hasClass('unlocked')) {
-				checkForSecrets(key, 'update');
+		authToken = prompt (message, '');
+		if (authToken != null) {
+			let isLocked = icon.find("title").text() == "Locked";
+			if (!isLocked) {
+				console.debug("saving auth token: %s", authToken);
+				saveKey();
 			} else {
-				checkForSecrets(key, 'check');
+				console.debug("checking auth token: %s", authToken);
+				checkForSecrets();
 			}
 		}
 	});
@@ -76,7 +79,11 @@ $(document).ready( function() {
 	}
 
 	editable.keyup (function(e) {
-		if (editable.text().trim().length == 0 && editable.children("img").length == 0) {
+		if (
+			editable.prop("contentEditable") == "true" &&
+			editable.editable.text().trim().length == 0 &&
+			editable.children("img").length == 0
+		) {
 			editable.prop('title', warning);
 			// bind delete on window close if there's no content
 			console.debug("preparing to delete %s", uri)
@@ -160,14 +167,14 @@ $(document).ready( function() {
 				reader.readAsDataURL (f);
 			}
 		}
-	}
+	};
 
 	function handleDragOver(e) {
 		e.stopPropagation();
 		e.preventDefault();
 		const evt = e.originalEvent;
 		evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
-	}
+	};
 
 	function setAuthorizationToken(xhr) {
 		if (authToken != null) {
@@ -175,68 +182,86 @@ $(document).ready( function() {
 		}
 	};
 
-	function checkForSecrets(key, action) {
-		const postData = {};
-		if (typeof(key) != 'undefined' && key != null) {
-			postData.key = key;
-		}
-		if (typeof(action) != 'undefined' && action == 'update') {
-			postData.action = action;
-		} else {
-			postData.action = 'check';
-		}
-
-		console.debug("check secrets")
-		$.ajax({
+	function checkForSecrets() {
+		console.debug("check secrets: %s", authToken)
+		let request = $.ajax({
 			url: uri,
-			type: 'post',
-			data: postData,
+			type: 'head',
 			beforeSend: setAuthorizationToken,
-			success: function (data) {
-				if (data.status == 'ko') {
-					// show lock icon
-					icon = lock;
-					editable.attr("contentEditable", false);
-					console.debug("locked");
-				} else {
-					// show unlocked
-					icon = unlock;
-					editable.attr("contentEditable", true);
-					authToken = data.auth_token;
-					console.debug("unlocked");
-				}
-			},
-			error: function (data) {
-				// show lock icon
-				icon = lock;
+		});
+		request.done(() => {
+			icon.replaceWith(unlock);
+			editable.attr("contentEditable", true);
+			console.debug("unlocked");
+		});
+		request.fail((xhr) => {
+			if (xhr.status == 401) {
+				icon.replaceWith(lock);
 				editable.attr("contentEditable", false);
 				console.debug("locked");
 			}
 		});
-	}
+	};
 
 	function unsavedChanges (text) {
 		return text != previousContent;
 	}
 
+	function saveKey () {
+		let now = new Date();
+		let request = $.ajax({
+			url: uri,
+			type: 'post',
+			beforeSend: function (xhr) {
+				bStillSaving = true;
+				setAuthorizationToken(xhr);
+			},
+		});
+
+		request.done(() => {
+			console.debug(request);
+		});
+		request.fail((xhr) => {
+			console.error("failed to update: %d %s", xhr.status, xhr);
+		});
+		request.always((xhr, status) => {
+			bStillSaving = false;
+			finish = new Date();
+			const lastRun = finish.getTime() - start.getTime();
+			var multiplier = 2;
+			if (lastRun > 5000) {
+				multiplier = 0.1;
+			} else if (lastRun > 1000) {
+				multiplier = 1;
+			} else if (lastRun < 400) {
+				multiplier = 10;
+			} else if (lastRun < 100) {
+				multiplier = 20;
+			}
+			waitTime = lastRun * multiplier;
+		});
+	};
+
 	function save () {
 		let now = new Date();
-		console.debug ("saving: " + (bStillSaving ? 'yes' : 'no'));
-		console.debug ("is editable " + (editable.prop('contentEditable') == "true" ? 'yes' : 'no'));
-		console.debug ("changes: " + (unsavedChanges (editable.html()) ? 'yes' : 'no'));
+		console.debug ("saving: %s", (bStillSaving ? 'yes' : 'no'));
+		console.debug ("is editable %s", (editable.prop('contentEditable') == "true" ? 'yes' : 'no'));
+		console.debug ("changes: %s", (unsavedChanges (editable.html()) ? 'yes' : 'no'));
 		console.debug ("last save: %dms ago", (now.getTime() - finish.getTime()));
-		console.debug ("last modified: " + new Date(editable.data("modified")));
-		console.debug ("will save?:" + (editable.prop("contentEditable") == "true" && !bStillSaving && unsavedChanges(editable.html()) && ((now.getTime() - finish.getTime()) > waitTime) ? 'yes' : 'no'));
+		console.debug ("last modified: %s", new Date(editable.data("modified")));
+		console.debug ("will save?: %s", (editable.prop("contentEditable") == "true" && !bStillSaving && unsavedChanges(editable.html()) && ((now.getTime() - finish.getTime()) > waitTime) ? 'yes' : 'no'));
 		console.debug ("next check: %dms", waitTime);
-		if ( editable.prop("contentEditable") == "true" && !bStillSaving && unsavedChanges(editable.html()) && ((now.getTime() - finish.getTime()) > waitTime)) {
+		if (
+			editable.prop("contentEditable") == "true" &&
+			!bStillSaving &&
+			unsavedChanges(editable.html()) &&
+			((now.getTime() - finish.getTime()) > waitTime)
+		) {
 			editable.data('modified', now.getTime());
 			editable.fresheditor('save', function (id, content) {
-				const postData = {
-					'action' : 'save',
-					'content' : content,
-				};
+				const postData = {'content': content};
 
-				$.ajax({
+				let request = $.ajax({
 					url: uri,
 					type: 'post',
 					data: postData,
@@ -246,27 +271,32 @@ $(document).ready( function() {
 						previousContent = content;
 						setAuthorizationToken(xhr);
 					},
-					success: function (responseData) {
-						if (responseData.status != 'ok') {
-							console.debug(responseData.message);
-						} else {
-							editable.data('modified', responseData.modified);
-						}
-					},
-					complete: function (data, status) {
-						bStillSaving = false;
-						finish = new Date();
-						const lastRun = finish.getTime() - start.getTime();
-						var multiplier = 2;
-						if (lastRun > 1000) {
-							multiplier = 1;
-						} else if (lastRun < 400) {
-							multiplier = 10;
-						} else if (lastRun < 100) {
-							multiplier = 20;
-						}
-						waitTime = lastRun * multiplier;
+				});
+
+				request.done(() => {
+					console.debug(request);
+					if (request.status == 200) {
+						editable.data('modified', xhr.modified);
 					}
+				});
+				request.fail((xhr) => {
+					console.error("failed to update: %d %s", xhr.status, xhr);
+				});
+				request.always((xhr, status) => {
+					bStillSaving = false;
+					finish = new Date();
+					const lastRun = finish.getTime() - start.getTime();
+					var multiplier = 2;
+					if (lastRun > 5000) {
+						multiplier = 0.1;
+					} else if (lastRun > 1000) {
+						multiplier = 1;
+					} else if (lastRun < 400) {
+						multiplier = 10;
+					} else if (lastRun < 100) {
+						multiplier = 20;
+					}
+					waitTime = lastRun * multiplier;
 				});
 			});
 		}
