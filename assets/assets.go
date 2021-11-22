@@ -5,7 +5,9 @@ import (
 	"encoding/base64"
 	"fmt"
 	"html/template"
+	"io/fs"
 	"net/http"
+	"os"
 	"path"
 	"path/filepath"
 	"time"
@@ -16,6 +18,49 @@ const (
 )
 
 type Maps map[string][]string
+
+type Path struct {
+	p string
+	i []string
+}
+
+func (p Path) Name() string {
+	return p.p
+}
+
+func (p Path) Size() int64 {
+	var s int64 = 0
+	for _, file := range p.i {
+		f, _ := os.Stat(file)
+		s += f.Size()
+	}
+	return s
+}
+
+func (p Path) Sys() interface{} {
+	return nil
+}
+
+func (p Path) Stat() (fs.FileInfo, error) {
+	return p, nil
+}
+
+func (p Path) Read(buf []byte) (int, error) {
+	var err error
+	for _, file := range p.i {
+		t, err := os.ReadFile(file)
+		if err != nil {
+			err = fmt.Errorf("error reading %s: %w", file, err)
+			break
+		}
+		buf = append(buf, t...)
+	}
+	return len(buf), err
+}
+
+func (p Path) Close() error {
+	return nil
+}
 
 func (a Maps) Names() []string {
 	names := make([]string, 0)

@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"log"
 	"mime"
 	"net/http"
 	"os"
@@ -15,23 +16,6 @@ import (
 	"time"
 )
 
-type Path struct {
-	p string
-	i []string
-}
-
-func (p Path) Name() string {
-	return p.p
-}
-
-func (p Path) Size() int64 {
-	var s int64 = 0
-	for _, file := range p.i {
-		f, _ := os.Stat(file)
-		s += f.Size()
-	}
-	return s
-}
 
 func (p Path) Mode() fs.FileMode {
 	var m fs.FileMode
@@ -43,36 +27,18 @@ func (p Path) Mode() fs.FileMode {
 }
 
 func (p Path) ModTime() time.Time {
-	return time.Now().UTC()
+	var m time.Time
+	for _, file := range p.i {
+		f, _ := os.Stat(file)
+		if fm := f.ModTime(); fm.Sub(m) < 0 {
+			m = fm
+		}
+	}
+	return m
 }
 
 func (p Path) IsDir() bool {
 	return false
-}
-
-func (p Path) Sys() interface{} {
-	return nil
-}
-
-func (p Path) Stat() (fs.FileInfo, error) {
-	return p, nil
-}
-
-func (p Path) Read(buf []byte) (int, error) {
-	var err error
-	for _, file := range p.i {
-		t, err := os.ReadFile(file)
-		if err != nil {
-			err = fmt.Errorf("error reading %s: %w", file, err)
-			break
-		}
-		buf = append(buf, t...)
-	}
-	return len(buf), err
-}
-
-func (p Path) Close() error {
-	return nil
 }
 
 func (a Maps) Open(name string) (fs.File, error) {
@@ -85,25 +51,29 @@ func (a Maps) Open(name string) (fs.File, error) {
 
 func (a Maps) ReadFile(name string) ([]byte, error) {
 	var err error
+	assets, ok := a[name]
+	if !ok {
+		return nil, fmt.Errorf("asset does not exist in current group %s: %w", name, fs.ErrNotExist)
+	}
 	buf := make([]byte, 0)
-	for asset, m := range a {
-		if name != asset {
-			continue
+	for _, file := range assets {
+		t, err := os.ReadFile(file)
+		if err != nil {
+			err = fmt.Errorf("error reading %s: %w", file, err)
+			break
 		}
-		for _, file := range m {
-			t, err := os.ReadFile(file)
-			if err != nil {
-				err = fmt.Errorf("error reading %s: %w", file, err)
-				break
-			}
-			buf = append(buf, t...)
-		}
+		buf = append(buf, t...)
 	}
 	return buf, err
 }
 
 func writeAsset(s Maps) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		st := time.Now()
+		defer func() {
+			log.Printf("[%s] %s %s", r.Method, r.URL.Path, time.Now().Sub(st).String())
+		}()
+
 		asset := filepath.Clean(r.URL.Path)
 		if asset == "." {
 			_, asset = filepath.Split(r.RequestURI)
