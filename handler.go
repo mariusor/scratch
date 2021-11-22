@@ -9,6 +9,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"os"
 	"path"
 	"time"
@@ -46,39 +47,33 @@ func (h Handler) DeleteRequest(r *http.Request) error {
 	return h.BasePath.DeletePath(path)
 }
 
-func (h Handler) UpdateRequest(r *http.Request) error {
-	if err := r.ParseForm(); err != nil {
-		return err
-	}
-
-	ff := r.PostForm
+func (h Handler) CheckOrSaveKey(r *http.Request) error {
 	key := getKeyFromRequest(r)
 	path := getPathFromRequest(r)
 
-	action := ff.Get("action")
-	switch action {
-	case "check":
-		if !h.BasePath.CheckKeyForPath(key, path) {
-			return fmt.Errorf("unauthorized %q: %w", path, unauthorizedErr)
-		}
-		delete(ff, "key")
-	case "save":
-		content := ff.Get("content")
-		log.Printf("saving %dbytes", len(content))
-		if !h.BasePath.CheckKeyForPath(key, path) {
-			return fmt.Errorf("unauthorized to save to %q: %w", path, unauthorizedErr)
-		}
-		if err := h.BasePath.SavePath(content, path); err != nil {
-			return err
-		}
-		delete(ff, "content")
-	default:
-		log.Printf("unknown action: %s", action)
+	k, _ := h.BasePath.LoadKeyForPath(path)
+	if len(k) == 0 {
+		return h.BasePath.SaveKeyForPath(key, path)
 	}
-	delete(ff, "action")
-	if len(ff) > 0 {
-		log.Printf("%s", ff)
+	if !bytes.Equal(k, key) {
+		return fmt.Errorf("unauthorized to save to %q: %w", path, unauthorizedErr)
 	}
+	return nil
+}
+func (h Handler) UpdateRequest(r *http.Request) error {
+	if err := h.CheckOrSaveKey(r); err != nil {
+		return err
+	}
+
+	path := getPathFromRequest(r)
+	content := r.PostFormValue("content")
+
+	log.Printf("saving %dbytes", len(content))
+	if err := h.BasePath.SavePath(content, path); err != nil {
+		return err
+	}
+
+	log.Printf("%s", r.PostForm)
 	return nil
 }
 
@@ -118,9 +113,10 @@ func (h Handler) ShowRequest(r *http.Request) ([]byte, error) {
 		}
 		log.Printf("unable to load %q, probably a new file", path)
 	}
+	key, _ := h.BasePath.LoadKeyForPath(path)
 	modTime, _ := h.BasePath.ModTimePath(path)
 	p := Page{
-		Secret:   nil,
+		Secret:   key,
 		Path:     path,
 		Title:    "Index",
 		Created:  modTime,
@@ -133,41 +129,57 @@ func (h Handler) ShowRequest(r *http.Request) ([]byte, error) {
 	return out.Bytes(), nil
 }
 
+func (h Handler) CheckRequest(r *http.Request) error {
+	key := getKeyFromRequest(r)
+	path := getPathFromRequest(r)
+	if !h.BasePath.CheckKeyForPath(key, path) {
+		return fmt.Errorf("unauthorized %q: %w", path, unauthorizedErr)
+	}
+	return nil
+}
+
+func RandomURL(r *http.Request) *url.URL {
+	rand := rand.New(rand.NewSource(time.Now().UnixNano())).Uint32()
+	rPath := base64.RawURLEncoding.Strict().EncodeToString([]byte(fmt.Sprintf("%d", rand)))
+
+	u := *r.URL
+	u.Host = r.Host
+	u.Path = path.Join(u.Path, rPath)
+	u.RawQuery = ""
+
+	return &u
+}
+
 func (h Handler) Handle(w http.ResponseWriter, r *http.Request) {
 	st := time.Now()
+	var err error
 	defer func() {
 		log.Printf("[%s] %s %s", r.Method, r.URL.Path, time.Now().Sub(st).String())
 	}()
 
 	switch r.Method {
 	case http.MethodDelete:
-		if err := h.DeleteRequest(r); err != nil {
+		if err = h.DeleteRequest(r); err != nil {
 			writeError(w, err)
 			return
 		}
 		return
 	case http.MethodPost:
-		if err := h.UpdateRequest(r); err != nil {
+		if err = h.UpdateRequest(r); err != nil {
 			writeError(w, err)
 			return
 		}
 		return
 	case http.MethodHead:
-		if _, err := h.ShowRequest(r); err != nil {
-			w.WriteHeader(statusError(err))
+		if err := h.CheckRequest(r); err != nil {
+			writeError(w, err)
+			return
 		}
 		return
 	case http.MethodGet:
 		if r.URL.Query().Has("random") {
-			rand := rand.New(rand.NewSource(time.Now().UnixNano())).Uint32()
-			rPath := base64.RawURLEncoding.Strict().EncodeToString([]byte(fmt.Sprintf("%d", rand)))
-
-			u := *r.URL
-			u.Host = r.Host
-			u.Path = path.Join(u.Path, rPath)
-			u.RawQuery = ""
+			u := RandomURL(r)
 			http.Redirect(w, r, u.String(), http.StatusTemporaryRedirect)
-			log.Printf("Redirecting to %s", u.String())
 			return
 		}
 		out, err := h.ShowRequest(r)
@@ -185,12 +197,5 @@ func getPathFromRequest(r *http.Request) string {
 }
 
 func getKeyFromRequest(r *http.Request) []byte {
-	if err := r.ParseForm(); err != nil {
-		return nil
-	}
-	key := r.PostForm.Get("key")
-	if len(key) == 0 {
-		return nil
-	}
-	return []byte(key)
+	return []byte(r.Header.Get("Authorization"))
 }
