@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
-	"log"
 	"mime"
 	"net/http"
 	"os"
@@ -22,18 +21,15 @@ type Path struct {
 }
 
 func (p Path) Name() string {
-	log.Printf("getting name for %s", p.p)
 	return p.p
 }
 
 func (p Path) Size() int64 {
 	var s int64 = 0
-	log.Printf("asserting size for %s", p.p)
 	for _, file := range p.i {
 		f, _ := os.Stat(file)
 		s += f.Size()
 	}
-	log.Printf("size is %d", s)
 	return s
 }
 
@@ -63,7 +59,6 @@ func (p Path) Stat() (fs.FileInfo, error) {
 }
 
 func (p Path) Read(buf []byte) (int, error) {
-	log.Printf("reading %s: %v", p.p, p.i)
 	var err error
 	for _, file := range p.i {
 		t, err := os.ReadFile(file)
@@ -72,7 +67,6 @@ func (p Path) Read(buf []byte) (int, error) {
 			break
 		}
 		buf = append(buf, t...)
-		log.Printf("read %s: %db", file, len(t))
 	}
 	return len(buf), err
 }
@@ -86,7 +80,6 @@ func (a Maps) Open(name string) (fs.File, error) {
 	if !ok {
 		return nil, fs.ErrNotExist
 	}
-	log.Printf("opening %s %v", name, i)
 	return Path{p: name, i: i}, nil
 }
 
@@ -104,7 +97,6 @@ func (a Maps) ReadFile(name string) ([]byte, error) {
 				break
 			}
 			buf = append(buf, t...)
-			log.Printf("read %s: %db", file, len(t))
 		}
 	}
 	return buf, err
