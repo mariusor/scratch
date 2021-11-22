@@ -46,6 +46,7 @@ func main() {
 
 	handler := scratch.Handler{
 		BasePath: scratch.Storage(conf.StoragePath),
+		Assets:   assetFiles,
 	}
 
 	mux := http.NewServeMux()

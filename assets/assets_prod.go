@@ -4,9 +4,9 @@
 package assets
 
 import (
-	"bytes"
 	"fmt"
-	"html/template"
+	"io/fs"
+	"log"
 	"mime"
 	"net/http"
 	"path"
@@ -19,45 +19,57 @@ func (a Maps) Open(name string) (fs.File, error) {
 	return assets.Open(name)
 }
 
+func (a Maps) ReadFile(name string) ([]byte, error) {
+	var err error
+	buf := make([]byte, 0)
+	for asset, m := range a {
+		if name != asset {
+			continue
+		}
+		for _, file := range m {
+			f, err := assets.Open(file)
+			if err != nil {
+				err = fmt.Errorf("error reading %s: %w", file, err)
+				continue
+			}
+			fi, err := f.Stat()
+			if err != nil {
+				err = fmt.Errorf("error reading %s: %w", file, err)
+				continue
+			}
+			t := make([]byte, fi.Size())
+
+			if _, err := f.Read(t); err != nil {
+				err = fmt.Errorf("error reading %s: %w", file, err)
+				continue
+			}
+			buf = append(buf, t...)
+			log.Printf("read %s: %db", file, len(t))
+		}
+	}
+	return buf, err
+}
+
 func writeAsset(s Maps) func(http.ResponseWriter, *http.Request) {
 	assetContents := make(Contents)
 	return func(w http.ResponseWriter, r *http.Request) {
 		asset := filepath.Clean(r.URL.Path)
 		ext := path.Ext(r.RequestURI)
 		mimeType := mime.TypeByExtension(ext)
-		files, ok := s[asset]
-		if !ok {
-			w.Write([]byte("not found"))
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
-
 		cont, ok := assetContents[asset]
 		if !ok {
-			buf := bytes.Buffer{}
-			for _, file := range files {
-				if piece, _ := getFileContent(assetPath(file)); len(piece) > 0 {
-					buf.Write(piece)
-				}
+			var err error
+			cont, err = s.ReadFile(asset)
+			if err != nil {
+				w.Write([]byte("not found"))
+				w.WriteHeader(http.StatusNotFound)
+				return
 			}
-			assetContents[asset] = buf.Bytes()
+			assetContents[asset] = cont
 		}
-		cont = assetContents[asset]
 
 		w.Header().Set("Cache-Control", fmt.Sprintf("public,max-age=%d", int(year.Seconds())))
 		w.Header().Set("Content-Type", mimeType)
 		w.Write(cont)
-	}
-}
-
-func assetLoad(a Maps) func(string) template.HTML {
-	assetContents := make(Contents)
-	return func(name string) template.HTML {
-		cont, ok := assetContents[name]
-		if !ok {
-			cont, _ = getFileContent(assetPath(name))
-			assetContents[name] = cont
-		}
-		return template.HTML(cont)
 	}
 }

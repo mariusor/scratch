@@ -4,9 +4,8 @@
 package assets
 
 import (
-	"bytes"
+	"errors"
 	"fmt"
-	"html/template"
 	"io/fs"
 	"log"
 	"mime"
@@ -23,16 +22,18 @@ type Path struct {
 }
 
 func (p Path) Name() string {
+	log.Printf("getting name for %s", p.p)
 	return p.p
 }
 
 func (p Path) Size() int64 {
 	var s int64 = 0
+	log.Printf("asserting size for %s", p.p)
 	for _, file := range p.i {
 		f, _ := os.Stat(file)
 		s += f.Size()
 	}
-	log.Printf("asserting size for %s: %d", p.p, s)
+	log.Printf("size is %d", s)
 	return s
 }
 
@@ -91,9 +92,11 @@ func (a Maps) Open(name string) (fs.File, error) {
 
 func (a Maps) ReadFile(name string) ([]byte, error) {
 	var err error
-	return s.getFileContent(assetPath(name))
 	buf := make([]byte, 0)
-	for _, m := range a {
+	for asset, m := range a {
+		if name != asset {
+			continue
+		}
 		for _, file := range m {
 			t, err := os.ReadFile(file)
 			if err != nil {
@@ -115,33 +118,17 @@ func writeAsset(s Maps) func(http.ResponseWriter, *http.Request) {
 		}
 		mimeType := mime.TypeByExtension(path.Ext(r.RequestURI))
 
-		files, ok := s[asset]
-		if !ok {
+		buf, err := s.ReadFile(asset)
+		if err != nil && errors.Is(err, fs.ErrNotExist) {
 			w.Write([]byte(asset))
 			w.Write([]byte(" not found"))
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 
-		buf := bytes.Buffer{}
-		for _, file := range files {
-			if len(mimeType) == 0 {
-				mimeType = mime.TypeByExtension(path.Ext(file))
-			}
-			if piece, _ := s.getFileContent(assetPath(file)); len(piece) > 0 {
-				buf.Write(piece)
-			}
-		}
-
 		w.Header().Set("Cache-Control", fmt.Sprintf("public,max-age=%d", int(year.Seconds())))
 		w.Header().Set("Content-Type", mimeType)
-		w.Write(buf.Bytes())
+		w.Write(buf)
 	}
 }
 
-func assetLoad(s Maps) func(string) template.HTML {
-	return func(name string) template.HTML {
-		b, _ := s.getFileContent(assetPath(name))
-		return template.HTML(b)
-	}
-}

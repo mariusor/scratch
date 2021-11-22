@@ -1,7 +1,7 @@
 //go:build !dev
 // +build !dev
 
-//go:generate go run -tags $(ENV) ./assets.go -build "prod" -src ../assets,../README.md -var assets -o ../assets/assets.gen.go
+//go:generate go run -tags $(ENV) ./assets.go -build "prod" -src ../static,../README.md -var assets -o ../assets/assets.gen.go
 
 package main
 

@@ -1,13 +1,10 @@
 package assets
 
 import (
-	"bufio"
-	"bytes"
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
 	"html/template"
-	"io/fs"
 	"net/http"
 	"path"
 	"path/filepath"
@@ -19,20 +16,6 @@ const (
 )
 
 type Maps map[string][]string
-
-func (a Maps) ReadAll(name string) ([]byte, error) {
-	files, ok := a[name]
-	if !ok {
-		return nil, fs.ErrNotExist
-	}
-	buf := bytes.Buffer{}
-	for _, file := range files {
-		if piece, _ := a.getFileContent(assetPath(file)); len(piece) > 0 {
-			buf.Write(piece)
-		}
-	}
-	return buf.Bytes(), nil
-}
 
 func (a Maps) Names() []string {
 	names := make([]string, 0)
@@ -65,27 +48,11 @@ func Routes(m *http.ServeMux, a Maps) error {
 }
 
 func (a Maps) SubresourceIntegrityHash(name string) (string, bool) {
-	files, ok := a[name]
-	if !ok {
+	dat, err := a.ReadFile(assetPath(name))
+	if err != nil {
 		return "", false
 	}
-	buf := new(bytes.Buffer)
-	for _, asset := range files {
-		ext := path.Ext(name)
-		if len(ext) <= 1 {
-			continue
-		}
-		dat, err := a.getFileContent(assetPath(ext[1:], asset))
-		if err != nil {
-			continue
-		}
-		buf.Write(dat)
-	}
-	b := buf.Bytes()
-	if len(b) == 0 {
-		return "", false
-	}
-	return sha(b), true
+	return sha(dat), true
 }
 
 /*
@@ -107,21 +74,6 @@ func TemplateNames() []string {
 }
 */
 
-func (a Maps) getFileContent(name string) ([]byte, error) {
-	f, err := a.Open(name)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-	r := bufio.NewReader(f)
-	b := new(bytes.Buffer)
-
-	if _, err = r.WriteTo(b); err != nil {
-		return nil, err
-	}
-	return b.Bytes(), nil
-}
-
 func assetPath(pieces ...string) string {
 	return path.Clean(path.Join(pieces...))
 }
@@ -131,19 +83,37 @@ func (a Maps) Svg(name string) template.HTML {
 	return Asset(a)(name)
 }
 
+// StyleNode returns a style link for displaying inline
+func (a Maps) StyleNode(name string) template.HTML {
+	if !path.IsAbs(name) {
+		name = path.Join("/", name)
+	}
+	link := fmt.Sprintf(`<link rel="stylesheet" href="%s"%s/>`, name, a.Integrity(name))
+	return template.HTML(link)
+}
+
 // Style returns a style by path for displaying inline
 func (a Maps) Style(name string) template.CSS {
-	return template.CSS(Asset(a)("css/" + name))
+	return template.CSS(Asset(a)(name))
+}
+
+// JsNode returns an javascript node by path for displaying inline
+func (a Maps) JsNode(name string) template.HTML {
+	if !path.IsAbs(name) {
+		name = path.Join("/", name)
+	}
+	link := fmt.Sprintf(`<script src="%s"%s></script>`, name, a.Integrity(name))
+	return template.HTML(link)
 }
 
 // Js returns an svg by path for displaying inline
 func (a Maps) Js(name string) template.HTML {
-	return Asset(a)("js/" + name)
+	return Asset(a)(name)
 }
 
 // Template returns an asset by path for unrolled.Render
 func (a Maps) Template(name string) ([]byte, error) {
-	return a.getFileContent(name)
+	return a.ReadFile(name)
 }
 
 func sha(d []byte) string {
@@ -152,7 +122,7 @@ func sha(d []byte) string {
 }
 
 func (a Maps) AssetSha(name string) string {
-	dat, err := a.getFileContent(assetPath(name))
+	dat, err := a.ReadFile(assetPath(name))
 	if err != nil || len(dat) == 0 {
 		return ""
 	}
@@ -161,7 +131,11 @@ func (a Maps) AssetSha(name string) string {
 
 // Integrity gives us the integrity attribute for Subresource Integrity
 func (a Maps) Integrity(name string) template.HTMLAttr {
-	return template.HTMLAttr(fmt.Sprintf(` identity="sha256-%s"`, a.AssetSha(name)))
+	hash := a.AssetSha(name)
+	if len(hash) == 0 {
+		return ""
+	}
+	return template.HTMLAttr(fmt.Sprintf(` integrity="sha256-%s"`, hash))
 }
 
 func ServeAsset(s Maps) func(w http.ResponseWriter, r *http.Request) {
@@ -178,4 +152,9 @@ func ServeStatic(st string) func(w http.ResponseWriter, r *http.Request) {
 
 // Asset returns an asset by path for display inside templates
 // it is mainly used for rendering the svg icons file
-var Asset = assetLoad
+func Asset (s Maps) func(string) template.HTML {
+	return func(name string) template.HTML {
+		b, _ := s.ReadFile(assetPath(name))
+		return template.HTML(b)
+	}
+}

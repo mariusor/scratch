@@ -19,6 +19,7 @@ import (
 type Page struct {
 	Secret   []byte
 	Path     string
+	Title    string
 	Created  time.Time
 	Modified time.Time
 	Content  template.HTML
@@ -26,6 +27,7 @@ type Page struct {
 
 type Handler struct {
 	BasePath storage
+	Assets   assets.Maps
 }
 
 const HelpMsg = "Tab indent, Shift+Tab outdent, Ctrl+B bold, Ctrl+I italic, Ctrl+L insert a link, Ctrl+G insert an image"
@@ -99,7 +101,9 @@ func (h Handler) ShowRequest(r *http.Request) ([]byte, error) {
 		"main.html": {"main.html"},
 	})
 	t := template.New("main.html").Funcs(template.FuncMap{
-		"help": func() template.HTMLAttr { return HelpMsg },
+		"style":  h.Assets.StyleNode,
+		"script": h.Assets.JsNode,
+		"help":   func() template.HTMLAttr { return HelpMsg },
 	})
 	if _, err := t.ParseFS(templates, templates.Names()...); err != nil {
 		return out.Bytes(), fmt.Errorf("unable to parse templates %v: %w", templates.Names(), err)
@@ -118,6 +122,7 @@ func (h Handler) ShowRequest(r *http.Request) ([]byte, error) {
 	p := Page{
 		Secret:   nil,
 		Path:     path,
+		Title:    "Index",
 		Created:  modTime,
 		Modified: modTime,
 		Content:  template.HTML(content),
