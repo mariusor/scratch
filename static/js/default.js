@@ -1,18 +1,17 @@
+const warning = 'Since there is no content, this page will be deleted once you close the tab or browser window.';
 $(document).ready( function() {
-	var w = $(window);
+	const w = $(window);
+	const uri = $(location).attr('href');
 
-	let uri = $(location).attr('href');
-
-	var editable = $("body > section:first-child");
+	let editable = $("body > section:first-child");
 	editable.attr("contentEditable", true);
 
-	let lock = $('<svg aria-hidden="true" class="icon"><use xlink:href="/icons.svg#icon-lock"><title>Locked</title></use></svg>')
-	let unlock = $('<svg aria-hidden="true" class="icon"><use xlink:href="/icons.svg#icon-unlock"><title>Unlocked</title></use></svg>')
+	const lock = $('<svg aria-hidden="true" class="icon"><use xlink:href="/icons.svg#icon-lock"><title>Locked</title></use></svg>')
+	const unlock = $('<svg aria-hidden="true" class="icon"><use xlink:href="/icons.svg#icon-unlock"><title>Unlocked</title></use></svg>')
 
-	var icon = unlock;
-
-	var a = $('<a/>').addClass('hidden').append(icon);
-	var feedBack = $("<nav/>").addClass('feedback').append(a);
+	let icon = unlock;
+	const a = $('<a/>').addClass('hidden').append(icon);
+	const feedBack = $("<nav/>").addClass('feedback').append(a);
 	$("body").prepend(feedBack);
 
 	// lock-unlock icon
@@ -27,14 +26,14 @@ $(document).ready( function() {
 	});
 
 	editable.emptyContent = function () {
-		var that = $(this);
+		const that = $(this);
 		if (that.attr('contentEditable') == 'true') {
-			var lastModified = $(this).data('modified');
+			let lastModified = $(this).data('modified');
 
 			if (typeof (lastModified) == 'undefined') {
 				lastModified = $(this).attr('data-modified');
 			}
-			var d = new Date(lastModified);
+			const d = new Date(lastModified);
 			if (d.toString() == 'Invalid Date') {
 				previousContent = ' ';
 				that.html(previousContent);
@@ -42,19 +41,19 @@ $(document).ready( function() {
 		}
 	};
 
-	let waitTime = 3000; // milliseconds
-	var start = new Date(); // start of the save request
-	var finish = new Date(); // finish of the save request
+	const titleText = editable.attr('title');
 
-	var titleText = editable.attr('title');
-	var authToken = null;
-	var previousContent = editable.html();
-	var bStillSaving = false;
-	var selection = null;
+	let waitTime = 3000; // milliseconds
+	let start = new Date(); // start of the save request
+	let finish = new Date(); // finish of the save request
+	let authToken = null;
+	let previousContent = editable.html();
+	let bStillSaving = false;
+	let selection = null;
 
 	a.click (function (e) {
-		var message = 'Please enter the secret key for this page.';
-		var key = prompt (message, '');
+		const message = 'Please enter the secret key for this page.';
+		const key = prompt (message, '');
 		if (key != null) {
 			if ($(this).hasClass('unlocked')) {
 				checkForSecrets(key, 'update');
@@ -64,28 +63,28 @@ $(document).ready( function() {
 		}
 	});
 
+	function removeOnClose(e) {
+		$.ajax({
+			url: uri,
+			type: 'delete',
+			beforeSend: setAuthorizationToken,
+			complete: function (jqXHR, status) {
+				console.debug("deleted %s: %s", uri, status)
+			}
+		});
+		return warning;
+	}
+
 	editable.keyup (function(e) {
 		if (editable.text().trim().length == 0 && editable.children("img").length == 0) {
-			const warning = 'Since there is no content, this page will be deleted once you close the tab or browser window.';
 			editable.prop('title', warning);
 			// bind delete on window close if there's no content
-			window.addEventListener ('beforeunload', (e) => {
-				var postData = {
-					'auth_token' : authToken,
-				};
-				$.ajax({
-					url: uri,
-					type: 'delete',
-					complete: function (jqXHR, status) {
-						console.debug(status)
-					}
-				});
-				return warning;
-			});
+			console.debug("preparing to delete %s", uri)
+			window.addEventListener ('beforeunload', removeOnClose);
 		} else {
 			editable.prop ('title', titleText);
 			// remove the delete action if the user wrote something
-			$(window).unbind ('beforeunload');
+			window.removeEventListener('beforeunload', removeOnClose);
 		}
 	}).bind('click', function(e) {
 		editable.emptyContent();
@@ -103,58 +102,55 @@ $(document).ready( function() {
 
 	// adding click events to make links to work in edit mode
 	editable.find('a').mousedown(function(e) {
-		var la = $(e.target);
+		const la = $(e.target);
 		if (la.is('a') && editable.attr ('contentEditable') == 'true') {
 			e.preventDefault();
 			e.stopPropagation();
-			switch (e.which) {
+			switch (e.detail) {
 			case 1:
 				location.href = la.attr('href');
 				break;
 			case 2:
-				window.open (la.attr('href'));
+				window.open(la.attr('href'));
 			}
 		}
 	});
 
-	checkForSecrets ();
+	checkForSecrets();
 
-	var id = setInterval(function () {
-		save();
-	}, waitTime);
+	const id = setInterval(() => { save(); }, waitTime);
 
 	function handleFileSelect(e) {
 		e.stopPropagation();
 		e.preventDefault();
 
-		evt = e.originalEvent;
-
-		var files = evt.dataTransfer.files; // FileList object
+		const evt = e.originalEvent;
+		const files = evt.dataTransfer.files; // FileList object
 
 		if (files.length != 0) {
-			for (var i = 0, f; f = files[i]; i++) {
+			for (let i = 0, f; f = files[i]; i++) {
 				if (!f.type.match('image.*')) {
 					continue;
 				}
-				var reader = new FileReader();
+				const reader = new FileReader();
 				reader.onload = (function (theFile) {
 					return function(e) {
-						//var img = $('<img src="' + e.target.result + '" data-name="'+theFile.name+'"/>');
-						var img = document.createElement ("img");
+						//const img = $('<img src="' + e.target.result + '" data-name="'+theFile.name+'"/>');
+						const img = document.createElement ("img");
 						img.src = e.target.result;
 						img.title = theFile.name;
 						img.dataSize= theFile.size;
 						img.dataName=theFile.name;
 
 						if (selection.rangeCount > 0 && selection.getRangeAt(0).startContainer != $('body').get(0)) {
-							var range = selection.getRangeAt(0);
-							var fragment = document.createDocumentFragment();
+							const range = selection.getRangeAt(0);
+							const fragment = document.createDocumentFragment();
 							fragment.appendChild (img);
 
 							range.deleteContents();
 							range.insertNode(fragment);
 						} else {
-							var elem = $(evt.target);
+							const elem = $(evt.target);
 							elem.append (img);
 						}
 						save();
@@ -169,13 +165,18 @@ $(document).ready( function() {
 	function handleDragOver(e) {
 		e.stopPropagation();
 		e.preventDefault();
-		evt = e.originalEvent;
+		const evt = e.originalEvent;
 		evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
 	}
 
-	function checkForSecrets (key, action) {
+	function setAuthorizationToken(xhr) {
+		if (authToken != null) {
+			xhr.setRequestHeader("Authorization", authToken);
+		}
+	};
 
-		var postData = {};
+	function checkForSecrets(key, action) {
+		const postData = {};
 		if (typeof(key) != 'undefined' && key != null) {
 			postData.key = key;
 		}
@@ -185,25 +186,31 @@ $(document).ready( function() {
 			postData.action = 'check';
 		}
 
-		if (authToken != null) {
-			postData.auth_token = authToken;
-		}
-
+		console.debug("check secrets")
 		$.ajax({
 			url: uri,
 			type: 'post',
 			data: postData,
-			success : function (data) {
+			beforeSend: setAuthorizationToken,
+			success: function (data) {
 				if (data.status == 'ko') {
 					// show lock icon
 					icon = lock;
 					editable.attr("contentEditable", false);
+					console.debug("locked");
 				} else {
 					// show unlocked
 					icon = unlock;
 					editable.attr("contentEditable", true);
 					authToken = data.auth_token;
+					console.debug("unlocked");
 				}
+			},
+			error: function (data) {
+				// show lock icon
+				icon = lock;
+				editable.attr("contentEditable", false);
+				console.debug("locked");
 			}
 		});
 	}
@@ -213,18 +220,18 @@ $(document).ready( function() {
 	}
 
 	function save () {
-		var now = new Date();
-		console.debug ("saving : " + (bStillSaving ? 'yes' : 'no'));
+		let now = new Date();
+		console.debug ("saving: " + (bStillSaving ? 'yes' : 'no'));
 		console.debug ("is editable " + (editable.prop('contentEditable') == "true" ? 'yes' : 'no'));
 		console.debug ("changes: " + (unsavedChanges (editable.html()) ? 'yes' : 'no'));
-		console.debug ("last save : " + (now.getTime() - finish.getTime()) + 'ms ago');
-		console.debug ("will save? : " + (editable.prop("contentEditable") == "true" && !bStillSaving && unsavedChanges(editable.html()) && ((now.getTime() - finish.getTime()) > waitTime) ? 'yes' : 'no'));
-		console.debug ("last modified : " + new Date(editable.data("modified")));
+		console.debug ("last save: %dms ago", (now.getTime() - finish.getTime()));
+		console.debug ("last modified: " + new Date(editable.data("modified")));
+		console.debug ("will save?:" + (editable.prop("contentEditable") == "true" && !bStillSaving && unsavedChanges(editable.html()) && ((now.getTime() - finish.getTime()) > waitTime) ? 'yes' : 'no'));
+		console.debug ("next check: %dms", waitTime);
 		if ( editable.prop("contentEditable") == "true" && !bStillSaving && unsavedChanges(editable.html()) && ((now.getTime() - finish.getTime()) > waitTime)) {
 			editable.data('modified', now.getTime());
 			editable.fresheditor('save', function (id, content) {
-				var postData = {
-					'auth_token' : authToken,
+				const postData = {
 					'action' : 'save',
 					'content' : content,
 				};
@@ -233,22 +240,23 @@ $(document).ready( function() {
 					url: uri,
 					type: 'post',
 					data: postData,
-					beforeSend : function () {
+					beforeSend: function (xhr) {
 						start = new Date();
 						bStillSaving = true;
 						previousContent = content;
+						setAuthorizationToken(xhr);
 					},
-					success : function (responseData) {
+					success: function (responseData) {
 						if (responseData.status != 'ok') {
 							console.debug(responseData.message);
 						} else {
 							editable.data('modified', responseData.modified);
 						}
 					},
-					complete : function (data, status) {
+					complete: function (data, status) {
 						bStillSaving = false;
 						finish = new Date();
-						var lastRun = finish.getTime() - start.getTime();
+						const lastRun = finish.getTime() - start.getTime();
 						var multiplier = 2;
 						if (lastRun > 1000) {
 							multiplier = 1;
@@ -266,9 +274,9 @@ $(document).ready( function() {
 
 	function isSaveKey (e) {
 		//var moveKeys	= [33,34,35, 36, 37,38,39,40]; // pg-down, pg-up, end, home, left, up, right, down
-		var singleKeys	= [8,9,13,32,46,190]; // bksp, cr, space, tab, del, "." ,
-		var ctrlKeys	= [27, 83, 90]; // ctrl-v, ctrl-s, ctrl-z
-		var shiftKeys	= [16]; // shift-insert
+		const singleKeys	= [8,9,13,32,46,190]; // bksp, cr, space, tab, del, "." ,
+		const ctrlKeys	= [27, 83, 90]; // ctrl-v, ctrl-s, ctrl-z
+		const shiftKeys	= [16]; // shift-insert
 
 		if (e.ctrlKey && ctrlKeys.indexOf (e.keyCode) != -1) {
 			return true
@@ -281,9 +289,8 @@ $(document).ready( function() {
 		if (singleKeys.indexOf (e.keyCode) != -1) {
 			return true;
 		}
-
 		return false;
 	}
 
-	function pad(n){return n<10 ? '0'+n : n}
+	function pad(n) {return n<10 ? '0'+n : n}
 });
