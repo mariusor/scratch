@@ -45,11 +45,14 @@ func (h Handler) CheckKey(r *http.Request) bool {
 }
 
 func (h Handler) SaveKey(r *http.Request) error {
-	key := getKeyFromRequest(r)
 	path := getPathFromRequest(r)
+	if !h.CheckKey(r) {
+		return fmt.Errorf("unauthorized to update key %s: %w", path, unauthorizedErr)
+	}
+	key := r.PostFormValue("_")
 
 	if len(key) > 0 {
-		return h.BasePath.SaveKeyForPath(key, path)
+		return h.BasePath.SaveKeyForPath([]byte(key), path)
 	}
 	return nil
 }

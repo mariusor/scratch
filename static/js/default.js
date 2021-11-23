@@ -36,18 +36,19 @@ $(document).ready( function() {
 	const a = $('<a/>').addClass('hidden');
 	a.click (function (e) {
 		const message = 'Please enter the secret key for this page.';
-		authToken = prompt (message, '');
-		if (authToken != null) {
-			let icon = a.find("svg");
-			let isLocked = icon.find("title").text() == "Locked";
-			console.debug("is Locked: %s %s", icon.find("title").text(), isLocked);
-			if (isLocked) {
-				console.debug("checking auth token: %s", authToken);
-				checkForSecrets();
-			} else {
-				console.debug("saving auth token: %s", authToken);
-				saveKey();
-			}
+		const key = prompt (message, '');
+		if (key == null) {
+			return;
+		}
+		let icon = a.find("svg");
+		let isLocked = icon.find("title").text() == "Locked";
+		console.debug("is Locked: %s %s", icon.find("title").text(), isLocked);
+		if (isLocked) {
+			console.debug("checking auth token: %s", authToken);
+			checkForSecrets(key);
+		} else {
+			console.debug("saving auth token: %s", authToken);
+			saveKey(key);
 		}
 	});
 
@@ -150,7 +151,10 @@ $(document).ready( function() {
 		}
 	};
 
-	function checkForSecrets() {
+	function checkForSecrets(key) {
+		if (key != null) {
+			authToken = key
+		}
 		console.debug("check secrets: %s", authToken)
 		let request = $.ajax({
 			url: uri,
@@ -167,6 +171,7 @@ $(document).ready( function() {
 			if (xhr.status == 401) {
 				a.empty();
 				a.append(lock);
+				authToken = null;
 				editable.attr("contentEditable", false);
 				console.debug("locked");
 			}
@@ -192,9 +197,11 @@ $(document).ready( function() {
 		waitTime = lastRun * multiplier;
 	};
 
-	function saveKey () {
+	function saveKey (key) {
+		const postData = {'_': key};
 		let request = $.ajax({
 			url: uri,
+			data: postData,
 			type: 'patch',
 			beforeSend: function (xhr) {
 				bStillSaving = true;
@@ -204,6 +211,7 @@ $(document).ready( function() {
 
 		request.done(() => {
 			console.debug(request);
+			authToken = key;
 		});
 		request.fail((xhr) => {
 			console.error("failed to update key:", xhr);
