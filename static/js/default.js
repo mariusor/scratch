@@ -81,7 +81,7 @@ $(document).ready( function() {
 	editable.keyup (function(e) {
 		if (
 			editable.prop("contentEditable") == "true" &&
-			editable.editable.text().trim().length == 0 &&
+			editable.text().trim().length == 0 &&
 			editable.children("img").length == 0
 		) {
 			editable.prop('title', warning);
@@ -276,13 +276,13 @@ $(document).ready( function() {
 				request.done(() => {
 					console.debug(request);
 					if (request.status == 200) {
-						editable.data('modified', xhr.modified);
+						editable.data('modified', now.valueOf());
 					}
 				});
 				request.fail((xhr) => {
-					console.error("failed to update: %d %s", xhr.status, xhr);
+					console.error("failed to update: %d", xhr.status, xhr);
 				});
-				request.always((xhr, status) => {
+				request.always(() => {
 					bStillSaving = false;
 					finish = new Date();
 					const lastRun = finish.getTime() - start.getTime();
