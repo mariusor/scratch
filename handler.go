@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"git.sr.ht/~mariusor/scratch/assets"
+	"github.com/PuerkitoBio/goquery"
 )
 
 type Page struct {
@@ -117,14 +118,28 @@ func (h Handler) ShowRequest(r *http.Request) ([]byte, error) {
 	}
 	key, _ := h.BasePath.LoadKeyForPath(path)
 	modTime, _ := h.BasePath.ModTimePath(path)
+
+	title := "Empty page"
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader([]byte(content)))
+	if err == nil {
+		titleSel := doc.Find("h1")
+		if titleSel.Size() > 0 {
+			title = titleSel.Text()
+		}
+	}
+	if len(key) > 0 {
+		title = "🔒 " + title
+	}
+
 	p := Page{
 		Secret:   key,
 		Path:     path,
-		Title:    "Index",
+		Title:    title,
 		Created:  modTime,
 		Modified: modTime,
 		Content:  template.HTML(content),
 	}
+
 	if err := t.Execute(out, &p); err != nil {
 		return out.Bytes(), fmt.Errorf("unable to parse templates %v: %w", templates.Names(), err)
 	}
