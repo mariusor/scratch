@@ -15,7 +15,6 @@ const HelpMsg = "Tab indent, Shift+Tab outdent, Ctrl+B bold, Ctrl+I italic, Ctrl
 type Page struct {
 	Secret   []byte
 	Path     string
-	Created  time.Time
 	Modified time.Time
 	Content  template.HTML
 }

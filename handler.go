@@ -64,8 +64,6 @@ func (h Handler) UpdateRequest(r *http.Request) error {
 	if err := h.BasePath.SavePath(content, path); err != nil {
 		return err
 	}
-
-	log.Printf("%s", r.PostForm)
 	return nil
 }
 
@@ -100,7 +98,6 @@ func (h Handler) ShowRequest(r *http.Request) ([]byte, error) {
 	p := Page{
 		Secret:   key,
 		Path:     path,
-		Created:  modTime,
 		Modified: modTime,
 		Content:  template.HTML(content),
 	}
