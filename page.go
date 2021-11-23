@@ -2,11 +2,12 @@ package scratch
 
 import (
 	"bytes"
-	"github.com/PuerkitoBio/goquery"
 	"html/template"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
 const HelpMsg = "Tab indent, Shift+Tab outdent, Ctrl+B bold, Ctrl+I italic, Ctrl+L insert a link, Ctrl+G insert an image"
@@ -19,7 +20,7 @@ type Page struct {
 	Content  template.HTML
 }
 
-func cleanHost (host string) string {
+func cleanHost(host string) string {
 	if pos := strings.LastIndex(host, ":"); pos >= 0 {
 		host = strings.TrimRight(host, host[pos:])
 	}
@@ -27,7 +28,7 @@ func cleanHost (host string) string {
 }
 
 func (p Page) Help(_ *http.Request) func() template.HTMLAttr {
-	return func () template.HTMLAttr {
+	return func() template.HTMLAttr {
 		return HelpMsg
 	}
 }
