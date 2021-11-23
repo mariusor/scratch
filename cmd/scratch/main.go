@@ -23,7 +23,7 @@ type config struct {
 }
 
 var assetFiles = assets.WithPrefix("static", assets.Maps{
-	"/main.js":     { /*"js/base.js",*/ "js/default.js", "js/jquery.editable.js"},
+	"/main.js":     { /*"js/base.js",*/ "js/default.js"},
 	"/index.js":    { /*"js/base.js",*/ "js/display-links.js"},
 	"/main.css":    {"css/style.css"},
 	"/robots.txt":  {"robots.txt"},

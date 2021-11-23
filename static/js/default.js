@@ -227,30 +227,29 @@ $(document).ready( function() {
 		console.debug ("last modified: %sms ago", (now.getTime() - modifiedLast));
 		console.debug ("last save: %dms ago", (now.getTime() - finish.getTime()));
 
-		editable.fresheditor('save', function (id, content) {
-			const postData = {'content': content};
-			let request = $.ajax({
-				url: uri,
-				type: 'post',
-				data: postData,
-				beforeSend: function (xhr) {
-					start = new Date();
-					bStillSaving = true;
-					previousContent = content;
-					setAuthorizationToken(xhr);
-				},
-			});
-
-			request.done(() => {
-				console.debug(request);
-				if (request.status == 200) {
-					editable.data('modified', now.valueOf());
-				}
-			});
-			request.fail((xhr) => {
-				console.error("failed to update: %d", xhr.status, xhr);
-			});
-			request.always(resetTimer);
+		const content = editable.html();
+		const postData = {'content': content};
+		let request = $.ajax({
+			url: uri,
+			type: 'post',
+			data: postData,
+			beforeSend: function (xhr) {
+				start = new Date();
+				bStillSaving = true;
+				previousContent = content;
+				setAuthorizationToken(xhr);
+			},
 		});
+
+		request.done(() => {
+			console.debug(request);
+			if (request.status == 200) {
+				editable.data('modified', now.valueOf());
+			}
+		});
+		request.fail((xhr) => {
+			console.error("failed to update: %d", xhr.status, xhr);
+		});
+		request.always(resetTimer);
 	};
 });
