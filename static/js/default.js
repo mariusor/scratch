@@ -1,4 +1,6 @@
 const warning = 'Since there is no content, this page will be deleted once you close the tab or browser window.';
+const fadeTime = 1200;
+
 $(document).ready( function() {
 	const uri = $(location).attr('href');
 
@@ -50,16 +52,16 @@ $(document).ready( function() {
 	});
 
 	function hideLock (e) {
-		a.fadeIn(1200, () => { a.addClass("hidden"); });
+		a.fadeIn(fadeTime, () => { a.addClass("hidden"); });
 	};
 
 	function showLock(e) {
-		a.fadeOut(1200, () => { a.removeClass("hidden"); });
+		a.fadeOut(fadeTime, () => { a.removeClass("hidden"); });
 	};
 
 	function blinkLock(e) {
 		if (a.css('opacity') == 0 || a.css('display') == 'none') {
-			a.fadeIn(1200).fadeOut(1200);
+			a.fadeIn(fadeTime).fadeOut(fadeTime);
 		}
 	}
 	const feedBack = $("<nav/>").addClass('feedback').append(a);
