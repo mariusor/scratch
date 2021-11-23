@@ -63,9 +63,8 @@ $(document).ready( function() {
 		}
 	}
 	const feedBack = $("<nav/>").addClass('feedback').append(a);
-	feedBack
-		.mouseenter(hideLock).ontouchstart(hideLock)
-		.mouseleave(showLock).ontouchend(showLock)
+	feedBack.mouseenter(hideLock)
+		.mouseleave(showLock)
 		.click(blinkLock);
 	$("body").prepend(feedBack);
 
