@@ -47,27 +47,29 @@ func (h Handler) DeleteRequest(r *http.Request) error {
 	return h.BasePath.DeletePath(path)
 }
 
-func (h Handler) CheckOrSaveKey(r *http.Request) error {
+func (h Handler) CheckKey(r *http.Request) bool {
 	key := getKeyFromRequest(r)
 	path := getPathFromRequest(r)
 
-	k, _ := h.BasePath.LoadKeyForPath(path)
-	if len(k) == 0 {
+	k, err := h.BasePath.LoadKeyForPath(path)
+	return err == nil && bytes.Equal(k, key)
+}
+
+func (h Handler) SaveKey(r *http.Request) error {
+	key := getKeyFromRequest(r)
+	path := getPathFromRequest(r)
+
+	if len(key) == 0 {
 		return h.BasePath.SaveKeyForPath(key, path)
-	}
-	if !bytes.Equal(k, key) {
-		return fmt.Errorf("unauthorized to save to %q: %w", path, unauthorizedErr)
 	}
 	return nil
 }
 func (h Handler) UpdateRequest(r *http.Request) error {
-	if err := h.CheckOrSaveKey(r); err != nil {
-		return err
-	}
-
 	path := getPathFromRequest(r)
+	if !h.CheckKey(r) {
+		return fmt.Errorf("unauthorized to update %s: %w", path, unauthorizedErr)
+	}
 	content := r.PostFormValue("content")
-
 	log.Printf("saving %dbytes", len(content))
 	if err := h.BasePath.SavePath(content, path); err != nil {
 		return err
@@ -150,6 +152,10 @@ func RandomURL(r *http.Request) *url.URL {
 	return &u
 }
 
+func RedirectToRandom(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, RandomURL(r).String(), http.StatusTemporaryRedirect)
+}
+
 func (h Handler) Handle(w http.ResponseWriter, r *http.Request) {
 	st := time.Now()
 	var err error
@@ -158,28 +164,29 @@ func (h Handler) Handle(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	switch r.Method {
+	case http.MethodPatch:
+		if err = h.SaveKey(r); err != nil {
+			writeError(w, err)
+		}
+		return
 	case http.MethodDelete:
 		if err = h.DeleteRequest(r); err != nil {
 			writeError(w, err)
-			return
 		}
 		return
 	case http.MethodPost:
 		if err = h.UpdateRequest(r); err != nil {
 			writeError(w, err)
-			return
 		}
 		return
 	case http.MethodHead:
 		if err := h.CheckRequest(r); err != nil {
 			writeError(w, err)
-			return
 		}
 		return
 	case http.MethodGet:
 		if r.URL.Query().Has("random") {
-			u := RandomURL(r)
-			http.Redirect(w, r, u.String(), http.StatusTemporaryRedirect)
+			RedirectToRandom(w, r)
 			return
 		}
 		out, err := h.ShowRequest(r)
@@ -189,7 +196,6 @@ func (h Handler) Handle(w http.ResponseWriter, r *http.Request) {
 		w.Write(out)
 		return
 	}
-	return
 }
 
 func getPathFromRequest(r *http.Request) string {
