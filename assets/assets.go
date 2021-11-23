@@ -147,7 +147,7 @@ func (a Maps) JsNode(name string) template.HTML {
 	if !path.IsAbs(name) {
 		name = path.Join("/", name)
 	}
-	link := fmt.Sprintf(`<script src="%s"%s></script>`, name, a.Integrity(name))
+	link := fmt.Sprintf(`<script src="%s" async%s></script>`, name, a.Integrity(name))
 	return template.HTML(link)
 }
 
