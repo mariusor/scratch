@@ -49,16 +49,24 @@ $(document).ready( function() {
 		}
 	});
 
-	const feedBack = $("<nav/>").addClass('feedback').append(a);
-	feedBack.mouseenter(function(e) {
+	function hideLock (e) {
 		a.fadeIn(1200, () => { a.addClass("hidden"); });
-	}).mouseleave(function (e) {
+	};
+
+	function showLock(e) {
 		a.fadeOut(1200, () => { a.removeClass("hidden"); });
-	}).click(function (e) {
+	};
+
+	function blinkLock(e) {
 		if (a.css('opacity') == 0 || a.css('display') == 'none') {
 			a.fadeIn(1200).fadeOut(1200);
 		}
-	});
+	}
+	const feedBack = $("<nav/>").addClass('feedback').append(a);
+	feedBack
+		.mouseenter(hideLock).ontouchstart(hideLock)
+		.mouseleave(showLock).ontouchend(showLock)
+		.click(blinkLock);
 	$("body").prepend(feedBack);
 
 	editable.unlock();
