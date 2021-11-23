@@ -235,7 +235,7 @@ $(document).ready( function() {
 		console.debug ("last save: %dms ago", (now.getTime() - finish.getTime()));
 
 		const content = editable.html();
-		const postData = {'content': content};
+		const postData = {'_': content};
 		let request = $.ajax({
 			url: uri,
 			type: 'post',

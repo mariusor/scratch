@@ -17,7 +17,6 @@ import (
 	"git.sr.ht/~mariusor/scratch/assets"
 )
 
-
 type Handler struct {
 	BasePath storage
 	Assets   assets.Maps
@@ -60,7 +59,7 @@ func (h Handler) UpdateRequest(r *http.Request) error {
 	if !h.CheckKey(r) {
 		return fmt.Errorf("unauthorized to update %s: %w", path, unauthorizedErr)
 	}
-	content := r.PostFormValue("content")
+	content := r.PostFormValue("_")
 	log.Printf("saving %dbytes", len(content))
 	if err := h.BasePath.SavePath(content, path); err != nil {
 		return err
