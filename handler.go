@@ -12,55 +12,16 @@ import (
 	"net/url"
 	"os"
 	"path"
-	"strings"
 	"time"
 
 	"git.sr.ht/~mariusor/scratch/assets"
-	"github.com/PuerkitoBio/goquery"
 )
 
-type Page struct {
-	Secret   []byte
-	Path     string
-	Created  time.Time
-	Modified time.Time
-	Content  template.HTML
-}
-
-func cleanHost (host string) string {
-	if pos := strings.LastIndex(host, ":"); pos >= 0 {
-		host = strings.TrimRight(host, host[pos:])
-	}
-	return host
-}
-func (p Page) Title(r *http.Request) func() template.HTML {
-	host := cleanHost(r.Host)
-	subtitle := "Empty page"
-	if len(p.Content) > 0 {
-		subtitle = "Online scratchpad for your convenience"
-		doc, err := goquery.NewDocumentFromReader(bytes.NewReader([]byte(p.Content)))
-		if err == nil {
-			titleSel := doc.Find("h1")
-			if titleSel.Size() > 0 {
-				subtitle = titleSel.Text()
-			}
-		}
-	}
-	title := host + ": " + subtitle
-	if len(p.Secret) > 0 {
-		title = "🔒 " + title
-	}
-	return func() template.HTML {
-		return template.HTML(title)
-	}
-}
 
 type Handler struct {
 	BasePath storage
 	Assets   assets.Maps
 }
-
-const HelpMsg = "Tab indent, Shift+Tab outdent, Ctrl+B bold, Ctrl+I italic, Ctrl+L insert a link, Ctrl+G insert an image"
 
 var unauthorizedErr = fmt.Errorf("missmatched key")
 
@@ -93,6 +54,7 @@ func (h Handler) SaveKey(r *http.Request) error {
 	}
 	return nil
 }
+
 func (h Handler) UpdateRequest(r *http.Request) error {
 	path := getPathFromRequest(r)
 	if !h.CheckKey(r) {
@@ -148,10 +110,10 @@ func (h Handler) ShowRequest(r *http.Request) ([]byte, error) {
 		"main.html": {"main.html"},
 	})
 	t := template.New("main.html").Funcs(template.FuncMap{
-		"title":  p.Title(r),
 		"style":  h.Assets.StyleNode,
 		"script": h.Assets.JsNode,
-		"help":   func() template.HTMLAttr { return HelpMsg },
+		"title":  p.Title(r),
+		"help":   p.Help(r),
 	})
 	if _, err := t.ParseFS(templates, templates.Names()...); err != nil {
 		return out.Bytes(), fmt.Errorf("unable to parse templates %v: %w", templates.Names(), err)
