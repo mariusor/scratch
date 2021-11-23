@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"strings"
 	"time"
 
 	"git.sr.ht/~mariusor/scratch/assets"
@@ -21,10 +22,37 @@ import (
 type Page struct {
 	Secret   []byte
 	Path     string
-	Title    string
 	Created  time.Time
 	Modified time.Time
 	Content  template.HTML
+}
+
+func cleanHost (host string) string {
+	if pos := strings.LastIndex(host, ":"); pos >= 0 {
+		host = strings.TrimRight(host, host[pos:])
+	}
+	return host
+}
+func (p Page) Title(r *http.Request) func() template.HTML {
+	host := cleanHost(r.Host)
+	subtitle := "Empty page"
+	if len(p.Content) > 0 {
+		subtitle = "Online scratchpad for your convenience"
+		doc, err := goquery.NewDocumentFromReader(bytes.NewReader([]byte(p.Content)))
+		if err == nil {
+			titleSel := doc.Find("h1")
+			if titleSel.Size() > 0 {
+				subtitle = titleSel.Text()
+			}
+		}
+	}
+	title := host + ": " + subtitle
+	if len(p.Secret) > 0 {
+		title = "🔒 " + title
+	}
+	return func() template.HTML {
+		return template.HTML(title)
+	}
 }
 
 type Handler struct {
@@ -95,17 +123,6 @@ func writeError(w http.ResponseWriter, err error) {
 
 func (h Handler) ShowRequest(r *http.Request) ([]byte, error) {
 	out := new(bytes.Buffer)
-	templates := assets.WithPrefix("static/templates", assets.Maps{
-		"main.html": {"main.html"},
-	})
-	t := template.New("main.html").Funcs(template.FuncMap{
-		"style":  h.Assets.StyleNode,
-		"script": h.Assets.JsNode,
-		"help":   func() template.HTMLAttr { return HelpMsg },
-	})
-	if _, err := t.ParseFS(templates, templates.Names()...); err != nil {
-		return out.Bytes(), fmt.Errorf("unable to parse templates %v: %w", templates.Names(), err)
-	}
 
 	path := getPathFromRequest(r)
 	content, err := h.BasePath.LoadPath(path)
@@ -119,27 +136,26 @@ func (h Handler) ShowRequest(r *http.Request) ([]byte, error) {
 	key, _ := h.BasePath.LoadKeyForPath(path)
 	modTime, _ := h.BasePath.ModTimePath(path)
 
-	title := "Empty page"
-	doc, err := goquery.NewDocumentFromReader(bytes.NewReader([]byte(content)))
-	if err == nil {
-		titleSel := doc.Find("h1")
-		if titleSel.Size() > 0 {
-			title = titleSel.Text()
-		}
-	}
-	if len(key) > 0 {
-		title = "🔒 " + title
-	}
-
 	p := Page{
 		Secret:   key,
 		Path:     path,
-		Title:    title,
 		Created:  modTime,
 		Modified: modTime,
 		Content:  template.HTML(content),
 	}
 
+	templates := assets.WithPrefix("static/templates", assets.Maps{
+		"main.html": {"main.html"},
+	})
+	t := template.New("main.html").Funcs(template.FuncMap{
+		"title":  p.Title(r),
+		"style":  h.Assets.StyleNode,
+		"script": h.Assets.JsNode,
+		"help":   func() template.HTMLAttr { return HelpMsg },
+	})
+	if _, err := t.ParseFS(templates, templates.Names()...); err != nil {
+		return out.Bytes(), fmt.Errorf("unable to parse templates %v: %w", templates.Names(), err)
+	}
 	if err := t.Execute(out, &p); err != nil {
 		return out.Bytes(), fmt.Errorf("unable to parse templates %v: %w", templates.Names(), err)
 	}
