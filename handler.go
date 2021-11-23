@@ -51,15 +51,15 @@ func (h Handler) CheckKey(r *http.Request) bool {
 	key := getKeyFromRequest(r)
 	path := getPathFromRequest(r)
 
-	k, err := h.BasePath.LoadKeyForPath(path)
-	return err == nil && bytes.Equal(k, key)
+	k, _ := h.BasePath.LoadKeyForPath(path)
+	return bytes.Equal(k, key)
 }
 
 func (h Handler) SaveKey(r *http.Request) error {
 	key := getKeyFromRequest(r)
 	path := getPathFromRequest(r)
 
-	if len(key) == 0 {
+	if len(key) > 0 {
 		return h.BasePath.SaveKeyForPath(key, path)
 	}
 	return nil
