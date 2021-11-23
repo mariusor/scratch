@@ -134,7 +134,7 @@ func (h Handler) CheckRequest(r *http.Request) error {
 }
 
 func RandomURL(r *http.Request) *url.URL {
-	rand := rand.New(rand.NewSource(time.Now().UnixNano())).Uint32()
+	rand := int16(rand.New(rand.NewSource(time.Now().UnixNano())).Uint32())
 	rPath := base64.RawURLEncoding.Strict().EncodeToString([]byte(fmt.Sprintf("%d", rand)))
 
 	u := *r.URL
