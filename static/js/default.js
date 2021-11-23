@@ -173,9 +173,7 @@ $(document).ready( function() {
 		finish = new Date();
 		const lastRun = finish.getTime() - start.getTime();
 		let multiplier = 2;
-		if (lastRun > 5000) {
-			multiplier = 0.1;
-		} else if (lastRun > 1000) {
+		if (lastRun > 1000) {
 			multiplier = 1;
 		} else if (lastRun < 400) {
 			multiplier = 10;
@@ -206,10 +204,6 @@ $(document).ready( function() {
 
 	function save () {
 		console.debug ("next check: in %dms", waitTime);
-		console.debug ("still saving: %s", (bStillSaving ? 'yes' : 'no'));
-		if (bStillSaving) {
-			return;
-		}
 		console.debug ("is editable: %s", editable.unlocked());
 		if (!editable.unlocked()) {
 			return;
@@ -217,6 +211,10 @@ $(document).ready( function() {
 		const changes = unsavedChanges (editable.html());
 		console.debug ("changes: %s", changes);
 		if (!changes) {
+			return;
+		}
+		console.debug ("still saving: %s", bStillSaving);
+		if (bStillSaving) {
 			return;
 		}
 		const now = new Date();
