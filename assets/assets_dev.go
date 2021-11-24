@@ -4,18 +4,11 @@
 package assets
 
 import (
-	"errors"
 	"fmt"
 	"io/fs"
-	"log"
-	"mime"
-	"net/http"
 	"os"
-	"path"
-	"path/filepath"
 	"time"
 )
-
 
 func (p Path) Mode() fs.FileMode {
 	var m fs.FileMode
@@ -30,7 +23,7 @@ func (p Path) ModTime() time.Time {
 	var m time.Time
 	for _, file := range p.i {
 		f, _ := os.Stat(file)
-		if fm := f.ModTime(); fm.Sub(m) < 0 {
+		if fm := f.ModTime(); fm.Sub(m) > 0 {
 			m = fm
 		}
 	}
@@ -66,31 +59,3 @@ func (a Maps) ReadFile(name string) ([]byte, error) {
 	}
 	return buf, err
 }
-
-func writeAsset(s Maps) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		st := time.Now()
-		defer func() {
-			log.Printf("[%s] %s %s", r.Method, r.URL.Path, time.Now().Sub(st).String())
-		}()
-
-		asset := filepath.Clean(r.URL.Path)
-		if asset == "." {
-			_, asset = filepath.Split(r.RequestURI)
-		}
-		mimeType := mime.TypeByExtension(path.Ext(r.RequestURI))
-
-		buf, err := s.ReadFile(asset)
-		if err != nil && errors.Is(err, fs.ErrNotExist) {
-			w.Write([]byte(asset))
-			w.Write([]byte(" not found"))
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
-
-		w.Header().Set("Cache-Control", fmt.Sprintf("public,max-age=%d", int(year.Seconds())))
-		w.Header().Set("Content-Type", mimeType)
-		w.Write(buf)
-	}
-}
-

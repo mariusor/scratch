@@ -3,9 +3,12 @@ package assets
 import (
 	"crypto/sha256"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"html/template"
 	"io/fs"
+	"log"
+	"mime"
 	"net/http"
 	"os"
 	"path"
@@ -13,9 +16,7 @@ import (
 	"time"
 )
 
-const (
-	year = 8766 * time.Hour
-)
+const year = 8766 * time.Hour
 
 type Maps map[string][]string
 
@@ -187,19 +188,44 @@ func ServeAsset(s Maps) func(w http.ResponseWriter, r *http.Request) {
 	return writeAsset(s)
 }
 
-func ServeStatic(st string) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		fullPath := filepath.Clean(filepath.Join(st, r.URL.Path))
-		w.Header().Set("Cache-Control", fmt.Sprintf("public, max-age=%d, immutable", int(year.Seconds())))
-		http.ServeFile(w, r, fullPath)
-	}
-}
-
 // Asset returns an asset by path for display inside templates
 // it is mainly used for rendering the svg icons file
-func Asset (s Maps) func(string) template.HTML {
+func Asset(s Maps) func(string) template.HTML {
 	return func(name string) template.HTML {
 		b, _ := s.ReadFile(assetPath(name))
 		return template.HTML(b)
+	}
+}
+
+func writeAsset(s Maps) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		st := time.Now()
+		defer func() {
+			log.Printf("[%s] %s %s", r.Method, r.URL.Path, time.Now().Sub(st).String())
+		}()
+
+		asset := filepath.Clean(r.URL.Path)
+		if asset == "." {
+			_, asset = filepath.Split(r.RequestURI)
+		}
+		mimeType := mime.TypeByExtension(path.Ext(r.RequestURI))
+
+		buf, err := s.ReadFile(asset)
+		if err != nil && errors.Is(err, fs.ErrNotExist) {
+			w.Write([]byte(asset))
+			w.Write([]byte(" not found"))
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		f, _ := s.Open(asset)
+		fi, _ := f.Stat()
+		modTime := fi.ModTime()
+
+		if !modTime.IsZero() {
+			w.Header().Set("Last-Modified", modTime.Format(time.RFC1123))
+		}
+		w.Header().Set("Cache-Control", fmt.Sprintf("public,max-age=%d", int(year.Seconds())))
+		w.Header().Set("Content-Type", mimeType)
+		w.Write(buf)
 	}
 }
