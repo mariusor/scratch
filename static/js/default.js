@@ -176,6 +176,7 @@ $(document).ready( function() {
 				console.debug("locked");
 			}
 		});
+		request.always(blinkLock());
 	};
 
 	function unsavedChanges (text) {
