@@ -7,14 +7,13 @@
 	<meta name="theme-color" content="rebeccapurple" />
 	<meta name="description" content=""/>
 	<link rel="icon" href="data:image/svg+xml,%3csvg%3e %3c/svg%3e">
-	<link rel="preload" href="/icons.svg" as="image">
 	<title>{{ title }}</title>
 	{{ style "main.css" }}
 	{{ script "main.js" }}
 </head>
 <body>
 	<!-- hic sunt leones -->
-	<section title="{{ help }}" {{- if not .Modified.IsZero }}data-modified="{{ .Modified.UTC.UnixMilli }}"{{ end }}>{{ .Content }}</section>
+	<section title="{{ help }}" {{ if not .Modified.IsZero }}data-modified="{{ .Modified.UTC.UnixMilli }}"{{ end }}>{{ .Content }}</section>
 	<!-- hic sunt leones -->
 </body>
 </html>
