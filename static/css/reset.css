@@ -9,6 +9,9 @@
 html, body {
 	height: 100%;
 }
+hr {
+    margin: .5em 0;
+}
 img, picture, video, canvas, svg {
 	display: block;
 	max-width: 100%;
