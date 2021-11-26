@@ -13,7 +13,10 @@ import (
 func (p Path) Mode() fs.FileMode {
 	var m fs.FileMode
 	for _, file := range p.i {
-		f, _ := os.Stat(file)
+		f, err := os.Stat(file)
+		if err != nil {
+			continue
+		}
 		m = f.Mode()
 	}
 	return m
@@ -22,7 +25,10 @@ func (p Path) Mode() fs.FileMode {
 func (p Path) ModTime() time.Time {
 	var m time.Time
 	for _, file := range p.i {
-		f, _ := os.Stat(file)
+		f, err := os.Stat(file)
+		if err != nil {
+			continue
+		}
 		if fm := f.ModTime(); fm.Sub(m) > 0 {
 			m = fm
 		}
