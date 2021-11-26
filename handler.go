@@ -83,7 +83,7 @@ func writeError(w http.ResponseWriter, err error) {
 	http.Error(w, err.Error(), statusError(err))
 }
 
-func (h Handler) ShowRequest(r *http.Request) ([]byte, error) {
+func (h Handler) ShowRequest(r *http.Request) ([]byte, time.Time, error) {
 	out := new(bytes.Buffer)
 
 	path := getPathFromRequest(r)
@@ -91,7 +91,7 @@ func (h Handler) ShowRequest(r *http.Request) ([]byte, error) {
 
 	if err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
-			return out.Bytes(), fmt.Errorf("unable to load from path %q: %w", path, err)
+			return out.Bytes(), time.Time{}, fmt.Errorf("unable to load from path %q: %w", path, err)
 		}
 		log.Printf("unable to load %q, probably a new file", path)
 	}
@@ -115,12 +115,12 @@ func (h Handler) ShowRequest(r *http.Request) ([]byte, error) {
 		"help":   p.Help(r),
 	})
 	if _, err := t.ParseFS(templates, templates.Names()...); err != nil {
-		return out.Bytes(), fmt.Errorf("unable to parse templates %v: %w", templates.Names(), err)
+		return out.Bytes(), time.Time{}, fmt.Errorf("unable to parse templates %v: %w", templates.Names(), err)
 	}
 	if err := t.Execute(out, &p); err != nil {
-		return out.Bytes(), fmt.Errorf("unable to parse templates %v: %w", templates.Names(), err)
+		return out.Bytes(), time.Time{}, fmt.Errorf("unable to parse templates %v: %w", templates.Names(), err)
 	}
-	return out.Bytes(), nil
+	return out.Bytes(), modTime, nil
 }
 
 func (h Handler) CheckRequest(r *http.Request) error {
@@ -147,6 +147,8 @@ func RandomURL(r *http.Request) *url.URL {
 func RedirectToRandom(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, RandomURL(r).String(), http.StatusTemporaryRedirect)
 }
+
+var day = 24 * time.Hour
 
 func (h Handler) Handle(w http.ResponseWriter, r *http.Request) {
 	st := time.Now()
@@ -181,10 +183,14 @@ func (h Handler) Handle(w http.ResponseWriter, r *http.Request) {
 			RedirectToRandom(w, r)
 			return
 		}
-		out, err := h.ShowRequest(r)
+		out, modTime, err := h.ShowRequest(r)
 		if err != nil {
 			writeError(w, err)
 		}
+		if !modTime.IsZero() {
+			//w.Header().Set("Last-Modified", modTime.Format(time.RFC1123))
+		}
+		//w.Header().Set("Cache-Control", fmt.Sprintf("public, max-age=%d", int(day.Seconds())))
 		w.Write(out)
 		return
 	}
