@@ -1,0 +1,15 @@
+* {
+	margin: 0;
+	line-height: calc(1em + 0.5rem);
+	overflow-wrap: break-word;
+}
+*, *::before, *::after {
+	box-sizing: border-box;
+}
+html, body {
+	height: 100%;
+}
+img, picture, video, canvas, svg {
+	display: block;
+	max-width: 100%;
+}
