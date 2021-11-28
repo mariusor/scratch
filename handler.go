@@ -39,19 +39,6 @@ func (h Handler) CheckKey(r *http.Request) bool {
 	return ok && bytes.Equal(k, key)
 }
 
-func (h *Handler) HandleKeyRequest(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodPost:
-		key, err := h.CheckOrUpdateKeyRequest(r)
-		if err != nil {
-			writeError(w, err)
-		}
-		w.Header().Add("Authentication-Info", key)
-		return
-	}
-	http.NotFound(w, r)
-}
-
 func getRandomKey() []byte {
 	return []byte(
 		base64.RawStdEncoding.Strict().EncodeToString([]byte(fmt.Sprintf("%d", rnd.Uint64()))),
@@ -60,6 +47,9 @@ func getRandomKey() []byte {
 
 func (h *Handler) CheckOrUpdateKeyRequest(r *http.Request) (string, error) {
 	path := getPathFromRequest(r)
+	if err := r.ParseForm(); err != nil {
+		return "", err
+	}
 
 	// We load the pw from POST data
 	pw := []byte(r.PostFormValue("_"))
@@ -90,10 +80,6 @@ func (h *Handler) CheckOrUpdateKeyRequest(r *http.Request) (string, error) {
 }
 
 func (h Handler) DeleteRequest(r *http.Request) error {
-	if err := r.ParseForm(); err != nil {
-		return err
-	}
-
 	path := getPathFromRequest(r)
 	if !h.CheckKey(r) {
 		return fmt.Errorf("unauthorized to delete path %q: %w", path, unauthorizedErr)
@@ -194,8 +180,20 @@ func RedirectToRandom(w http.ResponseWriter, r *http.Request) {
 
 var day = 24 * time.Hour
 
-func (h *Handler) HandleContentRequest(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) {
+	st := time.Now()
+	defer func() {
+		log.Printf("[%s] %s %s", r.Method, r.URL.Path, time.Now().Sub(st).String())
+	}()
+
 	switch r.Method {
+	case http.MethodPatch:
+		key, err := h.CheckOrUpdateKeyRequest(r)
+		if err != nil {
+			writeError(w, err)
+		}
+		w.Header().Add("Authentication-Info", key)
+		return
 	case http.MethodDelete:
 		if err := h.DeleteRequest(r); err != nil {
 			writeError(w, err)
@@ -223,19 +221,6 @@ func (h *Handler) HandleContentRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.Error(w, "405 method not allowed", http.StatusMethodNotAllowed)
-}
-
-func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) {
-	st := time.Now()
-	defer func() {
-		log.Printf("[%s] %s %s", r.Method, r.URL.Path, time.Now().Sub(st).String())
-	}()
-
-	if ext := path.Ext(r.URL.Path); ext == ".key" {
-		h.HandleKeyRequest(w, r)
-		return
-	}
-	h.HandleContentRequest(w, r)
 }
 
 func getPathFromRequest(r *http.Request) string {

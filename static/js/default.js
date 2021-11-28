@@ -3,7 +3,6 @@ const fadeTime = 1200;
 
 $(document).ready( function() {
 	const uri = $(location).attr('href');
-	const kURL = uri + ".key";
 
 	let editable = $("body > section:first-child");
 	editable.unlocked = function() {
@@ -152,22 +151,30 @@ $(document).ready( function() {
 		}
 	};
 
+	function makeEditable() {
+		a.empty();
+		a.append(unlock);
+		editable.attr("contentEditable", true);
+	};
+
+	function makeReadOnly() {
+		a.empty();
+		a.append(lock);
+		editable.attr("contentEditable", false);
+	};
+
 	function checkLocked() {
 		let request = $.ajax({
 			url: uri,
 			type: 'post',
 		});
 		request.done((o, tw, xhr) => {
-			a.empty();
-			a.append(unlock);
-			editable.attr("contentEditable", true);
+			makeEditable();
 			console.debug("unlocked");
 		});
 		request.fail((xhr) => {
 			if (xhr.status == 401) {
-				a.empty();
-				a.append(lock);
-				editable.attr("contentEditable", false);
+				makeReadOnly();
 				console.debug("locked");
 			}
 		});
@@ -175,11 +182,11 @@ $(document).ready( function() {
 	}
 
 	function checkSecret(key) {
-		console.debug("check secrets: %s", key)
+		console.debug("check or update secrets: %s", key)
 		const postData = {'_': key};
 		let request = $.ajax({
-			url: kURL,
-			type: 'post',
+			url: uri,
+			type: 'patch',
 			data: postData,
 			beforeSend: function (xhr) {
 				bStillSaving = true;
@@ -188,22 +195,17 @@ $(document).ready( function() {
 		});
 
 		request.done((o, tw, xhr) => {
-			a.empty();
-			a.append(unlock);
+			makeEditable();
 			console.debug("unlocked");
-			editable.attr("contentEditable", true);
 			if (xhr != null) {
 				authToken = xhr.getResponseHeader('Authentication-Info')
 			}
 		});
 		request.fail((xhr) => {
 			if (xhr.status == 401) {
-				a.empty();
-				a.append(lock);
+				makeReadOnly();
 				authToken = null;
-				editable.attr("contentEditable", false);
 				console.error("failed to update key:", xhr);
-				console.debug("locked");
 			}
 		});
 		request.always(blinkLock(), resetTimer);
