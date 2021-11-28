@@ -10,7 +10,7 @@ BUILDFLAGS ?= -trimpath -a -ldflags '$(LDFLAGS)'
 TEST_FLAGS ?= -count=1
 
 GO := go
-APPSOURCES := $(wildcard ./*.go internal/*/*.go)
+APPSOURCES := $(wildcard *.go cmd/*/*.go assets/*.go)
 ASSETFILES := $(wildcard static/*/* static/*)
 
 export CGO_ENABLED=0
