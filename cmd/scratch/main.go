@@ -43,16 +43,12 @@ func main() {
 
 	ctx, cancelFn := context.WithTimeout(context.TODO(), conf.TimeOut)
 
-	handler := scratch.Handler{
-		BasePath: scratch.Storage(conf.StoragePath),
-		Assets:   assetFiles,
-	}
-
 	mux := http.NewServeMux()
 	if err := assets.Routes(mux, assetFiles); err != nil {
 		log.Panicf("Error: %s", err)
 	}
-	mux.HandleFunc("/", handler.Handle)
+	h := scratch.New(conf.StoragePath, assetFiles)
+	mux.HandleFunc("/", h.Handle)
 
 	listenOn := "HTTP"
 	setters := []w.SetFn{w.Handler(mux)}

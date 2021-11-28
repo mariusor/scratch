@@ -211,3 +211,11 @@ func getPathFromRequest(r *http.Request) string {
 func getKeyFromRequest(r *http.Request) []byte {
 	return []byte(r.Header.Get("Authorization"))
 }
+
+func New(storage string, files assets.Maps) Handler {
+	return Handler{
+		BasePath:      Storage(storage),
+		Assets:        files,
+		authorization: make(map[string][]byte),
+	}
+}
