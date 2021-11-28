@@ -22,12 +22,12 @@ func Storage(base string) storage {
 	return storage(path.Join(base, StorageDirName))
 }
 
-func (s storage) CheckKeyForPath(key []byte, to string) bool {
+func (s storage) CheckPwForPath(pw []byte, to string) bool {
 	k, err := s.LoadKeyForPath(to)
-	if err != nil && len(key) > 0 {
+	if err != nil && len(pw) > 0 {
 		return false
 	}
-	return bytes.Equal(key, k)
+	return bytes.Equal(pw, k)
 }
 
 func (s storage) SaveKeyForPath(key []byte, to string) error {
