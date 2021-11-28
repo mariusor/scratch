@@ -15,5 +15,6 @@
 	<!-- hic sunt leones -->
 	<section title="{{ help }}" {{ if not .Modified.IsZero }}data-modified="{{ .Modified.UTC.UnixMilli }}"{{ end }}>{{ .Content }}</section>
 	<!-- hic sunt leones -->
+	<script type="application/json">{{- csrf -}}</script>
 </body>
 </html>

@@ -3,6 +3,7 @@ package scratch
 import (
 	"bytes"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"html/template"
@@ -83,6 +84,12 @@ func writeError(w http.ResponseWriter, err error) {
 	http.Error(w, err.Error(), statusError(err))
 }
 
+func jsCSRF() template.JS {
+	csrf := struct{}{}
+	b, _ := json.Marshal(csrf)
+	return template.JS(b)
+}
+
 func (h Handler) ShowRequest(r *http.Request) ([]byte, time.Time, error) {
 	out := new(bytes.Buffer)
 
@@ -111,6 +118,7 @@ func (h Handler) ShowRequest(r *http.Request) ([]byte, time.Time, error) {
 	t := template.New("main.html").Funcs(template.FuncMap{
 		"style":  h.Assets.StyleNode,
 		"script": h.Assets.JsNode,
+		"csrf":   jsCSRF,
 		"title":  p.Title(r),
 		"help":   p.Help(r),
 	})
