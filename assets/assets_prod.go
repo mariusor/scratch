@@ -14,7 +14,11 @@ type Contents map[string][]byte
 func (p Path) Mode() fs.FileMode {
 	var m fs.FileMode
 	for _, file := range p.i {
-		f, _ := assets.Stat(file)
+		f, err := assets.Stat(file)
+		if err != nil {
+			err = fmt.Errorf("error operating stsat on %s: %w", file, err)
+			continue
+		}
 		m = f.Mode()
 	}
 	return m
@@ -23,7 +27,11 @@ func (p Path) Mode() fs.FileMode {
 func (p Path) ModTime() time.Time {
 	var m time.Time
 	for _, file := range p.i {
-		f, _ := assets.Stat(file)
+		f, err := assets.Stat(file)
+		if err != nil {
+			err = fmt.Errorf("error operating stsat on %s: %w", file, err)
+			continue
+		}
 		if fm := f.ModTime(); fm.Sub(m) > 0 {
 			m = fm
 		}
