@@ -224,7 +224,11 @@ func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) {
 }
 
 func getPathFromRequest(r *http.Request) string {
-	return path.Join(r.URL.Host, r.URL.Path)
+	host := r.URL.Host
+	if len(host) == 0 {
+		host = r.Host
+	}
+	return path.Join(host, r.URL.Path)
 }
 
 func getKeyFromRequest(r *http.Request) []byte {
