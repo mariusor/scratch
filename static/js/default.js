@@ -114,15 +114,6 @@ $(document).ready( function() {
 	}).bind('click', function(e) {
 		editable.emptyContent();
 		selection = window.getSelection();
-	}).bind('dragover', function(e) {
-		editable.emptyContent();
-		selection = window.getSelection();
-		e.preventDefault();
-		e.stopPropagation();
-	}).bind('drop', function (e) {
-		selection = window.getSelection();//.getRangeAt(0);
-		editable.emptyContent();
-		handleFileSelect(e);
 	});
 
 	// adding click events to make links to work in edit mode
