@@ -12,7 +12,7 @@
 	{{ script "index.js" }}
 </head>
 <body>
-	<section>Show index:
+	<section>{{ .Path }}:
 	<ul>
 	{{- range $key, $item := .Files }}
 		<li title="Size: {{ $item.Size }} chars; Last modified: {{ $item.ModTime.String }}" >

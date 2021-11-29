@@ -15,6 +15,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"git.sr.ht/~mariusor/scratch/assets"
@@ -144,8 +145,11 @@ var errorRedirectToContent = fmt.Errorf("no children")
 
 func (h Handler) ShowIndexForPath(p string) ([]byte, error) {
 	out := new(bytes.Buffer)
+
+	pathEl := strings.Split(p, "/")
+	pathEl[0] = "/"
 	index := Index{
-		Path:  p,
+		Path:  path.Join(pathEl...),
 		Files: make([]IndexEntry, 0),
 	}
 
@@ -199,8 +203,7 @@ func (h Handler) ShowIndexForPath(p string) ([]byte, error) {
 			}
 			return assets.Icon(name)
 		},
-		"title": func() template.HTMLAttr { return "index" },
-		"help":  func() template.HTMLAttr { return "help" },
+		"title": func() template.HTMLAttr { return template.HTMLAttr(fmt.Sprintf("File index %s", index.Path)) },
 	})
 	if _, err := t.ParseFS(templates, templates.Names()...); err != nil {
 		return out.Bytes(), fmt.Errorf("unable to parse templates %v: %w", templates.Names(), err)
