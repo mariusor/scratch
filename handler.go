@@ -151,8 +151,8 @@ func (h Handler) ShowRequest(r *http.Request) ([]byte, time.Time, error) {
 		"style":  h.Assets.StyleNode,
 		"script": h.Assets.JsNode,
 		"csrf":   jsCSRF,
-		"title":  p.Title(r),
-		"help":   p.Help(r),
+		"title":  p.Title(defTitle),
+		"help":   p.Help(),
 	})
 	if _, err := t.ParseFS(templates, templates.Names()...); err != nil {
 		return out.Bytes(), time.Time{}, fmt.Errorf("unable to parse templates %v: %w", templates.Names(), err)

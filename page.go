@@ -3,7 +3,6 @@ package scratch
 import (
 	"bytes"
 	"html/template"
-	"net/http"
 	"strings"
 	"time"
 
@@ -26,13 +25,12 @@ func cleanHost(host string) string {
 	return host
 }
 
-func (p Page) Help(_ *http.Request) func() template.HTMLAttr {
+func (p Page) Help() func() template.HTMLAttr {
 	return func() template.HTMLAttr {
 		return HelpMsg
 	}
 }
-func (p Page) Title(r *http.Request) func() template.HTML {
-	host := cleanHost(r.Host)
+func (p Page) Title(def string) func() template.HTML {
 	subtitle := "Empty page"
 	if len(p.Content) > 0 {
 		subtitle = "Online scratchpad for your convenience"
@@ -43,7 +41,7 @@ func (p Page) Title(r *http.Request) func() template.HTML {
 			}
 		}
 	}
-	title := host + ": " + subtitle
+	title := def + ": " + subtitle
 	if len(p.Secret) > 0 {
 		title = "🔒 " + title
 	}
