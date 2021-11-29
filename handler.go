@@ -14,6 +14,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"path/filepath"
 	"time"
 
 	"git.sr.ht/~mariusor/scratch/assets"
@@ -122,12 +123,102 @@ func jsCSRF() template.JS {
 	return template.JS(b)
 }
 
-func (h Handler) ShowRequest(r *http.Request) ([]byte, time.Time, error) {
+type Index struct {
+	Path  string
+	Files []IndexEntry
+}
+
+type IndexEntry struct {
+	parent    *Index
+	Path      string
+	ModTime   time.Time
+	Size      int64
+	HasSecret bool
+}
+
+func (i IndexEntry) URL() template.HTMLAttr {
+	return template.HTMLAttr("./" + i.Path)
+}
+
+var errorRedirectToContent = fmt.Errorf("no children")
+
+func (h Handler) ShowIndexForPath(p string) ([]byte, error) {
 	out := new(bytes.Buffer)
+	index := Index{
+		Path:  p,
+		Files: make([]IndexEntry, 0),
+	}
 
-	path := getPathFromRequest(r)
+	base := os.DirFS(string(h.BasePath))
+	fs.WalkDir(base, p, func(file string, d fs.DirEntry, err error) error {
+		if err != nil {
+			log.Printf("error: %s", err)
+			return err
+		}
+		fi, err := d.Info()
+		if err != nil {
+			log.Printf("error: %s", err)
+			return err
+		}
+		if fi.IsDir() {
+			if p == file {
+				return nil
+			}
+			ie := IndexEntry{parent: &index, Path: fi.Name()}
+			keyPath := path.Join(file, KeyFileName)
+			log.Printf("Has key %s", keyPath)
+			_, err := fs.Stat(base, keyPath)
+			ie.HasSecret = (err == nil || !errors.Is(err, fs.ErrNotExist))
+			if err != nil {
+				log.Printf("error: %s", err)
+			}
+
+			contentPath := path.Join(file, ContentFileName)
+			log.Printf("Has content %s", contentPath)
+			if ci, err := fs.Stat(base, contentPath); err == nil {
+				ie.Size = ci.Size()
+				ie.ModTime = ci.ModTime()
+			} else {
+				log.Printf("error: %s", err)
+			}
+			log.Printf("Path %v", ie)
+			index.Files = append(index.Files, ie)
+		}
+
+		return nil
+	})
+	if len(index.Files) == 0 {
+		return nil, errorRedirectToContent
+	}
+
+	templates := assets.WithPrefix("static/templates", assets.Maps{
+		"main.html": {"index.html"},
+	})
+	t := template.New("main.html").Funcs(template.FuncMap{
+		"style":  h.Assets.StyleNode,
+		"script": h.Assets.JsNode,
+		"icon": func(i IndexEntry) template.HTML {
+			name := "unlock"
+			if i.HasSecret {
+				name = "lock"
+			}
+			return assets.Icon(name)
+		},
+		"title": func() template.HTMLAttr { return "index" },
+		"help":  func() template.HTMLAttr { return "help" },
+	})
+	if _, err := t.ParseFS(templates, templates.Names()...); err != nil {
+		return out.Bytes(), fmt.Errorf("unable to parse templates %v: %w", templates.Names(), err)
+	}
+	if err := t.Execute(out, &index); err != nil {
+		return out.Bytes(), fmt.Errorf("unable to parse templates %v: %w", templates.Names(), err)
+	}
+	return out.Bytes(), nil
+}
+
+func (h Handler) ShowRequest(path, defTitle string) ([]byte, time.Time, error) {
+	out := new(bytes.Buffer)
 	content, err := h.BasePath.LoadPath(path)
-
 	if err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
 			return out.Bytes(), time.Time{}, fmt.Errorf("unable to load from path %q: %w", path, err)
@@ -209,7 +300,24 @@ func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) {
 			RedirectToRandom(w, r)
 			return
 		}
-		out, mod, err := h.ShowRequest(r)
+
+		p := getPathFromRequest(r)
+		if len(r.URL.Path) > 1 && r.URL.Path[len(r.URL.Path)-1] == '/' {
+			out, err := h.ShowIndexForPath(p)
+			if err != nil {
+				if errors.Is(err, errorRedirectToContent) {
+					url := filepath.Clean(r.RequestURI)
+					log.Printf("Redirecting to %s", url)
+					http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+					return
+				}
+				writeError(w, err)
+			}
+			w.Write(out)
+			return
+		}
+
+		out, mod, err := h.ShowRequest(p, cleanHost(r.Host))
 		if err != nil {
 			writeError(w, err)
 		}

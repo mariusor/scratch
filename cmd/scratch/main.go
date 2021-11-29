@@ -24,7 +24,9 @@ type config struct {
 
 var assetFiles = assets.WithPrefix("static", assets.Maps{
 	"/main.js":     {"js/jquery.js", "js/default.js"},
+	"/index.js":    {"js/index.js"},
 	"/main.css":    {"css/reset.css", "css/style.css"},
+	"/index.css":   {"css/reset.css", "css/style.css", "css/index.css"},
 	"/robots.txt":  {"robots.txt"},
 	"/favicon.ico": {"favicon.ico"},
 	"/icons.svg":   {"icons.svg"},

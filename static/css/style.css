@@ -2,7 +2,11 @@ body {
 	font-family: sans-serif;
 }
 svg.icon {
-	height: 1.4em; width: 1.4em; fill: currentColor; vertical-align: middle;
+	height: 1.4em;
+	width: 1.4em;
+	fill: currentColor;
+	vertical-align: middle;
+	display: inline;
 }
 body section:focus {
 	outline: none;

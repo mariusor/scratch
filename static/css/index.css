@@ -1,0 +1,8 @@
+ul, li {
+	list-style: none;
+}
+li svg.icon {
+	height: .85em;
+	width: .85em;
+	margin-bottom: .2em;
+}

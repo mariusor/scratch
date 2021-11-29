@@ -13,6 +13,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -155,6 +156,15 @@ func (a Maps) JsNode(name string) template.HTML {
 // Js returns an svg by path for displaying inline
 func (a Maps) Js(name string) template.HTML {
 	return Asset(a)(name)
+}
+
+func Icon(c ...string) template.HTML {
+	iconFmt := `<svg aria-hidden="true" class="icon icon-%s"><use xlink:href="/icons.svg#icon-%s"><title>%s</title></use></svg>`
+	if len(c) == 0 {
+		return ""
+	}
+	buf := fmt.Sprintf(iconFmt, strings.Join(c, " "), c[0], c[0])
+	return template.HTML(buf)
 }
 
 // Template returns an asset by path for unrolled.Render
