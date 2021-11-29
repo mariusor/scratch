@@ -1,13 +1,13 @@
 package scratch
 
 import (
-	"bytes"
 	"fmt"
 	"os"
 	"path"
 	"time"
 
 	"github.com/pkg/errors"
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -27,12 +27,16 @@ func (s storage) CheckPwForPath(pw []byte, to string) bool {
 	if err != nil && len(pw) > 0 {
 		return false
 	}
-	return bytes.Equal(pw, k)
+	return bcrypt.CompareHashAndPassword(k, pw) == nil
 }
 
 func (s storage) SaveKeyForPath(key []byte, to string) error {
 	to = path.Join(string(s), to, KeyFileName)
-	return writeToPath(to, key)
+	enc, err := bcrypt.GenerateFromPassword(key, bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	return writeToPath(to, enc)
 }
 
 func (s storage) LoadKeyForPath(from string) ([]byte, error) {

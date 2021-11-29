@@ -9,6 +9,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06
 	github.com/tdewolff/minify v2.3.6+incompatible
+	golang.org/x/crypto v0.0.0-20211117183948-ae814b36b871
 )
 
 require (
@@ -16,5 +17,5 @@ require (
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/tdewolff/parse v2.3.4+incompatible // indirect
 	github.com/tdewolff/test v1.0.6 // indirect
-	golang.org/x/net v0.0.0-20210916014120-12bc252f5db8 // indirect
+	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
 )
