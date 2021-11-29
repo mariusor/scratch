@@ -166,7 +166,6 @@ func (h Handler) ShowIndexForPath(p string) ([]byte, error) {
 			}
 			ie := IndexEntry{parent: &index, Path: fi.Name()}
 			keyPath := path.Join(file, KeyFileName)
-			log.Printf("Has key %s", keyPath)
 			_, err := fs.Stat(base, keyPath)
 			ie.HasSecret = (err == nil || !errors.Is(err, fs.ErrNotExist))
 			if err != nil {
@@ -174,14 +173,12 @@ func (h Handler) ShowIndexForPath(p string) ([]byte, error) {
 			}
 
 			contentPath := path.Join(file, ContentFileName)
-			log.Printf("Has content %s", contentPath)
 			if ci, err := fs.Stat(base, contentPath); err == nil {
 				ie.Size = ci.Size()
 				ie.ModTime = ci.ModTime()
 			} else {
 				log.Printf("error: %s", err)
 			}
-			log.Printf("Path %v", ie)
 			index.Files = append(index.Files, ie)
 		}
 
