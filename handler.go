@@ -61,7 +61,6 @@ func (h *Handler) CheckOrUpdateKeyRequest(r *http.Request) (string, error) {
 			return "", fmt.Errorf("unauthorized to save key %q: %w", path, unauthorizedErr)
 		}
 		if len(pw) > 0 {
-			log.Printf("Saving pw for %s: %q", path, pw)
 			if err := h.BasePath.SaveKeyForPath(pw, path); err != nil {
 				return "", fmt.Errorf("unable to save key %q: %w", path, err)
 			}
