@@ -168,17 +168,15 @@ func (h Handler) ShowIndexForPath(p string) ([]byte, error) {
 			keyPath := path.Join(file, KeyFileName)
 			_, err := fs.Stat(base, keyPath)
 			ie.HasSecret = (err == nil || !errors.Is(err, fs.ErrNotExist))
-			if err != nil {
-				log.Printf("error: %s", err)
-			}
 
 			contentPath := path.Join(file, ContentFileName)
-			if ci, err := fs.Stat(base, contentPath); err == nil {
-				ie.Size = ci.Size()
-				ie.ModTime = ci.ModTime()
-			} else {
+			ci, err := fs.Stat(base, contentPath)
+			if err != nil {
 				log.Printf("error: %s", err)
+				return nil
 			}
+			ie.Size = ci.Size()
+			ie.ModTime = ci.ModTime()
 			index.Files = append(index.Files, ie)
 		}
 

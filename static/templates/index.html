@@ -12,14 +12,14 @@
 	{{ script "index.js" }}
 </head>
 <body>
-	<!-- hic sunt leones -->
+	<section>Show index:
 	<ul>
 	{{- range $key, $item := .Files }}
 		<li title="Size: {{ $item.Size }} chars; Last modified: {{ $item.ModTime.String }}" >
-			<a href="{{ $item.URL }}" data-index="{{ $key }}" data-modified="{{ $item.ModTime.String }}" style="padding: 7px 40px;">{{ icon $item }} {{ $item.Path }}</a>
+			<a href="{{ $item.URL }}" data-index="{{ $key }}" data-modified="{{ $item.ModTime.String }}">{{ icon $item }} {{ $item.Path }}</a>
 		</li>
 	{{ end -}}
 	</ul>
-	<!-- hic sunt leones -->
+    </section>
 </body>
 </html>

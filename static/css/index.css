@@ -1,6 +1,9 @@
 ul, li {
 	list-style: none;
 }
+ul {
+    padding-left: .2rem;
+}
 li svg.icon {
 	height: .85em;
 	width: .85em;
