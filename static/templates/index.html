@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="color-scheme" content="light dark">
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1"/>
+	<meta name="theme-color" content="rebeccapurple" />
+	<meta name="description" content=""/>
+	<link rel="icon" href="data:image/svg+xml,%3csvg%3e %3c/svg%3e">
+	<title>{{ title }}</title>
+	{{ style "index.css" }}
+</head>
+<body>
+	<section><a href="{{ .Path }}">{{ .Path }}</a>:
+	<ul>
+	{{- range $key, $item := .Files }}
+		<li title="Size: {{ $item.Size }} chars; Last modified: {{ $item.ModTime.String }}" >
+			<a href="{{ $item.URL }}" data-index="{{ $key }}" data-modified="{{ $item.ModTime.String }}">{{ icon $item }} {{ $item.Path }}</a>
+		</li>
+	{{ end -}}
+	</ul>
+	</section>
+</body>
+</html>

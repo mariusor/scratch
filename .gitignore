@@ -1,6 +1,5 @@
-.buildpath
-.project
-.settings
-/vendor/
 /.idea/
-composer.lock
+bin/*
+go.sum
+assets/assets.gen.go
+

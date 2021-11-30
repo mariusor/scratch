@@ -1,0 +1,35 @@
+body {
+	font-family: sans-serif;
+}
+svg.icon {
+	height: 1em;
+	width: 1em;
+	fill: currentColor;
+	vertical-align: middle;
+	display: inline;
+}
+body section:focus {
+	outline: none;
+}
+body section a {
+	cursor: pointer;
+}
+body section {
+	padding:1em 1em 0 1em;
+	height: 100vh;
+}
+body section:empty::after {
+	content: "This page is currently empty";
+}
+.feedback {
+	position: absolute;
+	top: 1em;
+	right: 1em;
+	width: 33%;
+	height: 33%;
+	background-color: transparent;
+}
+.feedback a svg {
+	float: right;
+}
+.hidden { display:none; }

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="color-scheme" content="light dark">
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1"/>
+	<meta name="theme-color" content="rebeccapurple" />
+	<meta name="description" content=""/>
+	<link rel="icon" href="data:image/svg+xml,%3csvg%3e %3c/svg%3e">
+	<title>{{ title }}</title>
+	{{ style "main.css" }}
+	{{ script "main.js" }}
+</head>
+<body>
+	<!-- hic sunt leones -->
+	<section title="{{ help }}" {{ if not .Modified.IsZero }}data-modified="{{ .Modified.UTC.UnixMilli }}"{{ end }}>{{ .Content }}</section>
+	<!-- hic sunt leones -->
+	<script type="application/json">{{- csrf -}}</script>
+</body>
+</html>
