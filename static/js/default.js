@@ -5,6 +5,9 @@ $(document).ready( function() {
 	const uri = $(location).attr('href');
 
 	let editable = $("body > section:first-child");
+
+	editable.fresheditor();
+
 	editable.unlocked = function() {
 		return editable.prop('contentEditable') == "true"
 	};
