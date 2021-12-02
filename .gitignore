@@ -2,4 +2,4 @@
 bin/*
 go.sum
 assets/assets.gen.go
-
+cache/*
