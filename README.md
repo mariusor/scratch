@@ -8,13 +8,28 @@ It allows you to claim any free page on a it's domain and edit it, saving is don
 
 You can protect it with a password using the icon in the upper-right corner.
 
-You can also group similar notes under a name, like `~groceries`, `~research`. To create a note under it, just access `http://domain.tld/~examplenamehere/notenamehere`. e.g. `http://domain.tld/~groceries/for-next-week`.
+----
 
-To access all the notes under a name, simply access the url without a note name. e.g. `http://domain.tld/~groceries/`. The slash at the end is important here.
+You can also group similar notes under a name, like `/groceries`, `/research`. To create a note under it, just access `http://domain.tld/examplenamehere/notenamehere`. e.g. `http://domain.tld/groceries/for-next-week`.
+
+To access all the notes under a name, simply access the url without a note name. e.g. `http://domain.tld/groceries/`. The slash at the end is important here.
+
+## Compilation
+
+Make sure you have Go and GNU Make installed. Then do:
+
+```sh
+$ make all
+
+# creating a static binary with compiled minified assets
+$ make ENV=prod all
+
+$ ./bin/scratch
+```
 
 ## Run
 
-Make sure you have Go and GNU Make installed. Then do:
+Similarly using GNU make there's a target to directly run the application:
 
 ```sh
 $ make run
