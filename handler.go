@@ -18,12 +18,13 @@ import (
 	"strings"
 	"time"
 
-	"git.sr.ht/~mariusor/scratch/assets"
+	"git.sr.ht/~mariusor/assets"
+	ass "git.sr.ht/~mariusor/scratch/internal/assets"
 )
 
 type Handler struct {
 	BasePath      storage
-	Assets        assets.Maps
+	Assets        assets.Map
 	authorization map[string][]byte
 }
 
@@ -142,6 +143,22 @@ func (i IndexEntry) URL() template.HTMLAttr {
 
 var errorRedirectToContent = fmt.Errorf("no children")
 
+func styleNode(n string) template.HTML {
+	return assets.StyleNode(ass.FS, n)
+}
+
+func scriptNode(n string) template.HTML {
+	return assets.ScriptNode(ass.FS, n)
+}
+
+func iconForEntry(i IndexEntry) template.HTML {
+	name := "unlock"
+	if i.HasSecret {
+		name = "lock"
+	}
+	return assets.Svg(ass.FS, name)
+}
+
 func (h Handler) ShowIndexForPath(p string) ([]byte, error) {
 	out := new(bytes.Buffer)
 
@@ -170,7 +187,7 @@ func (h Handler) ShowIndexForPath(p string) ([]byte, error) {
 			ie := IndexEntry{parent: &index, Path: fi.Name()}
 			keyPath := path.Join(file, KeyFileName)
 			_, err := fs.Stat(base, keyPath)
-			ie.HasSecret = (err == nil || !errors.Is(err, fs.ErrNotExist))
+			ie.HasSecret = !errors.Is(err, fs.ErrNotExist)
 
 			contentPath := path.Join(file, ContentFileName)
 			ci, err := fs.Stat(base, contentPath)
@@ -189,29 +206,22 @@ func (h Handler) ShowIndexForPath(p string) ([]byte, error) {
 		return nil, errorRedirectToContent
 	}
 
-	templates := assets.WithPrefix("static/templates", assets.Maps{
-		"main.html": {"index.html"},
-	})
 	t := template.New("main.html").Funcs(template.FuncMap{
-		"style":  h.Assets.StyleNode,
-		"script": h.Assets.JsNode,
-		"icon": func(i IndexEntry) template.HTML {
-			name := "unlock"
-			if i.HasSecret {
-				name = "lock"
-			}
-			return assets.Icon(name)
-		},
-		"title": func() template.HTMLAttr { return template.HTMLAttr(fmt.Sprintf("File index %s", index.Path)) },
+		"style":  styleNode,
+		"script": scriptNode,
+		"icon":   iconForEntry,
+		"title":  func() template.HTMLAttr { return template.HTMLAttr(fmt.Sprintf("File index %s", index.Path)) },
 	})
-	if _, err := t.ParseFS(templates, templates.Names()...); err != nil {
-		return out.Bytes(), fmt.Errorf("unable to parse templates %v: %w", templates.Names(), err)
+	if _, err := t.ParseFS(ass.TemplateFS, tplNames...); err != nil {
+		return out.Bytes(), fmt.Errorf("unable to parse templates %v: %w", tplNames, err)
 	}
 	if err := t.Execute(out, &index); err != nil {
-		return out.Bytes(), fmt.Errorf("unable to parse templates %v: %w", templates.Names(), err)
+		return out.Bytes(), fmt.Errorf("unable to parse templates %v: %w", tplNames, err)
 	}
 	return out.Bytes(), nil
 }
+
+var tplNames = []string{"index.html", "main.html"}
 
 func (h Handler) ShowRequest(path, defTitle string) ([]byte, time.Time, error) {
 	out := new(bytes.Buffer)
@@ -232,21 +242,19 @@ func (h Handler) ShowRequest(path, defTitle string) ([]byte, time.Time, error) {
 		Content:  template.HTML(content),
 	}
 
-	templates := assets.WithPrefix("static/templates", assets.Maps{
-		"main.html": {"main.html"},
-	})
 	t := template.New("main.html").Funcs(template.FuncMap{
-		"style":  h.Assets.StyleNode,
-		"script": h.Assets.JsNode,
+		"style":  styleNode,
+		"script": scriptNode,
+		"icon":   iconForEntry,
 		"csrf":   jsCSRF,
 		"title":  p.Title(defTitle),
 		"help":   p.Help(),
 	})
-	if _, err := t.ParseFS(templates, templates.Names()...); err != nil {
-		return out.Bytes(), time.Time{}, fmt.Errorf("unable to parse templates %v: %w", templates.Names(), err)
+	if _, err := t.ParseFS(ass.TemplateFS, tplNames...); err != nil {
+		return out.Bytes(), time.Time{}, fmt.Errorf("unable to parse templates %v: %w", tplNames, err)
 	}
 	if err := t.Execute(out, &p); err != nil {
-		return out.Bytes(), time.Time{}, fmt.Errorf("unable to parse templates %v: %w", templates.Names(), err)
+		return out.Bytes(), time.Time{}, fmt.Errorf("unable to parse templates %v: %w", tplNames, err)
 	}
 	return out.Bytes(), modTime, nil
 }
@@ -340,10 +348,9 @@ func getKeyFromRequest(r *http.Request) []byte {
 	return []byte(r.Header.Get("Authorization"))
 }
 
-func New(storage string, files assets.Maps) Handler {
+func New(storage string) Handler {
 	return Handler{
 		BasePath:      Storage(storage),
-		Assets:        files,
 		authorization: make(map[string][]byte),
 	}
 }

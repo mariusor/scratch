@@ -43,7 +43,8 @@ download:
 	$(GO) mod tidy
 
 internal/assets/assets.gen.go: $(ASSETFILES)
-	go generate -tags $(ENV) ./internal/assets.go
+	$(GO) run -tags $(ENV) ./internal/assets/cmd/minify.go -build "prod" -glob static/*,static/*/*,README.md -var FS -o ./internal/assets/assets.gen.go
+
 
 scratch: bin/scratch
 bin/scratch: download go.mod cmd/scratch/main.go $(APPSOURCES)

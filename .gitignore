@@ -1,5 +1,5 @@
 /.idea/
 bin/*
 go.sum
-assets/assets.gen.go
+internal/assets/assets.gen.go
 cache/*
