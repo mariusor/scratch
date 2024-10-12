@@ -159,6 +159,18 @@ func iconForEntry(i IndexEntry) template.HTML {
 	return assets.Svg(ass.FS, name)
 }
 
+var (
+	tplNames = []string{"index.html", "main.html"}
+	helpers  = template.FuncMap{
+		"style":  styleNode,
+		"script": scriptNode,
+		"icon":   iconForEntry,
+		"csrf":   jsCSRF,
+		"title":  func() template.HTMLAttr { return "Unknown" },
+		"help":   func() template.HTMLAttr { return HelpMsg },
+	}
+)
+
 func (h Handler) ShowIndexForPath(p string) ([]byte, error) {
 	out := new(bytes.Buffer)
 
@@ -206,12 +218,8 @@ func (h Handler) ShowIndexForPath(p string) ([]byte, error) {
 		return nil, errorRedirectToContent
 	}
 
-	t := template.New("main.html").Funcs(template.FuncMap{
-		"style":  styleNode,
-		"script": scriptNode,
-		"icon":   iconForEntry,
-		"title":  func() template.HTMLAttr { return template.HTMLAttr(fmt.Sprintf("File index %s", index.Path)) },
-	})
+	helpers["title"] = func() template.HTMLAttr { return template.HTMLAttr(fmt.Sprintf("File index %s", index.Path)) }
+	t := template.New("main.html").Funcs(helpers)
 	if _, err := t.ParseFS(ass.TemplateFS, tplNames...); err != nil {
 		return out.Bytes(), fmt.Errorf("unable to parse templates %v: %w", tplNames, err)
 	}
@@ -220,8 +228,6 @@ func (h Handler) ShowIndexForPath(p string) ([]byte, error) {
 	}
 	return out.Bytes(), nil
 }
-
-var tplNames = []string{"index.html", "main.html"}
 
 func (h Handler) ShowRequest(path, defTitle string) ([]byte, time.Time, error) {
 	out := new(bytes.Buffer)
@@ -242,14 +248,9 @@ func (h Handler) ShowRequest(path, defTitle string) ([]byte, time.Time, error) {
 		Content:  template.HTML(content),
 	}
 
-	t := template.New("main.html").Funcs(template.FuncMap{
-		"style":  styleNode,
-		"script": scriptNode,
-		"icon":   iconForEntry,
-		"csrf":   jsCSRF,
-		"title":  p.Title(defTitle),
-		"help":   p.Help(),
-	})
+	helpers["title"] = p.Title(defTitle)
+	helpers["help"] = p.Help()
+	t := template.New("main.html").Funcs(helpers)
 	if _, err := t.ParseFS(ass.TemplateFS, tplNames...); err != nil {
 		return out.Bytes(), time.Time{}, fmt.Errorf("unable to parse templates %v: %w", tplNames, err)
 	}
