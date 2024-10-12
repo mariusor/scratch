@@ -1,0 +1,28 @@
+image: alpine/edge
+packages:
+  - go
+sources:
+  - https://git.sr.ht/~mariusor/scratch
+secrets:
+  - 3dcea276-38d6-4a7e-85e5-20cbc903e1ea
+tasks:
+  - build: |
+      test ${BUILD_SUBMITTER} != "git.sr.ht" && complete-build
+      set +x
+      export GOMODCACHE=$(go env GOMODCACHE)
+      cd scratch
+      make all
+  - test: |
+      test ${BUILD_SUBMITTER} != "git.sr.ht" && complete-build
+      export GOMODCACHE=$(go env GOMODCACHE)
+      set +x
+      cd scratch
+      make test
+  - push_to_github: |
+      test ${BUILD_SUBMITTER} != "git.sr.ht" && complete-build
+      set -a +x
+      ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+
+      cd scratch
+      git remote add hub git@github.com:mariusor/scratch
+      git push hub --force --all

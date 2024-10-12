@@ -56,7 +56,7 @@ run: scratch
 clean:
 	-$(RM) bin/* internal/assets/assets.gen.go
 
-test: TEST_TARGET := ./{app,internal}/...
+test: TEST_TARGET := ./...
 test:
 	$(TEST) $(TEST_FLAGS) $(TEST_TARGET)
 
