@@ -156,7 +156,9 @@ func iconForEntry(i IndexEntry) template.HTML {
 	if i.HasSecret {
 		name = "lock"
 	}
-	return assets.Svg(ass.FS, name)
+	iconFmt := `<svg aria-hidden="true" class="icon icon-%s"><use xlink:href="/icons.svg#icon-%s"><title>%s</title></use></svg>`
+	buf := fmt.Sprintf(iconFmt, name, name, name)
+	return template.HTML(buf)
 }
 
 var (
@@ -219,7 +221,7 @@ func (h Handler) ShowIndexForPath(p string) ([]byte, error) {
 	}
 
 	helpers["title"] = func() template.HTMLAttr { return template.HTMLAttr(fmt.Sprintf("File index %s", index.Path)) }
-	t := template.New("main.html").Funcs(helpers)
+	t := template.New("index.html").Funcs(helpers)
 	if _, err := t.ParseFS(ass.TemplateFS, tplNames...); err != nil {
 		return out.Bytes(), fmt.Errorf("unable to parse templates %v: %w", tplNames, err)
 	}
